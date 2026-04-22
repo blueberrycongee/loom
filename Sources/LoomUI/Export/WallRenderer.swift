@@ -25,13 +25,30 @@ public enum WallRenderer {
         scale: CGFloat = 2.0,
         applyCropInsets: Bool = true
     ) -> NSImage? {
-        let view = ExportWallView(wall: wall, photos: photos, applyCropInsets: applyCropInsets)
+        let images = preloadImages(for: wall, from: photos)
+        let view = ExportWallView(wall: wall, photos: photos, images: images, applyCropInsets: applyCropInsets)
             .frame(width: wall.canvasSize.width, height: wall.canvasSize.height)
             .background(Palette.canvas)
 
         let renderer = ImageRenderer(content: view)
         renderer.scale = scale
         return renderer.nsImage
+    }
+
+    /// Eagerly generate and load every thumbnail the wall needs so the
+    /// off-screen renderer sees actual photos, not dominant-colour swatches.
+    private static func preloadImages(for wall: Wall, from photos: [Photo]) -> [PhotoID: NSImage] {
+        let cache = ThumbnailCache()
+        let photoByID = Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
+        var images: [PhotoID: NSImage] = [:]
+        for tile in wall.tiles {
+            guard let photo = photoByID[tile.photoID] else { continue }
+            guard let thumbURL = cache.ensure(for: photo.id, source: photo.url, size: .tile),
+                  let nsImage = NSImage(contentsOf: thumbURL)
+            else { continue }
+            images[tile.photoID] = nsImage
+        }
+        return images
     }
 
     /// Export to a PNG file at the given URL. Returns true on success.
@@ -59,7 +76,8 @@ public enum WallRenderer {
         applyCropInsets: Bool = true,
         to url: URL
     ) -> Bool {
-        let view = ExportWallView(wall: wall, photos: photos, applyCropInsets: applyCropInsets)
+        let images = preloadImages(for: wall, from: photos)
+        let view = ExportWallView(wall: wall, photos: photos, images: images, applyCropInsets: applyCropInsets)
             .frame(width: wall.canvasSize.width, height: wall.canvasSize.height)
             .background(Palette.canvas)
 
@@ -87,6 +105,7 @@ public enum WallRenderer {
 private struct ExportWallView: View {
     let wall: Wall
     let photos: [Photo]
+    let images: [PhotoID: NSImage]
     let applyCropInsets: Bool
 
     private var photoByID: [PhotoID: Photo] {
@@ -98,9 +117,10 @@ private struct ExportWallView: View {
             Color.clear
 
             ForEach(wall.tiles, id: \.photoID) { tile in
-                TileView(
+                ExportTileView(
                     tile: tile,
                     photo: photoByID[tile.photoID],
+                    image: images[tile.photoID],
                     style: wall.style,
                     applyCropInsets: applyCropInsets
                 )
@@ -109,5 +129,102 @@ private struct ExportWallView: View {
             }
         }
         .frame(width: wall.canvasSize.width, height: wall.canvasSize.height)
+    }
+}
+
+/// A non-interactive tile view that receives its image eagerly — no `.task`
+/// async load.  Used by ``ExportWallView`` so ``ImageRenderer`` captures
+/// actual photos rather than dominant-colour swatches.
+private struct ExportTileView: View {
+    let tile: Tile
+    let photo: Photo?
+    let image: NSImage?
+    let style: Style
+    let applyCropInsets: Bool
+
+    var body: some View {
+        Group {
+            if style == .vintage {
+                polaroid
+            } else {
+                plainTile
+            }
+        }
+        .frame(width: tile.frame.width, height: tile.frame.height)
+        .rotationEffect(.radians(tile.rotation))
+        .shadow(color: LoomShadow.tone.opacity(0.15), radius: 8, x: 0, y: 4)
+    }
+
+    private var plainTile: some View {
+        ZStack {
+            if let photo {
+                dominantSwatch(for: photo)
+            }
+            if let image {
+                croppedImage(Image(nsImage: image))
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: LoomRadius.tile, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: LoomRadius.tile, style: .continuous)
+                .strokeBorder(Palette.hairline, lineWidth: 1)
+        )
+    }
+
+    private var polaroid: some View {
+        let paper = Color(red: 0.97, green: 0.95, blue: 0.90)
+        let topMargin: CGFloat = 10
+        let sideMargin: CGFloat = 10
+        let bottomMargin: CGFloat = max(24, tile.frame.height * 0.18)
+        return ZStack {
+            paper
+            VStack(spacing: 0) {
+                ZStack {
+                    if let photo {
+                        dominantSwatch(for: photo)
+                    }
+                    if let image {
+                        croppedImage(Image(nsImage: image))
+                    }
+                }
+                .clipped()
+                .padding(.top, topMargin)
+                .padding(.horizontal, sideMargin)
+                Spacer(minLength: 0)
+            }
+            .padding(.bottom, bottomMargin)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                .strokeBorder(Color.black.opacity(0.06), lineWidth: 0.5)
+        )
+    }
+
+    @ViewBuilder
+    private func croppedImage(_ img: Image) -> some View {
+        let insets = applyCropInsets ? (photo?.cropInsets ?? .zero) : .zero
+        if insets.isZero {
+            img.resizable()
+                .aspectRatio(contentMode: .fill)
+        } else {
+            let scaleX = 1.0 / max(0.5, 1.0 - insets.left - insets.right)
+            let scaleY = 1.0 / max(0.5, 1.0 - insets.top - insets.bottom)
+            let scale = max(scaleX, scaleY)
+            let dx = (insets.left - insets.right) * 0.5
+            let dy = (insets.top - insets.bottom) * 0.5
+            img.resizable()
+                .aspectRatio(contentMode: .fill)
+                .scaleEffect(scale)
+                .offset(
+                    x: -dx * tile.frame.width,
+                    y: -dy * tile.frame.height
+                )
+        }
+    }
+
+    private func dominantSwatch(for photo: Photo) -> some View {
+        let rgb = labToSRGB(photo.dominantColor)
+        return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
     }
 }

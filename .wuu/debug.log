@@ -1,0 +1,120 @@
+[21:31:51.440] === wuu debug log started at 2026-04-22T21:31:51+08:00 ===
+[04:23:19.089] === wuu debug log started at 2026-04-23T04:23:19+08:00 ===
+[04:23:48.350] buildAnthropicRequest: 2 input msgs → 1 merged msgs
+[04:23:48.356] buildAnthropicRequest: role sequence: [user]
+[04:23:48.361] StreamChat: sending 30531 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=2)
+[04:23:50.640] buildAnthropicRequest: 4 input msgs → 3 merged msgs
+[04:23:50.644] buildAnthropicRequest: role sequence: [user,assistant,user]
+[04:23:50.648] StreamChat: sending 36218 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=4)
+[04:23:52.753] buildAnthropicRequest: 7 input msgs → 5 merged msgs
+[04:23:52.757] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user]
+[04:23:52.761] StreamChat: sending 56842 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=7)
+[04:23:55.275] buildAnthropicRequest: 11 input msgs → 7 merged msgs
+[04:23:55.282] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user]
+[04:23:55.286] StreamChat: sending 84060 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=11)
+[04:24:00.589] buildAnthropicRequest: 14 input msgs → 9 merged msgs
+[04:24:00.596] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:24:00.600] StreamChat: sending 90874 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=14)
+[04:24:03.022] buildAnthropicRequest: 20 input msgs → 11 merged msgs
+[04:24:03.030] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:24:03.035] StreamChat: sending 118094 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=20)
+[04:24:20.857] buildAnthropicRequest: 22 input msgs → 13 merged msgs
+[04:24:20.865] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:24:20.869] StreamChat: sending 130517 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=22)
+[04:25:38.802] buildAnthropicRequest: 24 input msgs → 15 merged msgs
+[04:25:38.815] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:25:38.819] StreamChat: sending 169973 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=24)
+[04:25:44.984] buildAnthropicRequest: 26 input msgs → 17 merged msgs
+[04:25:44.988] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:25:44.992] StreamChat: sending 176068 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=26)
+[04:26:04.844] buildAnthropicRequest: 28 input msgs → 19 merged msgs
+[04:26:04.849] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:26:04.854] StreamChat: sending 189500 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=28)
+[04:26:21.716] buildAnthropicRequest: 2 input msgs → 1 merged msgs
+[04:26:21.722] buildAnthropicRequest: role sequence: [user]
+[04:26:21.726] StreamChat: sending 43222 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=2)
+[04:26:44.940] buildAnthropicRequest: 4 input msgs → 3 merged msgs
+[04:26:44.952] buildAnthropicRequest: role sequence: [user,assistant,user]
+[04:26:44.956] StreamChat: sending 63298 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=4)
+[04:26:46.737] buildAnthropicRequest: 6 input msgs → 5 merged msgs
+[04:26:46.742] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user]
+[04:26:46.745] StreamChat: sending 72411 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=6)
+[04:26:50.056] buildAnthropicRequest: 30 input msgs → 21 merged msgs
+[04:26:50.060] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:26:50.064] StreamChat: sending 202495 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=30)
+[04:26:52.684] buildAnthropicRequest: 32 input msgs → 23 merged msgs
+[04:26:52.688] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:26:52.692] StreamChat: sending 216248 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=32)
+[04:27:04.459] buildAnthropicRequest: 34 input msgs → 25 merged msgs
+[04:27:04.463] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:04.467] StreamChat: sending 225027 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=34)
+[04:27:11.147] buildAnthropicRequest: 36 input msgs → 27 merged msgs
+[04:27:11.152] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:11.157] StreamChat: sending 229962 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=36)
+[04:27:13.059] buildAnthropicRequest: 38 input msgs → 29 merged msgs
+[04:27:13.063] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:13.067] StreamChat: sending 234818 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=38)
+[04:27:16.151] buildAnthropicRequest: 40 input msgs → 31 merged msgs
+[04:27:16.155] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:16.160] StreamChat: sending 240037 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=40)
+[04:27:18.333] buildAnthropicRequest: 42 input msgs → 33 merged msgs
+[04:27:18.337] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:18.342] StreamChat: sending 245103 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=42)
+[04:27:21.083] buildAnthropicRequest: 44 input msgs → 35 merged msgs
+[04:27:21.087] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:21.092] StreamChat: sending 250314 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=44)
+[04:27:24.800] buildAnthropicRequest: 46 input msgs → 37 merged msgs
+[04:27:24.803] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:24.808] StreamChat: sending 256104 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=46)
+[04:27:27.001] buildAnthropicRequest: 2 input msgs → 1 merged msgs
+[04:27:27.006] buildAnthropicRequest: role sequence: [user]
+[04:27:27.010] StreamChat: sending 36190 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=2)
+[04:27:32.340] buildAnthropicRequest: 4 input msgs → 3 merged msgs
+[04:27:32.345] buildAnthropicRequest: role sequence: [user,assistant,user]
+[04:27:32.349] StreamChat: sending 36918 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=4)
+[04:27:33.088] buildAnthropicRequest: 48 input msgs → 39 merged msgs
+[04:27:33.092] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:33.097] StreamChat: sending 261215 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=48)
+[04:27:34.828] buildAnthropicRequest: 50 input msgs → 41 merged msgs
+[04:27:34.832] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:27:34.837] StreamChat: sending 266174 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=50)
+[04:29:49.989] buildAnthropicRequest: 52 input msgs → 43 merged msgs
+[04:29:49.993] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:29:49.998] StreamChat: sending 270982 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=52)
+[04:29:52.233] buildAnthropicRequest: 54 input msgs → 45 merged msgs
+[04:29:52.240] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:29:52.244] StreamChat: sending 276446 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=54)
+[04:29:55.384] buildAnthropicRequest: 56 input msgs → 47 merged msgs
+[04:29:55.388] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:29:55.393] StreamChat: sending 281868 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=56)
+[04:30:00.563] buildAnthropicRequest: 2 input msgs → 1 merged msgs
+[04:30:00.568] buildAnthropicRequest: role sequence: [user]
+[04:30:00.571] StreamChat: sending 36393 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=2)
+[04:30:01.646] buildAnthropicRequest: 4 input msgs → 3 merged msgs
+[04:30:01.650] buildAnthropicRequest: role sequence: [user,assistant,user]
+[04:30:01.654] StreamChat: sending 36821 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=4)
+[04:30:02.777] buildAnthropicRequest: 6 input msgs → 5 merged msgs
+[04:30:02.782] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user]
+[04:30:02.786] StreamChat: sending 37525 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=6)
+[04:30:06.695] buildAnthropicRequest: 8 input msgs → 7 merged msgs
+[04:30:06.703] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user]
+[04:30:06.707] StreamChat: sending 37988 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=8)
+[04:30:09.367] buildAnthropicRequest: 58 input msgs → 49 merged msgs
+[04:30:09.372] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:30:09.376] StreamChat: sending 288073 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=58)
+[04:30:11.668] buildAnthropicRequest: 60 input msgs → 51 merged msgs
+[04:30:11.675] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user]
+[04:30:11.679] StreamChat: sending 293587 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=60)
+[04:32:41.573] === wuu debug log started at 2026-04-23T04:32:41+08:00 ===
+[04:33:03.691] buildAnthropicRequest: 2 input msgs → 1 merged msgs
+[04:33:03.696] buildAnthropicRequest: role sequence: [user]
+[04:33:03.702] StreamChat: sending 33403 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=2)
+[04:33:06.601] buildAnthropicRequest: 5 input msgs → 3 merged msgs
+[04:33:06.606] buildAnthropicRequest: role sequence: [user,assistant,user]
+[04:33:06.610] StreamChat: sending 39357 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=5)
+[04:33:08.217] buildAnthropicRequest: 8 input msgs → 5 merged msgs
+[04:33:08.221] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user]
+[04:33:08.225] StreamChat: sending 60636 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=8)
+[04:33:14.134] buildAnthropicRequest: 10 input msgs → 7 merged msgs
+[04:33:14.139] buildAnthropicRequest: role sequence: [user,assistant,user,assistant,user,assistant,user]
+[04:33:14.143] StreamChat: sending 69468 bytes to https://api.kimi.com/coding/v1/messages (max_tokens=16000, model=kimi-for-coding, msgs=10)

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld photos</key>
+	<string>%lld 张照片</string>
+	<key>%lld photos ready.</key>
+	<string>%lld 张照片就绪。</string>
+	<key>About</key>
+	<string>关于</string>
+	<key>Access your Photos</key>
+	<string>访问你的照片</string>
+	<key>Allow Access</key>
+	<string>允许访问</string>
+	<key>Analysing %lld of %lld…</key>
+	<string>正在分析 %1$lld / %2$lld…</string>
+	<key>Appearance</key>
+	<string>外观</string>
+	<key>Baking previews %lld of %lld…</key>
+	<string>正在烘焙预览 %1$lld / %2$lld…</string>
+	<key>Balanced</key>
+	<string>均衡</string>
+	<key>Camera access is off</key>
+	<string>摄像头权限已关闭</string>
+	<key>Change folder…</key>
+	<string>更换文件夹…</string>
+	<key>Change…</key>
+	<string>更换…</string>
+	<key>Choose a photo folder</key>
+	<string>选择照片文件夹</string>
+	<key>Clear Index</key>
+	<string>清除索引</string>
+	<key>Clear Locks</key>
+	<string>清除锁定</string>
+	<key>Cluster By</key>
+	<string>聚类方式</string>
+	<key>Collage</key>
+	<string>拼贴</string>
+	<key>Color</key>
+	<string>色彩</string>
+	<key>Control the wall with hand gestures</key>
+	<string>用手势控制墙面</string>
+	<key>Couldn't open Photos — %@</key>
+	<string>无法打开 Photos — %@</string>
+	<key>Couldn't open that folder — %@</key>
+	<string>无法打开该文件夹 — %@</string>
+	<key>Current library</key>
+	<string>当前图库</string>
+	<key>Dense</key>
+	<string>紧凑</string>
+	<key>Editorial</key>
+	<string>杂志</string>
+	<key>English</key>
+	<string>English</string>
+	<key>Exhibit</key>
+	<string>策展</string>
+	<key>Export as PDF…</key>
+	<string>导出为 PDF…</string>
+	<key>Export as PNG…</key>
+	<string>导出为 PNG…</string>
+	<key>Favorites</key>
+	<string>收藏</string>
+	<key>Filter low-quality photos</key>
+	<string>过滤低质量照片</string>
+	<key>Finding photos…</key>
+	<string>正在寻找照片…</string>
+	<key>Follow system</key>
+	<string>跟随系统</string>
+	<key>Gallery</key>
+	<string>画廊</string>
+	<key>General</key>
+	<string>通用</string>
+	<key>Gestures</key>
+	<string>手势</string>
+	<key>Golden-ratio grid · generous whitespace</key>
+	<string>黄金比例网格 · 大面积留白</string>
+	<key>Granted in System Settings</key>
+	<string>在系统设置中授予</string>
+	<key>Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, shake to shuffle. Video is processed frame by frame in memory and never recorded.</key>
+	<string>手势功能需要摄像头权限。Loom 实时读取你手掌的张开程度——张开手散开墙面,握拳聚拢,晃动手重排。视频在内存里逐帧处理,不会录制保存。</string>
+	<key>Handcrafted composition · breathing room</key>
+	<string>手作构图 · 留白充足</string>
+	<key>Index lives on this Mac.</key>
+	<string>索引只存在这台 Mac 上。</string>
+	<key>Index the Apple Photos library instead of a folder.</key>
+	<string>不选文件夹,改为索引 Apple Photos 图库。</string>
+	<key>Indexing failed: %@</key>
+	<string>索引失败:%@</string>
+	<key>Justified rows · woven like a textile</key>
+	<string>齐行排版 · 如织物经纬</string>
+	<key>Keyboard</key>
+	<string>键盘快捷键</string>
+	<key>Language</key>
+	<string>语言</string>
+	<key>Library</key>
+	<string>图库</string>
+	<key>Local · offline · private</key>
+	<string>本地 · 离线 · 私密</string>
+	<key>Loom</key>
+	<string>Loom</string>
+	<key>Loom reads your photos locally to compose aesthetic walls — analysing each one for color and visual similarity so every Shuffle produces a wall that belongs together.</key>
+	<string>Loom 在本地读取你的照片来编织有美感的墙——分析每一张的色彩与视觉相似度,让每次编织出来的墙都浑然一体。</string>
+	<key>Loom runs entirely on-device. No cloud, no account.</key>
+	<string>Loom 完全在本机运行。没有云端,不需要账号。</string>
+	<key>Loom · needs camera access</key>
+	<string>Loom · 需要摄像头权限</string>
+	<key>Loom · needs read-only access</key>
+	<string>Loom · 需要只读访问权限</string>
+	<key>Managed by this Mac's profile</key>
+	<string>由这台 Mac 的配置文件管理</string>
+	<key>Minimal</key>
+	<string>极简</string>
+	<key>Mood</key>
+	<string>意境</string>
+	<key>No camera available</key>
+	<string>没有可用的摄像头</string>
+	<key>No library</key>
+	<string>未选择图库</string>
+	<key>No saved walls yet — ⌘S to save the current one.</key>
+	<string>还没有收藏的墙面——按 ⌘S 保存当前的。</string>
+	<key>Not now</key>
+	<string>暂不</string>
+	<key>Nothing recorded.</key>
+	<string>不会录制任何内容。</string>
+	<key>Nothing uploads.</key>
+	<string>不会上传任何内容。</string>
+	<key>One hero · supporting satellites</key>
+	<string>主图一张 · 配图点缀</string>
+	<key>One-click wipe in Settings.</key>
+	<string>在设置里一键清除。</string>
+	<key>Open System Settings</key>
+	<string>打开系统设置</string>
+	<key>Open in Finder</key>
+	<string>在 Finder 中打开</string>
+	<key>Open your palm to spread · make a fist to gather · shake to shuffle. Camera access required. Video is processed in memory and never recorded.</key>
+	<string>张开手掌就散开 · 握拳就聚拢 · 晃动手就重排。需要摄像头权限。视频仅在内存里处理,不会被录制或保存。</string>
+	<key>Overlap · rotation · torn edges</key>
+	<string>重叠 · 旋转 · 撕边</string>
+	<key>People</key>
+	<string>人物</string>
+	<key>Photos Library</key>
+	<string>Photos 图库</string>
+	<key>Photos access denied — grant in System Settings → Privacy.</key>
+	<string>Photos 访问被拒绝——请在系统设置的隐私中授予权限。</string>
+	<key>Photos access is off</key>
+	<string>Photos 访问权限已关闭</string>
+	<key>Photos access is restricted on this Mac, typically by an MDM profile or parental controls. Folder mode will still let you weave walls from photos anywhere on disk.</key>
+	<string>这台 Mac 上的 Photos 访问权限受限,通常是由 MDM 配置或家长控制造成。你仍然可以用文件夹模式来编织墙面。</string>
+	<key>Photos is restricted</key>
+	<string>Photos 权限受限</string>
+	<key>Pick Library…</key>
+	<string>选择图库…</string>
+	<key>Polaroid frames · mild skew</key>
+	<string>宝丽来白边 · 轻微倾斜</string>
+	<key>Press Shuffle — or hit Space.</key>
+	<string>点击「编织」或按空格键。</string>
+	<key>Privacy</key>
+	<string>隐私</string>
+	<key>Quality filter</key>
+	<string>质量过滤</string>
+	<key>Ready to weave</key>
+	<string>准备编织</string>
+	<key>Reveal in Finder</key>
+	<string>在 Finder 中显示</string>
+	<key>Roomy</key>
+	<string>宽松</string>
+	<key>Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed.</key>
+	<string>宽松:更少更大的照片 · 紧凑:一次容纳更多。主角风格(Editorial、Exhibit)不受影响。</string>
+	<key>Save Wall as Favorite</key>
+	<string>收藏当前墙面</string>
+	<key>Scene</key>
+	<string>场景</string>
+	<key>Settings</key>
+	<string>设置</string>
+	<key>Shuffle</key>
+	<string>编织</string>
+	<key>Skip blurry, overexposed, and very small photos when composing the wall. Pinned photos are always shown.</key>
+	<string>组合墙面时跳过模糊、过曝和过小的照片。已固定的照片始终显示。</string>
+	<key>Tapestry</key>
+	<string>织锦</string>
+	<key>Three to five photos · high contrast</key>
+	<string>三到五张 · 高对比</string>
+	<key>Time</key>
+	<string>时间</string>
+	<key>Turn off any time in Settings.</key>
+	<string>随时在设置里关闭。</string>
+	<key>Turn on hand gestures</key>
+	<string>开启手势控制</string>
+	<key>Use Photos Library</key>
+	<string>使用 Photos 图库</string>
+	<key>Use Photos library</key>
+	<string>使用 Photos 图库</string>
+	<key>Use a folder instead</key>
+	<string>改用文件夹</string>
+	<key>Version</key>
+	<string>版本</string>
+	<key>Vintage</key>
+	<string>复古</string>
+	<key>Wall density</key>
+	<string>墙面密度</string>
+	<key>Weave</key>
+	<string>编织</string>
+	<key>Weave your photos into a wall.</key>
+	<string>把你的照片编织成一面墙。</string>
+	<key>Weaving the index</key>
+	<string>正在编织索引</string>
+	<key>You previously declined Photos access. macOS won't show the permission dialog again — to index your Photos library you'll need to grant access manually in System Settings.</key>
+	<string>你之前拒绝了 Photos 访问权限。macOS 不会再弹出权限对话框——要索引 Photos 图库,需要手动去系统设置开启。</string>
+	<key>You previously declined camera access. macOS won't show the permission dialog again — to use hand gestures you'll need to grant access manually in System Settings.</key>
+	<string>你之前拒绝了摄像头权限。macOS 不会再弹出权限对话框——要使用手势,需要手动去系统设置开启。</string>
+	<key>Your photos never leave this Mac. The local index is per-library and can be wiped with one click.</key>
+	<string>你的照片从不离开这台 Mac。本地索引按图库隔离,可一键清除。</string>
+	<key>soon</key>
+	<string>即将支持</string>
+	<key>中文</key>
+	<string>简体中文</string>
+</dict>
+</plist>

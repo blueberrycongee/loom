@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Loom</string>
+    <key>CFBundleDisplayName</key>
+    <string>Loom</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.blueberrycongee.loom</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>zh-Hans</string>
+    </array>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.photography</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>© 2026 Jiahe Wu. MIT licensed.</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+    <true/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Loom reads your Photos library to compose aesthetic walls. Everything stays on this Mac — nothing is uploaded.</string>
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>Needed only when you pick a folder on your Desktop. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Needed only when you pick a folder inside Documents. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>Needed only when you pick a folder inside Downloads. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+    <key>NSRemovableVolumesUsageDescription</key>
+    <string>Needed only when you pick a folder on an external drive. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+    <key>NSNetworkVolumesUsageDescription</key>
+    <string>Needed only when you pick a folder on a network share. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Loom uses the camera only when you turn on hand gestures in Settings — to read the openness of your hand and detect a shake-to-shuffle motion. Video is processed in memory frame by frame and never recorded, saved, or sent anywhere.</string>
+</dict>
+</plist>

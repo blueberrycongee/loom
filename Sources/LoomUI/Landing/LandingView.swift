@@ -19,27 +19,7 @@ public struct LandingView: View {
     public init() {}
 
     public var body: some View {
-        ZStack {
-            // Ambient woven background — hints at the product without needing
-            // a photo library loaded. Fades at edges so it never competes
-            // with the wordmark.
-            LoomTapestry()
-                .mask(
-                    LinearGradient(
-                        stops: [
-                            .init(color: .clear, location: 0.00),
-                            .init(color: .white, location: 0.22),
-                            .init(color: .white, location: 0.68),
-                            .init(color: .clear, location: 1.00)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .opacity(0.55)
-
-            content
-        }
+        content
     }
 
     private var content: some View {

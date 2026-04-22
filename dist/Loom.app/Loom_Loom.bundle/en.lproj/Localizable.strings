@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld photos ready.</key>
+	<string>%lld photos ready.</string>
+	<key>About</key>
+	<string>About</string>
+	<key>Access your Photos</key>
+	<string>Access your Photos</string>
+	<key>Allow Access</key>
+	<string>Allow Access</string>
+	<key>Analysing %lld of %lld…</key>
+	<string>Analysing %1$lld of %2$lld…</string>
+	<key>Appearance</key>
+	<string>Appearance</string>
+	<key>Baking previews %lld of %lld…</key>
+	<string>Baking previews %1$lld of %2$lld…</string>
+	<key>Balanced</key>
+	<string>Balanced</string>
+	<key>Camera access is off</key>
+	<string>Camera access is off</string>
+	<key>Change folder…</key>
+	<string>Change folder…</string>
+	<key>Change…</key>
+	<string>Change…</string>
+	<key>Choose a photo folder</key>
+	<string>Choose a photo folder</string>
+	<key>Clear Index</key>
+	<string>Clear Index</string>
+	<key>Clear Locks</key>
+	<string>Clear Locks</string>
+	<key>Cluster By</key>
+	<string>Cluster By</string>
+	<key>Collage</key>
+	<string>Collage</string>
+	<key>Color</key>
+	<string>Color</string>
+	<key>Control the wall with hand gestures</key>
+	<string>Control the wall with hand gestures</string>
+	<key>Couldn't open Photos — %@</key>
+	<string>Couldn't open Photos — %@</string>
+	<key>Couldn't open that folder — %@</key>
+	<string>Couldn't open that folder — %@</string>
+	<key>Current library</key>
+	<string>Current library</string>
+	<key>Dense</key>
+	<string>Dense</string>
+	<key>Editorial</key>
+	<string>Editorial</string>
+	<key>English</key>
+	<string>English</string>
+	<key>Exhibit</key>
+	<string>Exhibit</string>
+	<key>Export as PDF…</key>
+	<string>Export as PDF…</string>
+	<key>Export as PNG…</key>
+	<string>Export as PNG…</string>
+	<key>Favorites</key>
+	<string>Favorites</string>
+	<key>Filter low-quality photos</key>
+	<string>Filter low-quality photos</string>
+	<key>Finding photos…</key>
+	<string>Finding photos…</string>
+	<key>Follow system</key>
+	<string>Follow system</string>
+	<key>Gallery</key>
+	<string>Gallery</string>
+	<key>General</key>
+	<string>General</string>
+	<key>Gestures</key>
+	<string>Gestures</string>
+	<key>Golden-ratio grid · generous whitespace</key>
+	<string>Golden-ratio grid · generous whitespace</string>
+	<key>Granted in System Settings</key>
+	<string>Granted in System Settings</string>
+	<key>Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, shake to shuffle. Video is processed frame by frame in memory and never recorded.</key>
+	<string>Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, shake to shuffle. Video is processed frame by frame in memory and never recorded.</string>
+	<key>Handcrafted composition · breathing room</key>
+	<string>Handcrafted composition · breathing room</string>
+	<key>Index lives on this Mac.</key>
+	<string>Index lives on this Mac.</string>
+	<key>Index the Apple Photos library instead of a folder.</key>
+	<string>Index the Apple Photos library instead of a folder.</string>
+	<key>Indexing failed: %@</key>
+	<string>Indexing failed: %@</string>
+	<key>Justified rows · woven like a textile</key>
+	<string>Justified rows · woven like a textile</string>
+	<key>Keyboard</key>
+	<string>Keyboard</string>
+	<key>Language</key>
+	<string>Language</string>
+	<key>Library</key>
+	<string>Library</string>
+	<key>Local · offline · private</key>
+	<string>Local · offline · private</string>
+	<key>Loom</key>
+	<string>Loom</string>
+	<key>Loom reads your photos locally to compose aesthetic walls — analysing each one for color and visual similarity so every Shuffle produces a wall that belongs together.</key>
+	<string>Loom reads your photos locally to compose aesthetic walls — analysing each one for color and visual similarity so every Shuffle produces a wall that belongs together.</string>
+	<key>Loom runs entirely on-device. No cloud, no account.</key>
+	<string>Loom runs entirely on-device. No cloud, no account.</string>
+	<key>Loom · needs camera access</key>
+	<string>Loom · needs camera access</string>
+	<key>Loom · needs read-only access</key>
+	<string>Loom · needs read-only access</string>
+	<key>Managed by this Mac's profile</key>
+	<string>Managed by this Mac's profile</string>
+	<key>Minimal</key>
+	<string>Minimal</string>
+	<key>Mood</key>
+	<string>Mood</string>
+	<key>No camera available</key>
+	<string>No camera available</string>
+	<key>No library</key>
+	<string>No library</string>
+	<key>No saved walls yet — ⌘S to save the current one.</key>
+	<string>No saved walls yet — ⌘S to save the current one.</string>
+	<key>Not now</key>
+	<string>Not now</string>
+	<key>Nothing recorded.</key>
+	<string>Nothing recorded.</string>
+	<key>Nothing uploads.</key>
+	<string>Nothing uploads.</string>
+	<key>One hero · supporting satellites</key>
+	<string>One hero · supporting satellites</string>
+	<key>One-click wipe in Settings.</key>
+	<string>One-click wipe in Settings.</string>
+	<key>Open System Settings</key>
+	<string>Open System Settings</string>
+	<key>Open in Finder</key>
+	<string>Open in Finder</string>
+	<key>Open your palm to spread · make a fist to gather · shake to shuffle. Camera access required. Video is processed in memory and never recorded.</key>
+	<string>Open your palm to spread · make a fist to gather · shake to shuffle. Camera access required. Video is processed in memory and never recorded.</string>
+	<key>Overlap · rotation · torn edges</key>
+	<string>Overlap · rotation · torn edges</string>
+	<key>People</key>
+	<string>People</string>
+	<key>Photos Library</key>
+	<string>Photos Library</string>
+	<key>Photos access denied — grant in System Settings → Privacy.</key>
+	<string>Photos access denied — grant in System Settings → Privacy.</string>
+	<key>Photos access is off</key>
+	<string>Photos access is off</string>
+	<key>Photos access is restricted on this Mac, typically by an MDM profile or parental controls. Folder mode will still let you weave walls from photos anywhere on disk.</key>
+	<string>Photos access is restricted on this Mac, typically by an MDM profile or parental controls. Folder mode will still let you weave walls from photos anywhere on disk.</string>
+	<key>Photos is restricted</key>
+	<string>Photos is restricted</string>
+	<key>Pick Library…</key>
+	<string>Pick Library…</string>
+	<key>Polaroid frames · mild skew</key>
+	<string>Polaroid frames · mild skew</string>
+	<key>Press Shuffle — or hit Space.</key>
+	<string>Press Shuffle — or hit Space.</string>
+	<key>Privacy</key>
+	<string>Privacy</string>
+	<key>Quality filter</key>
+	<string>Quality filter</string>
+	<key>Ready to weave</key>
+	<string>Ready to weave</string>
+	<key>Reveal in Finder</key>
+	<string>Reveal in Finder</string>
+	<key>Roomy</key>
+	<string>Roomy</string>
+	<key>Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed.</key>
+	<string>Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed.</string>
+	<key>Save Wall as Favorite</key>
+	<string>Save Wall as Favorite</string>
+	<key>Scene</key>
+	<string>Scene</string>
+	<key>Settings</key>
+	<string>Settings</string>
+	<key>Shuffle</key>
+	<string>Shuffle</string>
+	<key>Skip blurry, overexposed, and very small photos when composing the wall. Pinned photos are always shown.</key>
+	<string>Skip blurry, overexposed, and very small photos when composing the wall. Pinned photos are always shown.</string>
+	<key>Tapestry</key>
+	<string>Tapestry</string>
+	<key>Three to five photos · high contrast</key>
+	<string>Three to five photos · high contrast</string>
+	<key>Time</key>
+	<string>Time</string>
+	<key>Turn off any time in Settings.</key>
+	<string>Turn off any time in Settings.</string>
+	<key>Turn on hand gestures</key>
+	<string>Turn on hand gestures</string>
+	<key>Use Photos Library</key>
+	<string>Use Photos Library</string>
+	<key>Use Photos library</key>
+	<string>Use Photos library</string>
+	<key>Use a folder instead</key>
+	<string>Use a folder instead</string>
+	<key>Version</key>
+	<string>Version</string>
+	<key>Vintage</key>
+	<string>Vintage</string>
+	<key>Wall density</key>
+	<string>Wall density</string>
+	<key>Weave</key>
+	<string>Weave</string>
+	<key>Weave your photos into a wall.</key>
+	<string>Weave your photos into a wall.</string>
+	<key>Weaving the index</key>
+	<string>Weaving the index</string>
+	<key>You previously declined Photos access. macOS won't show the permission dialog again — to index your Photos library you'll need to grant access manually in System Settings.</key>
+	<string>You previously declined Photos access. macOS won't show the permission dialog again — to index your Photos library you'll need to grant access manually in System Settings.</string>
+	<key>You previously declined camera access. macOS won't show the permission dialog again — to use hand gestures you'll need to grant access manually in System Settings.</key>
+	<string>You previously declined camera access. macOS won't show the permission dialog again — to use hand gestures you'll need to grant access manually in System Settings.</string>
+	<key>Your photos never leave this Mac. The local index is per-library and can be wiped with one click.</key>
+	<string>Your photos never leave this Mac. The local index is per-library and can be wiped with one click.</string>
+	<key>soon</key>
+	<string>soon</string>
+	<key>中文</key>
+	<string>简体中文</string>
+</dict>
+</plist>
