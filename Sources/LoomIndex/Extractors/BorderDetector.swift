@@ -22,8 +22,8 @@ enum BorderDetector {
         let h = thumb.height
         guard w > 16, h > 16 else { return .zero }
 
-        let pixels = rgbPixels(thumb, width: w, height: h)
-        guard pixels.count == w * h * 3 else { return .zero }
+        let pixels = rgbaPixels(thumb, width: w, height: h)
+        guard pixels.count == w * h * 4 else { return .zero }
 
         let maxFraction = 0.25  // never crop more than 25% per edge
         let minStrip = 0.03     // border must be ≥3% of dimension
@@ -101,9 +101,9 @@ enum BorderDetector {
     ) -> Double {
         var sumR = 0.0, sumG = 0.0, sumB = 0.0
         var sqR  = 0.0, sqG  = 0.0, sqB  = 0.0
-        let base = row * width * 3
+        let base = row * width * 4
         for x in 0..<width {
-            let i = base + x * 3
+            let i = base + x * 4
             let r = Double(pixels[i]),
                 g = Double(pixels[i + 1]),
                 b = Double(pixels[i + 2])
@@ -124,7 +124,7 @@ enum BorderDetector {
         var sumR = 0.0, sumG = 0.0, sumB = 0.0
         var sqR  = 0.0, sqG  = 0.0, sqB  = 0.0
         for y in 0..<height {
-            let i = (y * width + col) * 3
+            let i = (y * width + col) * 4
             let r = Double(pixels[i]),
                 g = Double(pixels[i + 1]),
                 b = Double(pixels[i + 2])
@@ -153,12 +153,13 @@ enum BorderDetector {
         return CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary)
     }
 
-    /// 24-bit RGB pixel buffer (no alpha). Cheaper than RGBA and we
-    /// don't need alpha for variance computation.
-    private static func rgbPixels(
+    /// 32-bit RGBX pixel buffer. CGContext requires 4 bytes per pixel
+    /// for RGB color spaces — 24-bit (3 bytes) is not a supported
+    /// configuration and silently fails.
+    private static func rgbaPixels(
         _ image: CGImage, width: Int, height: Int
     ) -> [UInt8] {
-        let bytesPerRow = width * 3
+        let bytesPerRow = width * 4
         var pixels = [UInt8](repeating: 0, count: bytesPerRow * height)
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         guard let ctx = CGContext(
@@ -167,7 +168,7 @@ enum BorderDetector {
             bitsPerComponent: 8,
             bytesPerRow: bytesPerRow,
             space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.none.rawValue
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
         ) else { return [] }
         ctx.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
         return pixels
