@@ -59,6 +59,6 @@ public struct AxisToggle: View {
     }
 
     private func isAvailable(_ axis: ClusterAxis) -> Bool {
-        axis == .color
+        axis == .color || axis == .mood
     }
 }

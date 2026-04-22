@@ -45,13 +45,18 @@ public struct Composer {
         let engine = LayoutRegistry.engine(for: style)
         let targetCount = targetTileCount(canvasSize: canvasSize, libraryCount: photos.count)
 
-        // Step 2+3: cluster + pick. For non-color axes we punt to 'all photos'
-        // until M4 brings in embeddings.
+        // Step 2+3: cluster + pick on the active axis.
         let shortlist: [Photo]
         switch axis {
         case .color:
-            shortlist = sampleFromClusters(photos: photos, count: targetCount, rng: &rng)
-        case .mood, .scene, .people, .time:
+            shortlist = sampleFromColorClusters(photos: photos, count: targetCount, rng: &rng)
+        case .mood:
+            shortlist = sampleFromFeaturePrintClusters(photos: photos, count: targetCount, rng: &rng)
+        case .scene, .people, .time:
+            // No dedicated clusterer yet; fall back to uniform sampling so the
+            // UI is usable end-to-end and the user can flip axes without dead
+            // buttons. M5+ adds scene-classifier / face-landmark / time-window
+            // clusterers; each one slots in here behind the same interface.
             shortlist = sampleUniform(photos: photos, count: targetCount, rng: &rng)
         }
 
@@ -106,42 +111,73 @@ public struct Composer {
         return idx.map { photos[$0] }
     }
 
-    /// Cluster + weighted pick + in-cluster luminance-spread sample.
-    private func sampleFromClusters(
+    /// Color-cluster + weighted pick + luminance-stratified in-cluster sample.
+    private func sampleFromColorClusters(
         photos: [Photo], count: Int, rng: inout SeededRNG
     ) -> [Photo] {
         let clusters = ColorClusterer(k: 6).cluster(photos, rng: &rng)
         guard !clusters.isEmpty else {
             return sampleUniform(photos: photos, count: count, rng: &rng)
         }
-
-        // Weighted pick. Favor larger, more-cohesive clusters. Cohesion is
-        // "mean ΔE from centroid" — *lower* is better, so invert.
         let byID = Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
+
+        // Weighted pick: larger, more-cohesive clusters win. Cohesion is
+        // "mean ΔE from centroid" — lower is better, so invert.
         let weights: [Double] = clusters.map { c in
-            let size = Double(c.memberIDs.count)
-            let cohesion = 1.0 / (1.0 + c.cohesion)
-            return size * cohesion
+            Double(c.memberIDs.count) * (1.0 / (1.0 + c.cohesion))
         }
-        let total = weights.reduce(0, +)
-        guard total > 0 else {
+        guard let picked = weightedPick(clusters, weights: weights, rng: &rng) else {
             return sampleUniform(photos: photos, count: count, rng: &rng)
         }
-        var r = rng.unit() * total
-        var picked = clusters[0]
-        for (i, c) in clusters.enumerated() {
-            r -= weights[i]
-            if r <= 0 { picked = c; break }
-        }
-
         let members = picked.memberIDs.compactMap { byID[$0] }
-        guard !members.isEmpty else {
+        return luminanceStratifiedSample(members, count: count, rng: &rng)
+    }
+
+    /// Feature-print cluster + weighted pick + in-cluster diversity sample.
+    private func sampleFromFeaturePrintClusters(
+        photos: [Photo], count: Int, rng: inout SeededRNG
+    ) -> [Photo] {
+        let clusters = FeaturePrintClusterer(k: 6).cluster(photos, rng: &rng)
+        guard !clusters.isEmpty else {
+            // No feature-prints yet — fall through to color clustering so
+            // the user still gets a cohesive wall, just not a mood one.
+            return sampleFromColorClusters(photos: photos, count: count, rng: &rng)
+        }
+        let byID = Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
+
+        let weights: [Double] = clusters.map { c in
+            Double(c.memberIDs.count) * (1.0 / (1.0 + c.cohesion))
+        }
+        guard let picked = weightedPick(clusters, weights: weights, rng: &rng) else {
             return sampleUniform(photos: photos, count: count, rng: &rng)
         }
+        let members = picked.memberIDs.compactMap { byID[$0] }
+        // Still stratify by luminance — photos in the same mood cluster can
+        // share palette but we want the wall itself to carry light/dark
+        // contrast for rhythm.
+        return luminanceStratifiedSample(members, count: count, rng: &rng)
+    }
 
-        // Luminance-stratified sample: sort by L*, divide into `count` bins,
-        // pick one photo per bin. Gives the wall guaranteed L* spread so
-        // contrast scores stay decent.
+    // MARK: — Shared sampling helpers
+
+    private func weightedPick<T>(_ items: [T], weights: [Double], rng: inout SeededRNG) -> T? {
+        let total = weights.reduce(0, +)
+        guard total > 0, !items.isEmpty else { return nil }
+        var r = rng.unit() * total
+        for (i, w) in weights.enumerated() {
+            r -= w
+            if r <= 0 { return items[i] }
+        }
+        return items.last
+    }
+
+    /// Sort by L*, divide into `count` equal bins, pick one photo per bin.
+    /// Guarantees the wall has light-to-dark spread, feeding the contrast
+    /// scorer with useful variance.
+    private func luminanceStratifiedSample(
+        _ members: [Photo], count: Int, rng: inout SeededRNG
+    ) -> [Photo] {
+        guard !members.isEmpty else { return [] }
         let sorted = members.sorted { $0.dominantColor.l < $1.dominantColor.l }
         if sorted.count <= count { return sorted }
         var out: [Photo] = []
