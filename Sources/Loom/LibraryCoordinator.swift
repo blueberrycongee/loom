@@ -155,11 +155,15 @@ final class LibraryCoordinator {
                             progress: snapshot.fraction,
                             message: snapshot.message
                         ))
+                        if let fresh = snapshot.recentPhoto {
+                            self.app.pushIndexed(fresh)
+                        }
                     }
                     if case .done = snapshot.stage {
                         let photos = (try? await indexer.allPhotos()) ?? []
                         await MainActor.run {
                             self.app.setPhotos(photos)
+                            self.app.clearIndexed()
                             self.app.setPhase(.ready)
                         }
                     }
@@ -194,11 +198,15 @@ final class LibraryCoordinator {
                             progress: snapshot.fraction,
                             message: snapshot.message
                         ))
+                        if let fresh = snapshot.recentPhoto {
+                            self.app.pushIndexed(fresh)
+                        }
                     }
                     if case .done = snapshot.stage {
                         let photos = (try? await indexer.allPhotos()) ?? []
                         await MainActor.run {
                             self.app.setPhotos(photos)
+                            self.app.clearIndexed()
                             self.app.setPhase(.ready)
                         }
                     }

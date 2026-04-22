@@ -1,4 +1,5 @@
 import Foundation
+import LoomCore
 
 /// Progress snapshot published by the Indexer while it works.
 ///
@@ -19,16 +20,24 @@ public struct IndexProgress: Sendable, Equatable {
     public let total: Int
     public let currentFile: String?
 
+    /// If this snapshot corresponds to a freshly indexed photo, the photo
+    /// is attached so the UI can render the live mini-wall. Not every
+    /// snapshot carries one (coarse progress updates don't), so consumers
+    /// should treat its absence as "no news, just a tick".
+    public let recentPhoto: LoomCore.Photo?
+
     public init(
         stage: Stage,
         completed: Int = 0,
         total: Int = 0,
-        currentFile: String? = nil
+        currentFile: String? = nil,
+        recentPhoto: LoomCore.Photo? = nil
     ) {
         self.stage = stage
         self.completed = completed
         self.total = total
         self.currentFile = currentFile
+        self.recentPhoto = recentPhoto
     }
 
     /// Fraction in [0, 1]. Safe to call during discovery (returns 0).

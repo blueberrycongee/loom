@@ -96,8 +96,10 @@ public actor PhotoKitIndexer {
                 done += 1; continue
             }
 
+            var freshPhoto: Photo?
             if let photo = extractOne(asset: asset, id: id, url: url) {
                 batch.append(photo)
+                freshPhoto = photo
                 if batch.count >= 64 {
                     try? store.upsert(batch)
                     batch.removeAll(keepingCapacity: true)
@@ -106,7 +108,8 @@ public actor PhotoKitIndexer {
             done += 1
             out.yield(IndexProgress(
                 stage: .extracting, completed: done, total: total,
-                currentFile: url.lastPathComponent
+                currentFile: url.lastPathComponent,
+                recentPhoto: freshPhoto
             ))
         }
         if !batch.isEmpty { try? store.upsert(batch) }

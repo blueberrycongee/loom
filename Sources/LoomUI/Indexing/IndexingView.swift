@@ -1,12 +1,22 @@
 import SwiftUI
+import LoomCore
 import LoomDesign
 
-/// Indexing progress chrome — a quiet screen. No big bar, no percentage in
-/// giant numbers. A soft shuttle moves left-to-right, the count climbs, and a
-/// single line of micro-copy tells you what's happening.
+/// The "Loom is weaving the index" surface.
+///
+/// As photos are extracted, their dominant-color swatches appear on a live
+/// mini-wall in the center of the screen. The user literally watches their
+/// library being woven — no abstract percentages, just truth in motion.
+///
+/// Each new tile arrives with the Weave transition (scale-fade + stagger
+/// delay) so the motion vocabulary matches the real Shuffle on the wall.
+/// When a newly indexed photo would be the (N+1)ᵗʰ in a mini-wall of N
+/// cells, the oldest cell slides out to make room — FIFO, no abrupt
+/// relayouts.
 public struct IndexingView: View {
 
-    let progress: Double   // 0 ... 1
+    @Environment(AppModel.self) private var app
+    let progress: Double
     let message: String
 
     public init(progress: Double, message: String) {
@@ -15,21 +25,26 @@ public struct IndexingView: View {
     }
 
     public var body: some View {
-        VStack(spacing: LoomSpacing.lg) {
-            Spacer()
+        VStack(spacing: LoomSpacing.xl) {
+            Spacer(minLength: LoomSpacing.xl)
 
-            VStack(spacing: LoomSpacing.md) {
+            MiniWall(photos: app.recentlyIndexed)
+                .frame(maxWidth: 720, maxHeight: 420)
+                .padding(.horizontal, LoomSpacing.xl)
+
+            VStack(spacing: LoomSpacing.sm) {
                 ShuttleBar(progress: progress)
-                    .frame(maxWidth: 380, maxHeight: 2)
+                    .frame(maxWidth: 360, maxHeight: 2)
 
-                Text(message)
-                    .font(LoomType.body)
-                    .foregroundStyle(Palette.inkMuted)
-                    .transition(.opacity)
-
-                Text("\(Int((progress * 100).rounded()))%")
-                    .font(LoomType.monoSm)
-                    .foregroundStyle(Palette.inkFaint)
+                HStack(spacing: LoomSpacing.sm) {
+                    Text(message)
+                        .font(LoomType.body)
+                        .foregroundStyle(Palette.inkMuted)
+                    Text("· \(Int((progress * 100).rounded()))%")
+                        .font(LoomType.monoSm)
+                        .foregroundStyle(Palette.inkFaint)
+                }
+                .transition(.opacity)
             }
 
             Spacer()
@@ -40,14 +55,76 @@ public struct IndexingView: View {
                 .foregroundStyle(Palette.inkFaint)
                 .padding(.bottom, LoomSpacing.lg)
         }
-        .padding(LoomSpacing.xl)
         .animation(LoomMotion.breathe, value: message)
     }
 }
 
-/// The shuttle bar: a brass sliver travels inside a neutral track; when the
-/// actual progress passes the sliver, it catches up. Feels like a physical
-/// shuttle weaving back and forth.
+// MARK: — Mini-wall
+
+/// A tight grid of dominant-color swatches, one per recently-indexed photo.
+/// Grid is 12 columns × N rows; newest tiles appear bottom-right, FIFO'd
+/// off the top-left as the buffer fills.
+private struct MiniWall: View {
+
+    let photos: [Photo]
+    private let columns = 12
+
+    var body: some View {
+        GeometryReader { geo in
+            let gutter: CGFloat = 4
+            let gridWidth = geo.size.width
+            let cellW = (gridWidth - gutter * CGFloat(columns - 1)) / CGFloat(columns)
+            let cellH = cellW  // square — keeps the grid readable at any count
+            let rows = max(1, Int(ceil(Double(photos.count) / Double(columns))))
+            let totalH = CGFloat(rows) * cellH + CGFloat(rows - 1) * gutter
+            let startY = (geo.size.height - totalH) / 2
+
+            ZStack(alignment: .topLeading) {
+                ForEach(Array(photos.enumerated()), id: \.element.id) { (i, photo) in
+                    let r = i / columns
+                    let c = i % columns
+                    let x = CGFloat(c) * (cellW + gutter)
+                    let y = startY + CGFloat(r) * (cellH + gutter)
+                    let delay = Weave.stagger(
+                        normalizedPosition: Double(i % columns) / Double(columns),
+                        index: i,
+                        span: 0.12
+                    )
+
+                    Swatch(color: sRGB(for: photo.dominantColor))
+                        .frame(width: cellW, height: cellH)
+                        .position(x: x + cellW / 2, y: y + cellH / 2)
+                        .transition(Weave.insertTransition(delay: delay))
+                }
+            }
+            .animation(Weave.settleAnimation(), value: photos.count)
+        }
+    }
+
+    private func sRGB(for lab: LabColor) -> Color {
+        let rgb = labToSRGB(lab)
+        return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+    }
+}
+
+/// A single dominant-color swatch — rounded rectangle with a subtle inner
+/// ring so it reads as a "photo placeholder" not a primitive fill.
+private struct Swatch: View {
+    let color: Color
+    var body: some View {
+        RoundedRectangle(cornerRadius: 3, style: .continuous)
+            .fill(color)
+            .overlay(
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.06), lineWidth: 0.5)
+            )
+            .shadow(color: .black.opacity(0.18), radius: 3, x: 0, y: 1)
+    }
+}
+
+// MARK: — Shuttle bar (unchanged from the previous minimal design, but
+// de-duplicated here so IndexingView is self-contained)
+
 private struct ShuttleBar: View {
 
     let progress: Double
@@ -56,13 +133,10 @@ private struct ShuttleBar: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Palette.hairline)
-
+                Capsule().fill(Palette.hairline)
                 Capsule()
                     .fill(Palette.brass.opacity(0.6))
                     .frame(width: geo.size.width * CGFloat(progress))
-
                 Capsule()
                     .fill(Palette.brassLift)
                     .frame(width: 40, height: geo.size.height)

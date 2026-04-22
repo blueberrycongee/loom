@@ -101,17 +101,22 @@ public actor Indexer {
                 continue
             }
 
+            var freshPhoto: Photo?
             if let photo = extractOne(url: url, id: id) {
                 batch.append(photo)
+                freshPhoto = photo
                 if batch.count >= batchSize {
                     try? store.upsert(batch)
                     batch.removeAll(keepingCapacity: true)
                 }
             }
             done += 1
+            // Attach every freshly indexed photo to the progress snapshot
+            // so the indexing UI can grow a live mini-wall in real time.
             out.yield(IndexProgress(
                 stage: .extracting, completed: done, total: total,
-                currentFile: url.lastPathComponent
+                currentFile: url.lastPathComponent,
+                recentPhoto: freshPhoto
             ))
         }
         if !batch.isEmpty { try? store.upsert(batch) }

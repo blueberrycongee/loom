@@ -40,6 +40,12 @@ public final class AppModel {
     /// corresponding sheet.
     public var permissionPrompt: PermissionPrompt?
 
+    /// A rolling buffer of the most recently indexed photos, used by the
+    /// indexing view to grow a live mini-wall in real time. Capped so the
+    /// array doesn't balloon during scans of 50k+ libraries.
+    public var recentlyIndexed: [Photo] = []
+    private let recentlyIndexedCap = 96
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
@@ -61,4 +67,13 @@ public final class AppModel {
 
     public func present(_ prompt: PermissionPrompt) { permissionPrompt = prompt }
     public func dismissPermissionPrompt()            { permissionPrompt = nil }
+
+    public func pushIndexed(_ photo: Photo) {
+        recentlyIndexed.append(photo)
+        if recentlyIndexed.count > recentlyIndexedCap {
+            recentlyIndexed.removeFirst(recentlyIndexed.count - recentlyIndexedCap)
+        }
+    }
+
+    public func clearIndexed() { recentlyIndexed.removeAll() }
 }
