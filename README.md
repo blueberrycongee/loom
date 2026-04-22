@@ -2,9 +2,13 @@
 
 # Loom
 
-**macOS-native photo-wall app. Local AI weaves your photos into a wall with aesthetic rhythm.**
+**Your photos, woven into walls.**  
+*A macOS-native composer that turns any folder or Photos library into an aesthetic wall — automatically, privately, and never the same way twice.*
 
-*Every click is a new composition you've never seen before — constrained by design rules, surprised by randomness.*
+[![macOS](https://img.shields.io/badge/macOS-14+-333333?logo=apple)](https://www.apple.com/macos/)
+[![Swift](https://img.shields.io/badge/Swift-5.9-F05138?logo=swift)](./Package.swift)
+[![License](https://img.shields.io/badge/License-MIT-9B6A2F)](./LICENSE)
+[![Downloads](https://img.shields.io/badge/Download-Loom.app-9B6A2F)](./dist/Loom-macos-arm64.zip)
 
 </div>
 
@@ -12,104 +16,164 @@
 
 ## What it does
 
-Open Loom, point it at a folder of photos, press **Shuffle**. Loom picks a set, arranges a wall, and the result is good on the first try. Press again: a different wall, equally good. No dragging. No presets. No cloud.
+Loom is not a photo browser. It is a **composer**.
 
-## Why it exists
+Point it at a folder — or your entire Apple Photos library — and press **Shuffle**. Loom picks a set, arranges a wall, and the result is good on the first try. Press again: a different wall, equally good. No dragging, no presets, no cloud uploads, no subscription.
 
-Photo libraries are big and boring to look at. Existing grids show everything with equal weight; slideshows are too linear; collage apps are too manual. Loom is a **composer**, not a browser — it treats a wall as an aesthetic object and uses local AI to make each one land.
+Every wall is generated on-device using local computer vision and a constraint-based aesthetic engine. The randomness is intentional; the beauty is guaranteed.
 
-## Core loop
+<div align="center">
 
-```
-folder  →  index (Vision · Core Image)  →  cluster (color · mood)  →  layout (Tapestry)  →  Wall
-                                                                            ↑
-                                                                         Shuffle
-```
+`folder / Photos library → index → cluster → compose → wall`
 
-Everything runs locally. Nothing uploads.
+</div>
 
-## Styles
+---
 
-| Style      | Feel                                           |
-|------------|------------------------------------------------|
-| Tapestry   | Justified rows, uniform row-height. *Default.* |
-| Editorial  | One dominant image, supporting satellites.     |
-| Gallery    | Golden-ratio grid, generous whitespace.        |
-| Collage    | Overlap, rotation, torn edges.                 |
-| Minimal    | 3–5 photos, high contrast.                     |
-| Vintage    | Polaroid frames, mild skew.                    |
+## Why Loom
 
-## Feel
+| | |
+|:---|:---|
+| **🎨 Aesthetic-first** | Default output is print-ready. No sliders to tune. |
+| **🔒 Privacy-first** | All AI runs locally. No network, no account, no telemetry. |
+| **⚡ Native-first** | SwiftUI + AppKit + Metal. Built like a first-party Mac app. |
+| **🎲 Surprise-first** | Automatic beats manual. Randomness lives inside design rules. |
 
-- **Weave motion** — tiles arrive in a left-to-right wave when you shuffle, with deterministic ±20ms jitter so 40-tile walls aren't metronomic. Exits are ease-out; entries are spring; positions settle on the same wave. One vocabulary across every screen.
-- **Pointer aura** — a soft brass glow follows the cursor; tiles within 240pt gain brightness, tiles further away lose a whisper of saturation, so your gaze literally focuses the wall.
-- **Ambient tapestry** — the landing hero is 12 drifting rectangles of the brand palette, rotating within their own zones at 16–28s periods, no two in lockstep.
-- **Live indexing** — while your library is being indexed, a mini-wall grows in real time as each photo's dominant color becomes a tile, arriving in the same wave.
-- **Paper grain** — static pre-rendered noise overlay at 3% via `.softLight`, with a slow 8s opacity breathe; no per-frame redraw cost.
-- **Haptics** — trackpad ticks only on the three moments that carry intent: shuffle, snap, confirm.
+---
 
-## Stack
+## Seven styles, one click
 
-- **UI** · SwiftUI + AppKit bridge where precision matters
-- **Render** · CALayer for the wall, Metal-backed where dense
-- **Local AI** · Vision (`VNGenerateImageFeaturePrintRequest`), Core Image (color), Core ML (mood embedding)
-- **Index** · SQLite, per-folder, encrypted at rest
-- **Ingest** · User folder (v1), PhotoKit (M7)
+Loom ships with seven distinct layout engines. Switch instantly — the same photo set becomes a completely different object.
 
-Full architectural spec: [VISION.md](./VISION.md).
+| Style | Feel | Shortcut |
+|:---|:---|:---|
+| **Exhibit** | Handcrafted composition with breathing room. *Default.* | `⌘1` |
+| **Tapestry** | Justified rows, uniform row height. Woven like textile. | `⌘2` |
+| **Editorial** | One hero image, supporting satellites. Magazine spread. | `⌘3` |
+| **Gallery** | Golden-ratio grid, generous whitespace. | `⌘4` |
+| **Collage** | Overlap, rotation, torn edges. Handmade energy. | `⌘5` |
+| **Minimal** | 3–5 photos, high contrast. Quiet and decisive. | `⌘6` |
+| **Vintage** | Polaroid frames, mild skew. Nostalgic warmth. | `⌘7` |
 
-## Getting started
+---
 
-> **Status:** all milestones complete (M0 – M7). Six style engines, color + mood clustering, pin-to-keep, favorites with byte-identical replay, PNG/PDF export, both folder and Photos-library indexers. Open in Xcode 15+ on macOS 14+.
+## How it composes
+
+1. **Index** — Scans your library once (Vision feature-print + dominant Lab color + EXIF). Stores an encrypted SQLite index per library.
+2. **Cluster** — Groups photos by the axis you choose: **Color**, **Mood** (semantic embedding), **Scene**, **People**, or **Time**.
+3. **Compose** — Generates candidate layouts, scores each with a multi-factor aesthetic function (color harmony, edge alignment, aspect ratio balance), and returns the best.
+4. **Weave** — Tiles enter in a left-to-right spring wave with deterministic micro-jitter. Every animation in the app shares one motion vocabulary.
+
+---
+
+## Features
+
+- **Shuffle** — Press `Space` or the brass button. A new wall from the same library, instantly.
+- **Pin to keep** — Double-click a tile to lock it. Shuffle again; locked photos stay, the rest reorganize around them.
+- **Favorites** — Save a wall layout by name. Re-apply it later, or to a different library. Reproduces byte-identically thanks to deterministic seeds.
+- **Export** — PNG at 3× retina resolution, vector-backed PDF, or one-click Snapshot to Desktop.
+- **Two sources** — User folders (via NSOpenPanel) or Apple Photos Library (via PhotoKit) with incremental rescan.
+- **HandSense** *(optional)* — Control the wall with hand gestures: open palm to spread, fist to gather, shake to shuffle. Camera video is processed in memory and never recorded.
+- **Bilingual UI** — English and 简体中文, switchable live without restart.
+
+---
+
+## Get Loom
+
+### Download (prebuilt)
+
+Grab the latest build from [`dist/Loom-macos-arm64.zip`](./dist/Loom-macos-arm64.zip), unzip, and drag `Loom.app` to `/Applications`.
+
+> Requires macOS 14+ (Sonoma) on Apple Silicon.
+
+### Build from source
 
 ```bash
 git clone https://github.com/blueberrycongee/loom.git
 cd loom
-open Package.swift          # Xcode
+open Package.swift   # Xcode 15+
 # or
-swift test                  # run the pure-compute test suite
+swift test           # run the pure-compute test suite
 ```
 
-Press **⌘O** to pick a folder. The first scan indexes every photo
-(Vision feature-print + dominant Lab color + EXIF), then the wall
-auto-composes. Press **Space** — or hit the brass button — to weave
-a new wall from the same library.
+---
 
-## Milestones
+## Quick start
 
-- [x] **M0** · Vision, scaffold, atomic-commit workflow
-- [x] **M1** · Folder → Vision → SQLite → grid browser
-- [x] **M2** · Tapestry layout + Shuffle
-- [x] **M3** · Collage · Editorial · Gallery · Minimal · Vintage
-- [x] **M4** · Mood embedding (via Vision feature-print k-medoids)
-- [x] **M5** · Pin-to-keep (tile locks) · favorites (save + reproduce)
-- [x] **M6** · Export — PNG (3×) · PDF (vector-backed)
-- [x] **M7** · PhotoKit source — full indexer + permission + incremental rescan
+1. Open Loom.
+2. Press `⌘O` to choose a photo folder, or select **Use Photos Library**.
+3. Wait for the first index scan (progress shown as a live growing mini-wall).
+4. Press `Space` — your first wall appears.
+5. Keep pressing `Space`. Try `⌘1`–`⌘7` for different styles.
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for the module graph and the Shuffle
-pipeline in detail.
+---
 
-## Keyboard
+## Keyboard & gestures
 
-| Key             | Action                         |
-|-----------------|--------------------------------|
-| **Space**       | Shuffle                        |
-| **⌘1 – ⌘6**    | Switch style                   |
-| **⌘O**          | Open folder                    |
-| **⌘S**          | Save current wall as favorite  |
-| **⌘E**          | Export as PNG                  |
-| **⌘⇧P**        | Export as PDF                  |
-| **⌘⇧L**        | Clear all tile locks           |
-| **Double-click tile** | Pin / unpin photo        |
+| Key | Action |
+|:---|:---|
+| `Space` | Shuffle — generate a new wall |
+| `⌘1` – `⌘7` | Switch style |
+| `⌘O` | Pick library folder |
+| `⌘S` | Save current wall as Favorite |
+| `⌘E` | Export as PNG… |
+| `⌘⇧P` | Export as PDF… |
+| `⌘⇧S` | Snapshot wall to Desktop |
+| `⌘⇧L` | Clear all tile locks |
+| `Double-click tile` | Pin / unpin photo |
+| `⌘,` | Settings (density, language, privacy, gestures) |
 
-## Principles
+---
 
-1. **Native first.** Performance and feel measured against Photos · Pages · Keynote.
-2. **Aesthetic first.** Default state is great without tuning.
-3. **Surprise first.** Automatic beats manual. Randomness lives inside aesthetic rules.
-4. **Offline first.** No network. No uploads. No account.
-5. **Privacy first.** Sandboxed, encrypted index, one-click wipe.
+## Privacy
+
+- **100% offline.** Vision, Core Image, and Core ML run on your Mac. Nothing uploads.
+- **Encrypted index.** SQLite database is per-library and encrypted at rest.
+- **Sandboxed.** One-click wipe in Settings → Privacy.
+- **No camera cold-prompt.** HandSense only activates if you explicitly enable it; video frames are analyzed in memory and never persisted.
+
+---
+
+## Architecture
+
+Loom is a SwiftPM package with seven layered modules and zero circular dependencies. The core (`LoomCore`) is pure Foundation — testable without a running app.
+
+```
+Loom (executable)
+├── LoomUI      — SwiftUI scenes & views
+├── LoomCompose — Shuffle orchestrator & clustering
+├── LoomDesign  — Palette, motion, haptics, tokens
+├── LoomLayout  — Layout engines & aesthetic scoring
+├── LoomIndex   — SQLite store, Vision extractors, thumbnails
+└── LoomCore    — Pure value types, RNG, models
+```
+
+For the full module graph, shuffle pipeline, and design-system principles, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+---
+
+## Roadmap
+
+- [x] Vision indexing & SQLite cache
+- [x] Tapestry layout + Shuffle
+- [x] Multi-style engines (Exhibit, Tapestry, Editorial, Gallery, Collage, Minimal, Vintage)
+- [x] Mood / color / scene / people / time clustering
+- [x] Pin-to-keep + Favorites with deterministic replay
+- [x] PNG / PDF / Snapshot export
+- [x] PhotoKit source + incremental rescan
+- [x] HandSense gesture control
+- [x] Bilingual UI (EN / 简体中文)
+
+---
 
 ## License
 
 MIT — see [LICENSE](./LICENSE).
+
+---
+
+<div align="center">
+
+**[⬇ Download Loom.app](./dist/Loom-macos-arm64.zip)** · [Architecture](./ARCHITECTURE.md) · [Vision](./VISION.md)
+
+</div>
