@@ -64,7 +64,11 @@ let package = Package(
         ),
         .testTarget(
             name: "LoomLayoutTests",
-            dependencies: ["LoomLayout"]
+            dependencies: ["LoomCore", "LoomLayout"]
+        ),
+        .testTarget(
+            name: "LoomComposeTests",
+            dependencies: ["LoomCore", "LoomLayout", "LoomCompose"]
         )
     ]
 )
