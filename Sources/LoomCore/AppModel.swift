@@ -19,7 +19,7 @@ public final class AppModel {
     }
 
     public var phase: Phase = .landing
-    public var style: Style = .tapestry
+    public var style: Style = .exhibit
     public var axis: ClusterAxis = .color
     public var wall: Wall = .empty
 

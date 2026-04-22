@@ -17,7 +17,7 @@ struct LoomApp: App {
                 .environment(app)
                 .environment(\.loomFavorites, favorites)
                 .frame(minWidth: 960, minHeight: 640)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(.light)
                 .background(Palette.canvas.ignoresSafeArea())
                 .task {
                     if coordinator == nil {
@@ -39,7 +39,7 @@ struct LoomApp: App {
         Settings {
             SettingsView()
                 .environment(app)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(.light)
         }
     }
 }
