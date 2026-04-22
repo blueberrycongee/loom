@@ -1,4 +1,5 @@
 import SwiftUI
+import LoomCore
 import LoomDesign
 
 struct SettingsView: View {
