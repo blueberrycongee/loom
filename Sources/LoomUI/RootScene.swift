@@ -41,7 +41,9 @@ public struct RootScene: View {
         case .indexing(let progress, let message):
             IndexingView(progress: progress, message: message)
         case .ready:
-            WallScene()
+            // M1 surface: the grid browser. M2 swaps this for the wall-first
+            // WallScene; the browser becomes a sidebar.
+            GridBrowserView()
         }
     }
 }
