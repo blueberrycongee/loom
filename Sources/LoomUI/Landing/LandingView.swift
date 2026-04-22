@@ -20,19 +20,6 @@ public struct LandingView: View {
 
     public var body: some View {
         ZStack {
-            // Ambient procedural tapestry — teaches the product metaphor
-            // without needing a library to demo against.
-            LoomTapestry()
-
-            // Soft radial vignette so the wordmark has air around it.
-            RadialGradient(
-                colors: [Color.clear, Palette.canvas.opacity(0.55)],
-                center: .center,
-                startRadius: 160,
-                endRadius: 540
-            )
-            .allowsHitTesting(false)
-
             VStack(spacing: LoomSpacing.xl) {
                 Spacer()
 
