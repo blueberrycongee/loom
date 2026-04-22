@@ -169,6 +169,14 @@ public final class Statement {
         sqlite3_column_type(stmt, col) == SQLITE_NULL ? nil : text(col)
     }
 
+    public func doubleOrNil(_ col: Int32) -> Double? {
+        sqlite3_column_type(stmt, col) == SQLITE_NULL ? nil : double(col)
+    }
+
+    public func intOrNil(_ col: Int32) -> Int? {
+        sqlite3_column_type(stmt, col) == SQLITE_NULL ? nil : int(col)
+    }
+
     public func blob(_ col: Int32) -> Data {
         let n = Int(sqlite3_column_bytes(stmt, col))
         guard n > 0, let p = sqlite3_column_blob(stmt, col) else { return Data() }

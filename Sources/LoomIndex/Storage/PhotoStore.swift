@@ -116,14 +116,15 @@ public final class PhotoStore {
     // MARK: — Decoder
 
     private func decode(_ stmt: Statement) -> Photo {
-        let featureVersion = Int(stmt.int(9))
+        let captured = stmt.doubleOrNil(4).map { Date(timeIntervalSince1970: $0) }
+        let featureVersion = stmt.intOrNil(9)
         let featureBytes = stmt.blobOrNil(10)
-        let fp: FeaturePrint? = featureBytes.map { FeaturePrint(version: featureVersion, bytes: $0) }
-        let captured: Date? = {
-            if let _ = stmt.textOrNil(4) { return nil } // never text
-            // captured_at is stored as REAL; a NULL returns 0. Use column type check.
-            return Date(timeIntervalSince1970: stmt.double(4))
-        }()
+        let fp: FeaturePrint?
+        if let v = featureVersion, let b = featureBytes {
+            fp = FeaturePrint(version: v, bytes: b)
+        } else {
+            fp = nil
+        }
         return Photo(
             id: PhotoID(stmt.text(0)),
             url: URL(fileURLWithPath: stmt.text(1)),
