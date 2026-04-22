@@ -19,25 +19,25 @@ public enum Style: String, CaseIterable, Sendable, Codable, Identifiable {
 
     public var displayName: String {
         switch self {
-        case .exhibit:   return "Exhibit"
-        case .tapestry:  return "Tapestry"
-        case .editorial: return "Editorial"
-        case .gallery:   return "Gallery"
-        case .collage:   return "Collage"
-        case .minimal:   return "Minimal"
-        case .vintage:   return "Vintage"
+        case .exhibit:   return String(localized: "Exhibit")
+        case .tapestry:  return String(localized: "Tapestry")
+        case .editorial: return String(localized: "Editorial")
+        case .gallery:   return String(localized: "Gallery")
+        case .collage:   return String(localized: "Collage")
+        case .minimal:   return String(localized: "Minimal")
+        case .vintage:   return String(localized: "Vintage")
         }
     }
 
     public var tagline: String {
         switch self {
-        case .exhibit:   return "Handcrafted composition · breathing room"
-        case .tapestry:  return "Justified rows · woven like a textile"
-        case .editorial: return "One hero · supporting satellites"
-        case .gallery:   return "Golden-ratio grid · generous whitespace"
-        case .collage:   return "Overlap · rotation · torn edges"
-        case .minimal:   return "Three to five photos · high contrast"
-        case .vintage:   return "Polaroid frames · mild skew"
+        case .exhibit:   return String(localized: "Handcrafted composition · breathing room")
+        case .tapestry:  return String(localized: "Justified rows · woven like a textile")
+        case .editorial: return String(localized: "One hero · supporting satellites")
+        case .gallery:   return String(localized: "Golden-ratio grid · generous whitespace")
+        case .collage:   return String(localized: "Overlap · rotation · torn edges")
+        case .minimal:   return String(localized: "Three to five photos · high contrast")
+        case .vintage:   return String(localized: "Polaroid frames · mild skew")
         }
     }
 
@@ -66,11 +66,11 @@ public enum ClusterAxis: String, CaseIterable, Sendable, Codable {
 
     public var displayName: String {
         switch self {
-        case .color:  return "Color"
-        case .mood:   return "Mood"
-        case .scene:  return "Scene"
-        case .people: return "People"
-        case .time:   return "Time"
+        case .color:  return String(localized: "Color")
+        case .mood:   return String(localized: "Mood")
+        case .scene:  return String(localized: "Scene")
+        case .people: return String(localized: "People")
+        case .time:   return String(localized: "Time")
         }
     }
 }

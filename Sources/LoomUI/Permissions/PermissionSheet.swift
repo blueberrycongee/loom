@@ -152,17 +152,17 @@ public struct PermissionSheet: View {
 
     private func title(for p: PermissionPrompt) -> String {
         switch p {
-        case .photosExplainer:   return "Access your Photos"
-        case .photosDenied:      return "Photos access is off"
-        case .photosRestricted:  return "Photos is restricted"
+        case .photosExplainer:   return String(localized: "Access your Photos")
+        case .photosDenied:      return String(localized: "Photos access is off")
+        case .photosRestricted:  return String(localized: "Photos is restricted")
         }
     }
 
     private func subtitle(for p: PermissionPrompt) -> String {
         switch p {
-        case .photosExplainer:   return "Loom · needs read-only access"
-        case .photosDenied:      return "Granted in System Settings"
-        case .photosRestricted:  return "Managed by this Mac's profile"
+        case .photosExplainer:   return String(localized: "Loom · needs read-only access")
+        case .photosDenied:      return String(localized: "Granted in System Settings")
+        case .photosRestricted:  return String(localized: "Managed by this Mac's profile")
         }
     }
 }

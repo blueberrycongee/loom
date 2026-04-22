@@ -48,11 +48,16 @@ public struct IndexProgress: Sendable, Equatable {
 
     public var message: String {
         switch stage {
-        case .discovering:       return "Finding photos…"
-        case .extracting:        return "Analysing \(completed) of \(total)…"
-        case .thumbnailing:      return "Baking previews \(completed) of \(total)…"
-        case .done:              return "\(completed) photos ready."
-        case .failed(let why):   return "Indexing failed: \(why)"
+        case .discovering:
+            return String(localized: "Finding photos…")
+        case .extracting:
+            return String(localized: "Analysing \(completed) of \(total)…")
+        case .thumbnailing:
+            return String(localized: "Baking previews \(completed) of \(total)…")
+        case .done:
+            return String(localized: "\(completed) photos ready.")
+        case .failed(let why):
+            return String(localized: "Indexing failed: \(why)")
         }
     }
 }
