@@ -35,6 +35,11 @@ public final class AppModel {
     /// Shuffle until unpinned — position may change, inclusion doesn't.
     public var lockedPhotoIDs: Set<PhotoID> = []
 
+    /// Active permission prompt (nil = none showing). Set by the
+    /// coordinator based on system auth status; RootScene renders the
+    /// corresponding sheet.
+    public var permissionPrompt: PermissionPrompt?
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
@@ -53,4 +58,7 @@ public final class AppModel {
     }
 
     public func clearLocks() { lockedPhotoIDs.removeAll() }
+
+    public func present(_ prompt: PermissionPrompt) { permissionPrompt = prompt }
+    public func dismissPermissionPrompt()            { permissionPrompt = nil }
 }

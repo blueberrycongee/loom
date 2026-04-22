@@ -4,6 +4,8 @@
 <dict>
     <key>CFBundleName</key>
     <string>Loom</string>
+    <key>CFBundleDisplayName</key>
+    <string>Loom</string>
     <key>CFBundleIdentifier</key>
     <string>com.blueberrycongee.loom</string>
     <key>CFBundleShortVersionString</key>
@@ -16,11 +18,34 @@
     <string>public.app-category.photography</string>
     <key>NSHumanReadableCopyright</key>
     <string>© 2026 Jiahe Wu. MIT licensed.</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+    <true/>
+
+    <!--
+      Privacy strings (TCC). Each of these appears verbatim in the system
+      permission dialog when Loom first touches the corresponding resource.
+      Keep them short, user-centered, and specific: Apple HIG says the user
+      decides from these lines alone, so lead with the benefit and end
+      with the guarantee.
+    -->
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Loom reads your photos locally to compose aesthetic walls. Nothing is uploaded.</string>
+    <string>Loom reads your Photos library to compose aesthetic walls. Everything stays on this Mac — nothing is uploaded.</string>
+
     <key>NSDesktopFolderUsageDescription</key>
-    <string>Loom indexes photos from folders you pick. Access is scoped to folders you grant.</string>
+    <string>Needed only when you pick a folder on your Desktop. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+
     <key>NSDocumentsFolderUsageDescription</key>
-    <string>Loom indexes photos from folders you pick. Access is scoped to folders you grant.</string>
+    <string>Needed only when you pick a folder inside Documents. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>Needed only when you pick a folder inside Downloads. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+
+    <key>NSRemovableVolumesUsageDescription</key>
+    <string>Needed only when you pick a folder on an external drive. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+
+    <key>NSNetworkVolumesUsageDescription</key>
+    <string>Needed only when you pick a folder on a network share. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
 </dict>
 </plist>

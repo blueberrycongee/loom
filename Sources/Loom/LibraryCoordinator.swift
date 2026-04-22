@@ -44,7 +44,61 @@ final class LibraryCoordinator {
             forName: .loomPickPhotosLibrary,
             object: nil, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.openPhotosLibrary() }
+            Task { @MainActor in self?.requestPhotosLibrary() }
+        }
+        center.addObserver(
+            forName: .loomPermissionAllow,
+            object: nil, queue: .main
+        ) { [weak self] note in
+            guard let prompt = note.object as? PermissionPrompt else { return }
+            Task { @MainActor in self?.handleAllow(prompt) }
+        }
+    }
+
+    /// User tapped "Allow" in the in-app explainer. Follow up with the
+    /// right next step for each prompt type.
+    private func handleAllow(_ prompt: PermissionPrompt) {
+        switch prompt {
+        case .photosExplainer:
+            // User has agreed to the preamble; now trigger the system TCC
+            // prompt. On grant, immediately proceed to index.
+            Task {
+                let status = await PhotoKitAuthorization.request()
+                await MainActor.run {
+                    switch status {
+                    case .authorized, .limited:
+                        self.openPhotosLibrary()
+                    case .denied, .restricted:
+                        self.app.present(.photosDenied)
+                    case .notDetermined:
+                        break   // user cancelled the system dialog — do nothing
+                    }
+                }
+            }
+        case .photosDenied:
+            // The sheet already deep-linked to System Settings; nothing
+            // more to do until the user returns.
+            break
+        case .photosRestricted:
+            // User chose the "use a folder instead" fallback from the
+            // restricted sheet. Route to the folder picker.
+            pickLibrary()
+        }
+    }
+
+    /// Entry point when the user taps "Use Photos library". Routes based
+    /// on current auth status rather than surfacing the system dialog
+    /// cold.
+    private func requestPhotosLibrary() {
+        switch PhotoKitAuthorization.current() {
+        case .authorized, .limited:
+            openPhotosLibrary()
+        case .notDetermined:
+            app.present(.photosExplainer)
+        case .denied:
+            app.present(.photosDenied)
+        case .restricted:
+            app.present(.photosRestricted)
         }
     }
 
