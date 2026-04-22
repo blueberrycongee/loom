@@ -169,7 +169,7 @@ final class LibraryCoordinator {
         // the sentinel URL — PhotoIDs in this store are PhotoKit-local
         // identifiers, so cross-library favorites don't resolve anyway.
         favorites?.open(forLibraryRoot: app.libraryURL!)
-        app.setPhase(.indexing(progress: 0, message: "Asking Photos for access…"))
+        app.setPhase(.indexing(.discovering))
 
         task = Task { [weak self] in
             guard let self else { return }
@@ -179,11 +179,9 @@ final class LibraryCoordinator {
                 let stream = await indexer.run()
                 for await snapshot in stream {
                     if Task.isCancelled { return }
+                    let coreSnapshot = IndexingSnapshot.from(snapshot)
                     await MainActor.run {
-                        self.app.setPhase(.indexing(
-                            progress: snapshot.fraction,
-                            message: snapshot.message
-                        ))
+                        self.app.setPhase(.indexing(coreSnapshot))
                         if let fresh = snapshot.recentPhoto {
                             self.app.pushIndexed(fresh)
                         }
@@ -200,8 +198,7 @@ final class LibraryCoordinator {
             } catch {
                 await MainActor.run {
                     self.app.setPhase(.indexing(
-                        progress: 0,
-                        message: "Couldn't open Photos — \(error.localizedDescription)"
+                        IndexingSnapshot(stage: .failed("Couldn't open Photos — \(error.localizedDescription)"))
                     ))
                 }
             }
@@ -212,7 +209,7 @@ final class LibraryCoordinator {
         task?.cancel()
         app.libraryURL = url
         favorites?.open(forLibraryRoot: url)
-        app.setPhase(.indexing(progress: 0, message: "Finding photos…"))
+        app.setPhase(.indexing(.discovering))
 
         task = Task { [weak self] in
             guard let self else { return }
