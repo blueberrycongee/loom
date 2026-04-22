@@ -64,6 +64,17 @@ struct AppCommands: Commands {
             .keyboardShortcut("l", modifiers: [.command, .shift])
         }
 
+        CommandGroup(replacing: .saveItem) {
+            Button("Export as PNG…") {
+                NotificationCenter.default.post(name: .loomExportPNG, object: nil)
+            }
+            .keyboardShortcut("e", modifiers: [.command])
+            Button("Export as PDF…") {
+                NotificationCenter.default.post(name: .loomExportPDF, object: nil)
+            }
+            .keyboardShortcut("p", modifiers: [.command, .shift])
+        }
+
         CommandMenu("Favorites") {
             if favorites.favorites.isEmpty {
                 Text("No saved walls yet — ⌘S to save the current one.")

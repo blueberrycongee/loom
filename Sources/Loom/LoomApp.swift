@@ -9,6 +9,7 @@ struct LoomApp: App {
     @State private var app = AppModel()
     @State private var coordinator: LibraryCoordinator?
     @State private var favorites = FavoritesCoordinator()
+    @State private var exporter: ExportCoordinator?
 
     var body: some Scene {
         WindowGroup {
@@ -23,6 +24,9 @@ struct LoomApp: App {
                         let c = LibraryCoordinator(app: app, favorites: favorites)
                         coordinator = c
                         c.bootstrap()
+                    }
+                    if exporter == nil {
+                        exporter = ExportCoordinator(app: app)
                     }
                 }
         }
