@@ -61,7 +61,17 @@ public struct Composer {
             ? QualityAnalyzer.qualityThreshold
             : 0.0
         let freePool = photos.filter {
-            !lockedPhotoIDs.contains($0.id) && $0.qualityScore >= qualityFloor
+            guard !lockedPhotoIDs.contains($0.id) else { return false }
+            guard $0.qualityScore >= qualityFloor else { return false }
+            // Belt-and-suspenders: the dominant color L* is always
+            // available (computed by ColorAnalyzer, never fails). Even
+            // if QualityAnalyzer's pixel analysis silently broke, this
+            // catches near-black and near-white photos reliably.
+            if filterQuality {
+                let l = $0.dominantColor.l
+                if l < 12 || l > 95 { return false }
+            }
+            return true
         }
         let freeTarget   = max(0, targetCount - lockedPhotos.count)
 
