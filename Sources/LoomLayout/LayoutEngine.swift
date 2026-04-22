@@ -26,7 +26,7 @@ public enum LayoutRegistry {
         switch style {
         case .tapestry:  return TapestryEngine()
         case .editorial: return TapestryEngine()   // TODO M3
-        case .gallery:   return TapestryEngine()   // TODO M3
+        case .gallery:   return GalleryEngine()
         case .collage:   return TapestryEngine()   // TODO M3
         case .minimal:   return MinimalEngine()
         case .vintage:   return TapestryEngine()   // TODO M3
