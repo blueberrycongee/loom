@@ -24,14 +24,14 @@ public struct IndexProgress: Sendable, Equatable {
     /// is attached so the UI can render the live mini-wall. Not every
     /// snapshot carries one (coarse progress updates don't), so consumers
     /// should treat its absence as "no news, just a tick".
-    public let recentPhoto: LoomCore.Photo?
+    public let recentPhoto: Photo?
 
     public init(
         stage: Stage,
         completed: Int = 0,
         total: Int = 0,
         currentFile: String? = nil,
-        recentPhoto: LoomCore.Photo? = nil
+        recentPhoto: Photo? = nil
     ) {
         self.stage = stage
         self.completed = completed
