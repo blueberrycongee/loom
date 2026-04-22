@@ -19,6 +19,19 @@ public struct Photo: Identifiable, Hashable, Sendable {
     public let dominantColor: LabColor
     public let colorTemperature: ColorTemperature
     public let featurePrint: FeaturePrint?
+    /// CLIP embedding from a bundled MobileCLIP CoreML model. Richer
+    /// semantic understanding than Vision's feature-print — groups by
+    /// subject/concept, not just visual similarity. ``nil`` when the
+    /// CoreML model is not bundled or extraction failed for this photo.
+    public let clipEmbedding: FeaturePrint?
+    /// 0 (worst) to 1 (best). Composite of blur, exposure, and
+    /// resolution sub-scores. Photos below the quality threshold are
+    /// skipped during composition when the filter is enabled.
+    public let qualityScore: Double
+    /// Fractional insets of detected solid-color borders (letterbox,
+    /// scanner margins). Rendering applies these as a crop so the
+    /// border never shows on the wall.
+    public let cropInsets: CropInsets
     public let indexedAt: Date
 
     public init(
@@ -29,6 +42,9 @@ public struct Photo: Identifiable, Hashable, Sendable {
         dominantColor: LabColor,
         colorTemperature: ColorTemperature,
         featurePrint: FeaturePrint? = nil,
+        clipEmbedding: FeaturePrint? = nil,
+        qualityScore: Double = 1.0,
+        cropInsets: CropInsets = .zero,
         indexedAt: Date
     ) {
         self.id = id
@@ -38,6 +54,9 @@ public struct Photo: Identifiable, Hashable, Sendable {
         self.dominantColor = dominantColor
         self.colorTemperature = colorTemperature
         self.featurePrint = featurePrint
+        self.clipEmbedding = clipEmbedding
+        self.qualityScore = qualityScore
+        self.cropInsets = cropInsets
         self.indexedAt = indexedAt
     }
 
@@ -71,4 +90,27 @@ public struct PixelSize: Hashable, Sendable, Codable {
     }
     /// True for square-ish photos (within 2%).
     public var isSquare: Bool { abs(aspect - 1.0) < 0.02 }
+}
+
+/// Fractional border insets detected during indexing. Each field is the
+/// fraction of the image dimension that should be cropped away (e.g.
+/// ``top = 0.12`` means the top 12% is a solid-color border). TileView
+/// applies these as a visual crop so the photo fills its tile without
+/// letterbox strips.
+public struct CropInsets: Hashable, Sendable, Codable {
+    public let top: Double
+    public let bottom: Double
+    public let left: Double
+    public let right: Double
+
+    public init(top: Double = 0, bottom: Double = 0,
+                left: Double = 0, right: Double = 0) {
+        self.top = top
+        self.bottom = bottom
+        self.left = left
+        self.right = right
+    }
+
+    public static let zero = CropInsets()
+    public var isZero: Bool { top == 0 && bottom == 0 && left == 0 && right == 0 }
 }

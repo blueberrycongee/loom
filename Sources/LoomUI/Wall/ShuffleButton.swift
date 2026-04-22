@@ -3,91 +3,89 @@ import LoomDesign
 
 /// The hero action of the app.
 ///
-/// Look: capsule, brass fill with subtle inner highlight, "SHUFFLE" in
-/// rounded small-caps, a keyboard hint on the trailing edge. Feels physical
-/// — the brass halo brightens on hover, the whole thing depresses by 2pt on
-/// press, and a micro-haptic fires on the hand before the animation starts.
+/// Capsule with a terracotta gradient fill, "Shuffle" label, and an
+/// optional keyboard hint. Feels physical: the halo brightens on hover,
+/// the whole thing depresses on press, a micro-haptic fires before the
+/// animation, and a brief brass glow pulse confirms the action landed.
 public struct ShuffleButton: View {
 
     public let action: () -> Void
-    public let compact: Bool
+    public let showShortcut: Bool
     @State private var hovered = false
     @State private var pressed = false
+    @State private var glowing = false
 
-    public init(compact: Bool = false, action: @escaping () -> Void) {
-        self.compact = compact
+    public init(showShortcut: Bool = true, action: @escaping () -> Void) {
+        self.showShortcut = showShortcut
         self.action = action
     }
 
     public var body: some View {
         Button(action: fire) {
             HStack(spacing: LoomSpacing.sm) {
-                ShuttleIcon()
-                    .frame(width: 18, height: 18)
+                Image(systemName: "shuffle")
+                    .font(.system(size: 12, weight: .bold))
 
                 Text("Shuffle")
                     .font(LoomType.heading)
-                    .tracking(0.4)
+                    .tracking(0.3)
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
 
-                Spacer(minLength: LoomSpacing.md)
-
-                ShortcutChip(key: "⎵")
+                if showShortcut {
+                    ShortcutChip(key: "⎵")
+                        .padding(.leading, LoomSpacing.xxs)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85)))
+                }
             }
             .foregroundStyle(Palette.canvas)
-            .padding(.horizontal, LoomSpacing.lg)
-            .padding(.vertical, LoomSpacing.md)
-            // Budget-driven: when WallChrome's ViewThatFits picks the wide
-            // layout, the chrome has room for a chunky 220pt button; the
-            // narrow layout swaps the button to its natural hugging size
-            // (~160pt). Apply the wide-mode minWidth from the parent
-            // instead of forcing it here so narrow mode shrinks gracefully.
-            .frame(minWidth: compact ? nil : 220)
+            .padding(.horizontal, LoomSpacing.md)
+            .padding(.vertical, LoomSpacing.sm)
             .background(
                 Capsule().fill(Palette.brassFill)
             )
             .overlay(
+                Capsule().fill(
+                    Palette.brassLift.opacity(glowing ? 0.4 : 0)
+                )
+            )
+            .overlay(
                 Capsule().strokeBorder(
-                    Palette.brassLift.opacity(hovered ? 0.95 : 0.6),
+                    Palette.brassLift.opacity(hovered ? 0.9 : 0.5),
                     lineWidth: hovered ? 0.8 : 0.5
                 )
             )
-            .scaleEffect(pressed ? 0.97 : (hovered ? 1.03 : 1.0))
+            .scaleEffect(pressed ? 0.95 : (hovered ? 1.03 : 1.0))
         }
         .buttonStyle(.plain)
-        .brassShadow()
+        .shadow(
+            color: Palette.brass.opacity(glowing ? 0.35 : 0.18),
+            radius: glowing ? 20 : 10,
+            x: 0, y: 0
+        )
+        .shadow(
+            color: LoomShadow.tone.opacity(0.12),
+            radius: 4, x: 0, y: 2
+        )
         .onHover { hovered = $0 }
         .animation(LoomMotion.hover, value: hovered)
         .animation(LoomMotion.snap,  value: pressed)
+        .animation(glowing ? LoomMotion.snap : LoomMotion.breathe, value: glowing)
+        .animation(LoomMotion.hover, value: showShortcut)
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in pressed = true }
-                .onEnded { _ in pressed = false }
+                .onEnded   { _ in pressed = false }
         )
     }
 
     private func fire() {
         Haptics.shuffle()
+        glowing = true
         action()
-    }
-}
-
-private struct ShuttleIcon: View {
-    var body: some View {
-        // A stylised loom shuttle: an ellipse with a vertical thread through it.
-        Canvas { ctx, size in
-            let w = size.width, h = size.height
-            let rect = CGRect(x: 0, y: h * 0.3, width: w, height: h * 0.4)
-            ctx.fill(Path(ellipseIn: rect), with: .color(Palette.canvas))
-            ctx.stroke(
-                Path { p in
-                    p.move(to: .init(x: w * 0.5, y: 0))
-                    p.addLine(to: .init(x: w * 0.5, y: h))
-                },
-                with: .color(Palette.canvas.opacity(0.8)),
-                lineWidth: 1
-            )
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 450_000_000)
+            glowing = false
         }
     }
 }
@@ -103,7 +101,7 @@ private struct ShortcutChip: View {
                 Capsule().fill(Palette.canvas.opacity(0.14))
             )
             .overlay(
-                Capsule().strokeBorder(Palette.canvas.opacity(0.2), lineWidth: 0.5)
+                Capsule().strokeBorder(Palette.canvas.opacity(0.18), lineWidth: 0.5)
             )
     }
 }

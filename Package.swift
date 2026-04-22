@@ -53,6 +53,9 @@ let package = Package(
         .target(
             name: "LoomIndex",
             dependencies: ["LoomCore"],
+            resources: [
+                .copy("Resources")
+            ],
             linkerSettings: [
                 .linkedLibrary("sqlite3")
             ]

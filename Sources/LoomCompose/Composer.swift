@@ -1,6 +1,7 @@
 import CoreGraphics
 import Foundation
 import LoomCore
+import LoomIndex
 import LoomLayout
 
 /// The Shuffle orchestrator. Turns a library + style + seed into the best
@@ -25,7 +26,7 @@ public struct Composer {
     public let candidates: Int
     public let baselineTileArea: CGFloat
 
-    public init(candidates: Int = 4, baselineTileArea: CGFloat = 220 * 220) {
+    public init(candidates: Int = 4, baselineTileArea: CGFloat = 180 * 180) {
         self.candidates = max(1, candidates)
         self.baselineTileArea = baselineTileArea
     }
@@ -36,6 +37,8 @@ public struct Composer {
         axis: ClusterAxis,
         canvasSize: CGSize,
         lockedPhotoIDs: Set<PhotoID> = [],
+        densityFactor: Double = 1.0,
+        filterQuality: Bool = true,
         rng: inout SeededRNG
     ) -> Wall {
         guard !photos.isEmpty, canvasSize.width > 2, canvasSize.height > 2 else {
@@ -44,13 +47,22 @@ public struct Composer {
         }
 
         let engine = LayoutRegistry.engine(for: style)
-        let targetCount = targetTileCount(canvasSize: canvasSize, libraryCount: photos.count)
+        let targetCount = targetTileCount(
+            canvasSize: canvasSize,
+            libraryCount: photos.count,
+            densityFactor: densityFactor
+        )
 
         // Step 1: lift locked photos out of the pool so they are guaranteed
         // to appear in the shortlist. The clusterer operates on the
         // remainder; locks go in first.
         let lockedPhotos = photos.filter { lockedPhotoIDs.contains($0.id) }
-        let freePool     = photos.filter { !lockedPhotoIDs.contains($0.id) }
+        let qualityFloor = filterQuality
+            ? QualityAnalyzer.qualityThreshold
+            : 0.0
+        let freePool = photos.filter {
+            !lockedPhotoIDs.contains($0.id) && $0.qualityScore >= qualityFloor
+        }
         let freeTarget   = max(0, targetCount - lockedPhotos.count)
 
         // Step 2+3: cluster + pick on the active axis (against the free pool).
@@ -175,9 +187,17 @@ public struct Composer {
 
     // MARK: — Sizing
 
-    private func targetTileCount(canvasSize: CGSize, libraryCount: Int) -> Int {
+    private func targetTileCount(
+        canvasSize: CGSize,
+        libraryCount: Int,
+        densityFactor: Double
+    ) -> Int {
         let area = canvasSize.width * canvasSize.height
-        let raw = Int((area / baselineTileArea).rounded())
+        // Density knob widens or tightens the baseline tile area.
+        // Clamped so an extreme setting can't divide by ~0.
+        let factor = max(0.3, densityFactor)
+        let effectiveBaseline = baselineTileArea * CGFloat(factor)
+        let raw = Int((area / effectiveBaseline).rounded())
         return max(6, min(libraryCount, min(64, raw)))
     }
 
@@ -216,7 +236,7 @@ public struct Composer {
     private func sampleFromFeaturePrintClusters(
         photos: [Photo], count: Int, rng: inout SeededRNG
     ) -> [Photo] {
-        let clusters = FeaturePrintClusterer(k: 6).cluster(photos, rng: &rng)
+        let clusters = FeaturePrintClusterer(k: .adaptive).cluster(photos, rng: &rng)
         guard !clusters.isEmpty else {
             // No feature-prints yet — fall through to color clustering so
             // the user still gets a cohesive wall, just not a mood one.

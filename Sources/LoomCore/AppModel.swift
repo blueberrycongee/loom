@@ -65,6 +65,15 @@ public final class AppModel {
     /// spread factor around the canvas center.
     public var wallOpenness: Double = 0.5
 
+    /// How tightly photos pack on the wall. Read by the Composer at
+    /// every Shuffle to scale the target tile count. Persisted.
+    public var density: WallDensity = WallDensity.persisted
+
+    /// Skip blurry, overexposed, and tiny photos during composition.
+    /// Default on — most users want a curated wall. Power users can
+    /// disable in Settings to see every photo in the library.
+    public var filterQuality: Bool = QualityFilterPreference.enabled
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
@@ -113,6 +122,29 @@ public final class AppModel {
 
     public func setOpenness(_ value: Double) {
         wallOpenness = max(0, min(1, value))
+    }
+
+    public func setDensity(_ d: WallDensity) {
+        density = d
+        WallDensity.persisted = d
+    }
+
+    public func setFilterQuality(_ enabled: Bool) {
+        filterQuality = enabled
+        QualityFilterPreference.enabled = enabled
+    }
+}
+
+public enum QualityFilterPreference {
+    private static let key = "loom.filterQuality"
+
+    public static var enabled: Bool {
+        get {
+            // Default to true on first launch (key absent → true).
+            if UserDefaults.standard.object(forKey: key) == nil { return true }
+            return UserDefaults.standard.bool(forKey: key)
+        }
+        set { UserDefaults.standard.set(newValue, forKey: key) }
     }
 }
 

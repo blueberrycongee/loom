@@ -8,7 +8,7 @@ import Foundation
 /// never edit an existing one, add a new one.
 enum Schema {
 
-    static let current: Int32 = 1
+    static let current: Int32 = 3
 
     static let migrations: [Int32: String] = [
         1: """
@@ -50,6 +50,19 @@ enum Schema {
             thumbnail    BLOB,
             created_at   REAL NOT NULL
         );
+        """,
+
+        2: """
+        ALTER TABLE photos ADD COLUMN clip_version INTEGER;
+        ALTER TABLE photos ADD COLUMN clip_bytes   BLOB;
+        """,
+
+        3: """
+        ALTER TABLE photos ADD COLUMN quality_score REAL NOT NULL DEFAULT 1.0;
+        ALTER TABLE photos ADD COLUMN crop_top      REAL NOT NULL DEFAULT 0.0;
+        ALTER TABLE photos ADD COLUMN crop_bottom   REAL NOT NULL DEFAULT 0.0;
+        ALTER TABLE photos ADD COLUMN crop_left     REAL NOT NULL DEFAULT 0.0;
+        ALTER TABLE photos ADD COLUMN crop_right    REAL NOT NULL DEFAULT 0.0;
         """
     ]
 

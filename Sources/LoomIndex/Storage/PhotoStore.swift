@@ -19,8 +19,13 @@ public final class PhotoStore {
             INSERT INTO photos
                 (id, url, width, height, captured_at,
                  dominant_l, dominant_a, dominant_b, color_kelvin,
-                 feature_version, feature_bytes, indexed_at)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+                 feature_version, feature_bytes,
+                 clip_version, clip_bytes,
+                 quality_score,
+                 crop_top, crop_bottom, crop_left, crop_right,
+                 indexed_at)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13,
+                    ?14, ?15, ?16, ?17, ?18, ?19)
             ON CONFLICT(id) DO UPDATE SET
                 url             = excluded.url,
                 width           = excluded.width,
@@ -32,6 +37,13 @@ public final class PhotoStore {
                 color_kelvin    = excluded.color_kelvin,
                 feature_version = excluded.feature_version,
                 feature_bytes   = excluded.feature_bytes,
+                clip_version    = excluded.clip_version,
+                clip_bytes      = excluded.clip_bytes,
+                quality_score   = excluded.quality_score,
+                crop_top        = excluded.crop_top,
+                crop_bottom     = excluded.crop_bottom,
+                crop_left       = excluded.crop_left,
+                crop_right      = excluded.crop_right,
                 indexed_at      = excluded.indexed_at;
             """)
         stmt.bind(1, photo.id.rawValue)
@@ -52,7 +64,17 @@ public final class PhotoStore {
         } else {
             stmt.bindNull(10).bindNull(11)
         }
-        stmt.bind(12, photo.indexedAt.timeIntervalSince1970)
+        if let clip = photo.clipEmbedding {
+            stmt.bind(12, clip.version).bind(13, clip.bytes)
+        } else {
+            stmt.bindNull(12).bindNull(13)
+        }
+        stmt.bind(14, photo.qualityScore)
+            .bind(15, photo.cropInsets.top)
+            .bind(16, photo.cropInsets.bottom)
+            .bind(17, photo.cropInsets.left)
+            .bind(18, photo.cropInsets.right)
+            .bind(19, photo.indexedAt.timeIntervalSince1970)
         _ = try stmt.step()
     }
 
@@ -80,7 +102,11 @@ public final class PhotoStore {
         let stmt = try db.prepare("""
             SELECT id, url, width, height, captured_at,
                    dominant_l, dominant_a, dominant_b, color_kelvin,
-                   feature_version, feature_bytes, indexed_at
+                   feature_version, feature_bytes,
+                   clip_version, clip_bytes,
+                   quality_score,
+                   crop_top, crop_bottom, crop_left, crop_right,
+                   indexed_at
             FROM photos
             ORDER BY captured_at DESC
             LIMIT ?1;
@@ -97,7 +123,11 @@ public final class PhotoStore {
         let stmt = try db.prepare("""
             SELECT id, url, width, height, captured_at,
                    dominant_l, dominant_a, dominant_b, color_kelvin,
-                   feature_version, feature_bytes, indexed_at
+                   feature_version, feature_bytes,
+                   clip_version, clip_bytes,
+                   quality_score,
+                   crop_top, crop_bottom, crop_left, crop_right,
+                   indexed_at
             FROM photos WHERE id = ?1 LIMIT 1;
             """)
         stmt.bind(1, id.rawValue)
@@ -117,14 +147,28 @@ public final class PhotoStore {
 
     private func decode(_ stmt: Statement) -> Photo {
         let captured = stmt.doubleOrNil(4).map { Date(timeIntervalSince1970: $0) }
-        let featureVersion = stmt.intOrNil(9)
-        let featureBytes = stmt.blobOrNil(10)
+
         let fp: FeaturePrint?
-        if let v = featureVersion, let b = featureBytes {
+        if let v = stmt.intOrNil(9), let b = stmt.blobOrNil(10) {
             fp = FeaturePrint(version: v, bytes: b)
         } else {
             fp = nil
         }
+
+        let clip: FeaturePrint?
+        if let v = stmt.intOrNil(11), let b = stmt.blobOrNil(12) {
+            clip = FeaturePrint(version: v, bytes: b)
+        } else {
+            clip = nil
+        }
+
+        let insets = CropInsets(
+            top: stmt.double(14),
+            bottom: stmt.double(15),
+            left: stmt.double(16),
+            right: stmt.double(17)
+        )
+
         return Photo(
             id: PhotoID(stmt.text(0)),
             url: URL(fileURLWithPath: stmt.text(1)),
@@ -133,7 +177,10 @@ public final class PhotoStore {
             dominantColor: LabColor(l: stmt.double(5), a: stmt.double(6), b: stmt.double(7)),
             colorTemperature: ColorTemperature(kelvin: stmt.double(8)),
             featurePrint: fp,
-            indexedAt: Date(timeIntervalSince1970: stmt.double(11))
+            clipEmbedding: clip,
+            qualityScore: stmt.double(13),
+            cropInsets: insets,
+            indexedAt: Date(timeIntervalSince1970: stmt.double(18))
         )
     }
 }

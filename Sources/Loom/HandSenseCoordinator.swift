@@ -142,7 +142,7 @@ final class HandSenseCoordinator {
         switch event {
         case .update(let obs):
             app.setOpenness(obs.openness)
-        case .gesture(.swipeLeft), .gesture(.swipeRight):
+        case .gesture(.shake):
             NotificationCenter.default.post(name: .loomShuffle, object: nil)
         case .lost:
             // Ease back to neutral so the wall breathes out while the

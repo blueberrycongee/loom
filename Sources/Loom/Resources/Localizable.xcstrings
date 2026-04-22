@@ -527,10 +527,58 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用手势控制墙面" } }
       }
     },
-    "Open your palm to spread · make a fist to gather · swipe to shuffle. Camera access required. Video is processed in memory and never recorded." : {
+    "Quality filter" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open your palm to spread · make a fist to gather · swipe to shuffle. Camera access required. Video is processed in memory and never recorded." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "张开手掌就散开 · 握拳就聚拢 · 左右滑就重排。需要摄像头权限。视频仅在内存里处理,不会被录制或保存。" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quality filter" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "质量过滤" } }
+      }
+    },
+    "Filter low-quality photos" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Filter low-quality photos" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "过滤低质量照片" } }
+      }
+    },
+    "Skip blurry, overexposed, and very small photos when composing the wall. Pinned photos are always shown." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skip blurry, overexposed, and very small photos when composing the wall. Pinned photos are always shown." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "组合墙面时跳过模糊、过曝和过小的照片。已固定的照片始终显示。" } }
+      }
+    },
+    "Wall density" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Wall density" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "墙面密度" } }
+      }
+    },
+    "Roomy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Roomy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "宽松" } }
+      }
+    },
+    "Balanced" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Balanced" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "均衡" } }
+      }
+    },
+    "Dense" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dense" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "紧凑" } }
+      }
+    },
+    "Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "宽松:更少更大的照片 · 紧凑:一次容纳更多。主角风格(Editorial、Exhibit)不受影响。" } }
+      }
+    },
+    "Open your palm to spread · make a fist to gather · shake to shuffle. Camera access required. Video is processed in memory and never recorded." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open your palm to spread · make a fist to gather · shake to shuffle. Camera access required. Video is processed in memory and never recorded." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "张开手掌就散开 · 握拳就聚拢 · 晃动手就重排。需要摄像头权限。视频仅在内存里处理,不会被录制或保存。" } }
       }
     },
     "Turn on hand gestures" : {
@@ -551,10 +599,10 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "摄像头权限已关闭" } }
       }
     },
-    "Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, swipe to shuffle. Video is processed frame by frame in memory and never recorded." : {
+    "Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, shake to shuffle. Video is processed frame by frame in memory and never recorded." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, swipe to shuffle. Video is processed frame by frame in memory and never recorded." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手势功能需要摄像头权限。Loom 实时读取你手掌的张开程度——张开手散开墙面,握拳聚拢,左右滑动重排。视频在内存里逐帧处理,不会录制保存。" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, shake to shuffle. Video is processed frame by frame in memory and never recorded." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手势功能需要摄像头权限。Loom 实时读取你手掌的张开程度——张开手散开墙面,握拳聚拢,晃动手重排。视频在内存里逐帧处理,不会录制保存。" } }
       }
     },
     "You previously declined camera access. macOS won't show the permission dialog again — to use hand gestures you'll need to grant access manually in System Settings." : {

@@ -63,8 +63,10 @@ public struct HandObservation: Sendable, Equatable {
 }
 
 public enum HandGesture: Sendable, Equatable {
-    case swipeLeft
-    case swipeRight
+    /// A deliberate back-and-forth wiggle of the palm — the "shake to
+    /// shuffle" metaphor. Emitted once per shake after the reversal
+    /// count passes threshold; cooldown-gated upstream.
+    case shake
 }
 
 // MARK: — Tuning constants
@@ -91,9 +93,16 @@ public enum HandSenseTuning {
     // Confidence floor under which a frame is ignored.
     public static let jointConfidenceFloor: Double = 0.20
 
-    // Swipe detection
-    public static let swipeVelocityThreshold: Double  = 1.6   // normalized x-per-second
-    public static let swipeCooldown: TimeInterval     = 0.8
+    // Shake detection — "shake to shuffle". A single hand-wiggle is a
+    // handful of left/right direction reversals of the palm, each
+    // covering at least ``shakeMinExcursion`` of the frame. Natural
+    // hand drift doesn't reverse direction forcefully, so this is
+    // robust against false positives without needing a fast motion.
+    public static let shakeWindow: TimeInterval       = 0.8   // rolling detection window
+    public static let shakeMinExcursion: Double       = 0.05  // min |Δx| between reversals (normalized)
+    public static let shakeReversalsToTrigger: Int    = 2     // 2 reversals = one full back-and-forth
+    public static let shakeVelocityDeadzone: Double   = 0.15  // below this |vx| (normalized/sec), ignore as noise
+    public static let shakeCooldown: TimeInterval     = 1.0   // one fire per shake, then re-arm
 
     // Recovery
     public static let lostAfter: TimeInterval = 1.2   // emit .lost after N sec without a confident frame

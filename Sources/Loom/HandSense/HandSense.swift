@@ -40,10 +40,19 @@ final class HandSense: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
     private var lastEmittedOpenness: Double = 0.5
     private var lastPalmX: Double = 0.5
     private var lastFrameTime: Date = .distantPast
-    private var lastSwipeTime: Date = .distantPast
+    private var lastShakeTime: Date = .distantPast
     private var lastConfidentFrameTime: Date = .distantPast
     private var handIsLost: Bool = true
     private var lastProcessTime: Date = .distantPast
+
+    // Shake detection state. We track the sign of palm-X velocity and
+    // the palm-X value at the moment of the last reversal, so we can
+    // measure each "lobe" of the wiggle. Reversal timestamps let us
+    // decide if two reversals happened close enough to count as one
+    // shake.
+    private var lastVelocitySign: Int = 0
+    private var palmXAtLastReversal: Double = 0.5
+    private var reversalTimes: [Date] = []
 
     private let targetFPS: Double = 15.0
 
@@ -129,7 +138,7 @@ final class HandSense: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
 
         // Front-camera orientation: ".leftMirrored" flips the image so
         // "right in Vision's frame" corresponds to the user's right hand
-        // moving right. Swipe velocity reads naturally.
+        // moving right. Palm-X velocity reads naturally for shake detection.
         let handler = VNImageRequestHandler(
             cmSampleBuffer: sampleBuffer,
             orientation: .leftMirrored,
@@ -190,12 +199,11 @@ final class HandSense: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
 
         let avgConfidence = confidenceSum / Double(tipPoints.count + 1)
 
-        // Palm velocity for swipe detection.
+        // Palm velocity for shake detection.
         let palmX = Double(wristLoc.x)
         let palmY = Double(wristLoc.y)
         let dt = max(0.001, now.timeIntervalSince(lastFrameTime))
         let vx = (palmX - lastPalmX) / dt
-        lastPalmX = palmX
         lastFrameTime = now
         lastConfidentFrameTime = now
         handIsLost = false
@@ -215,13 +223,50 @@ final class HandSense: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
             ))
         }
 
-        // Swipe detection — gated by both a velocity threshold and a
-        // cooldown so one fast flick emits exactly one event, not a
-        // stream-of-events over the frames the hand is still moving.
-        if abs(vx) >= HandSenseTuning.swipeVelocityThreshold,
-           now.timeIntervalSince(lastSwipeTime) >= HandSenseTuning.swipeCooldown {
-            lastSwipeTime = now
-            continuation?.yield(.gesture(vx > 0 ? .swipeRight : .swipeLeft))
+        // Shake detection. Count direction reversals of palm-X within
+        // a rolling window; each reversal must cover at least
+        // ``shakeMinExcursion`` of the frame width since the previous
+        // reversal point. Two reversals inside the window = one
+        // deliberate shake. Cooldown prevents re-fires while the hand
+        // is still oscillating.
+        detectShake(palmX: palmX, vx: vx, now: now)
+        lastPalmX = palmX
+    }
+
+    private func detectShake(palmX: Double, vx: Double, now: Date) {
+        // Drop reversals that have aged out of the window.
+        let window = HandSenseTuning.shakeWindow
+        reversalTimes.removeAll { now.timeIntervalSince($0) > window }
+
+        let sign: Int = {
+            if vx >  HandSenseTuning.shakeVelocityDeadzone { return  1 }
+            if vx < -HandSenseTuning.shakeVelocityDeadzone { return -1 }
+            return 0
+        }()
+
+        if sign != 0 {
+            if lastVelocitySign == 0 {
+                // First decisive motion — seed the excursion baseline.
+                palmXAtLastReversal = palmX
+            } else if sign != lastVelocitySign {
+                // Direction reversed — count it if the hand actually
+                // travelled far enough since the last reversal.
+                if abs(palmX - palmXAtLastReversal) >= HandSenseTuning.shakeMinExcursion {
+                    reversalTimes.append(now)
+                    palmXAtLastReversal = palmX
+                }
+            }
+            lastVelocitySign = sign
+        }
+
+        let cooldownOver = now.timeIntervalSince(lastShakeTime)
+            >= HandSenseTuning.shakeCooldown
+        if reversalTimes.count >= HandSenseTuning.shakeReversalsToTrigger,
+           cooldownOver {
+            lastShakeTime = now
+            reversalTimes.removeAll()
+            lastVelocitySign = 0
+            continuation?.yield(.gesture(.shake))
         }
     }
 

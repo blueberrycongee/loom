@@ -162,6 +162,10 @@ final class LibraryCoordinator {
 
     // MARK: — Run
 
+    /// Minimum time the indexing animation stays visible so the
+    /// MiniWall wave always plays even on a fast re-scan.
+    private static let minAnimationTime: TimeInterval = 1.4
+
     private func openPhotosLibrary() {
         task?.cancel()
         app.libraryURL = URL(fileURLWithPath: "/photokit")
@@ -171,6 +175,7 @@ final class LibraryCoordinator {
         favorites?.open(forLibraryRoot: app.libraryURL!)
         app.setPhase(.indexing(.discovering))
 
+        let scanStart = Date()
         task = Task { [weak self] in
             guard let self else { return }
             do {
@@ -188,6 +193,7 @@ final class LibraryCoordinator {
                     }
                     if case .done = snapshot.stage {
                         let photos = (try? await indexer.allPhotos()) ?? []
+                        await Self.waitForAnimation(since: scanStart)
                         await MainActor.run {
                             self.app.setPhotos(photos)
                             self.app.clearIndexed()
@@ -211,6 +217,7 @@ final class LibraryCoordinator {
         favorites?.open(forLibraryRoot: url)
         app.setPhase(.indexing(.discovering))
 
+        let scanStart = Date()
         task = Task { [weak self] in
             guard let self else { return }
             do {
@@ -228,6 +235,7 @@ final class LibraryCoordinator {
                     }
                     if case .done = snapshot.stage {
                         let photos = (try? await indexer.allPhotos()) ?? []
+                        await Self.waitForAnimation(since: scanStart)
                         await MainActor.run {
                             self.app.setPhotos(photos)
                             self.app.clearIndexed()
@@ -242,6 +250,14 @@ final class LibraryCoordinator {
                     ))
                 }
             }
+        }
+    }
+
+    private static func waitForAnimation(since start: Date) async {
+        let elapsed = Date().timeIntervalSince(start)
+        let remaining = minAnimationTime - elapsed
+        if remaining > 0 {
+            try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
         }
     }
 }

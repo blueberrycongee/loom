@@ -19,15 +19,21 @@ public struct WallCanvas: View {
     @Environment(AppModel.self) private var app
     let photos: [Photo]
 
-    /// Per-tile manual-resize override, kept as local @State so we don't
-    /// rebuild the entire Wall struct on every drag tick. On drag-end
-    /// the final frame is committed back into app.wall (preserving
-    /// wall.id so downstream staggered-wave animations don't re-trigger)
-    /// and the override clears.
-    @State private var resizeOverride: ResizeOverride?
+    /// Live direct-manipulation override, kept as local @State so we
+    /// don't rebuild the entire Wall struct on every drag tick. On
+    /// drag-end the final frame is committed back into ``app.wall``
+    /// (preserving ``wall.id`` so downstream staggered-wave animations
+    /// don't re-trigger) and the override clears.
+    @State private var dragOverride: DragOverride?
 
-    private struct ResizeOverride: Equatable {
+    private enum DragKind: Equatable {
+        case resize(ResizeCorner)
+        case move
+    }
+
+    private struct DragOverride: Equatable {
         let photoID: PhotoID
+        let kind: DragKind
         let initialFrame: CGRect
         var currentFrame: CGRect
     }
@@ -60,10 +66,11 @@ public struct WallCanvas: View {
             ZStack(alignment: .topLeading) {
                 ForEach(wall.tiles, id: \.photoID) { tile in
                     let delay = staggerDelay(for: tile, wall: wall)
-                    // Effective frame: the drag-override's live rect during
-                    // a resize drag, otherwise the committed tile.frame.
-                    let effectiveFrame = (resizeOverride?.photoID == tile.photoID)
-                        ? resizeOverride!.currentFrame
+                    let isInteracting = dragOverride?.photoID == tile.photoID
+                    // Effective frame: the drag-override's live rect while
+                    // a drag is in flight, otherwise the committed tile.frame.
+                    let effectiveFrame = isInteracting
+                        ? dragOverride!.currentFrame
                         : tile.frame
                     let spreadMid = spreadPosition(
                         original: CGPoint(x: effectiveFrame.midX, y: effectiveFrame.midY),
@@ -76,14 +83,18 @@ public struct WallCanvas: View {
                         photo: photoByID[tile.photoID],
                         style: wall.style,
                         isLocked: app.lockedPhotoIDs.contains(tile.photoID),
+                        isInteracting: isInteracting,
                         onToggleLock: {
                             withLoomAnimation(LoomMotion.snap) {
                                 app.toggleLock(tile.photoID)
                             }
                             Haptics.snap()
                         },
-                        onResize: { phase in
-                            handleResize(tile: tile, phase: phase, scale: scale)
+                        onResize: { corner, phase in
+                            handleResize(tile: tile, corner: corner, phase: phase, scale: scale)
+                        },
+                        onMove: { phase in
+                            handleMove(tile: tile, phase: phase, scale: scale)
                         }
                     )
                     .position(
@@ -94,6 +105,9 @@ public struct WallCanvas: View {
                         width: effectiveFrame.width * scale,
                         height: effectiveFrame.height * scale
                     )
+                    // Raise the actively-dragged tile above its neighbors
+                    // so its shadow halo doesn't get clipped behind them.
+                    .zIndex(isInteracting ? 1 : 0)
                     .transition(Weave.insertTransition(delay: delay))
                     .animation(Weave.settleAnimation(delay: delay), value: wall.id)
                     // Subtle spring just for the openness-driven glide so
@@ -106,50 +120,144 @@ public struct WallCanvas: View {
         }
     }
 
-    // MARK: — Resize
+    // MARK: — Direct manipulation
 
-    private func handleResize(tile: Tile, phase: ResizePhase, scale: CGFloat) {
+    private func handleResize(
+        tile: Tile,
+        corner: ResizeCorner,
+        phase: TileDragPhase,
+        scale: CGFloat
+    ) {
         switch phase {
         case .began:
-            resizeOverride = ResizeOverride(
+            dragOverride = DragOverride(
                 photoID: tile.photoID,
+                kind: .resize(corner),
                 initialFrame: tile.frame,
                 currentFrame: tile.frame
             )
         case .changed(let translationScreen):
-            guard var override = resizeOverride,
+            guard var override = dragOverride,
                   override.photoID == tile.photoID,
+                  case .resize(let activeCorner) = override.kind,
+                  activeCorner == corner,
                   scale > 0 else { return }
-            // Translate screen-space drag into canvas space. Width drives
-            // the resize; height follows to keep aspect locked (photos
-            // shouldn't stretch).
-            let deltaW = translationScreen.width / scale
-            let aspect = override.initialFrame.width / max(override.initialFrame.height, 1)
-            let minW: CGFloat = 40
-            let maxW = app.wall.canvasSize.width * 0.85
-            let newW = min(maxW, max(minW, override.initialFrame.width + deltaW))
-            let newH = newW / aspect
-            override.currentFrame = CGRect(
-                x: override.initialFrame.minX,
-                y: override.initialFrame.minY,
-                width: newW,
-                height: newH
+            override.currentFrame = resizedFrame(
+                from: override.initialFrame,
+                corner: corner,
+                translationScreen: translationScreen,
+                scale: scale
             )
-            resizeOverride = override
+            dragOverride = override
         case .ended:
-            guard let override = resizeOverride,
+            guard let override = dragOverride,
                   override.photoID == tile.photoID else { return }
-            commit(resizedPhotoID: override.photoID, to: override.currentFrame)
-            resizeOverride = nil
+            commit(photoID: override.photoID, to: override.currentFrame)
+            dragOverride = nil
         }
+    }
+
+    private func handleMove(tile: Tile, phase: TileDragPhase, scale: CGFloat) {
+        switch phase {
+        case .began:
+            dragOverride = DragOverride(
+                photoID: tile.photoID,
+                kind: .move,
+                initialFrame: tile.frame,
+                currentFrame: tile.frame
+            )
+        case .changed(let translationScreen):
+            guard var override = dragOverride,
+                  override.photoID == tile.photoID,
+                  case .move = override.kind,
+                  scale > 0 else { return }
+            let dx = translationScreen.width  / scale
+            let dy = translationScreen.height / scale
+            override.currentFrame = clampedToCanvas(
+                override.initialFrame.offsetBy(dx: dx, dy: dy),
+                canvas: app.wall.canvasSize
+            )
+            dragOverride = override
+        case .ended:
+            guard let override = dragOverride,
+                  override.photoID == tile.photoID,
+                  case .move = override.kind else { return }
+            commit(photoID: override.photoID, to: override.currentFrame)
+            dragOverride = nil
+        }
+    }
+
+    /// Compute the resized frame for a corner-drag. The *opposite* corner
+    /// stays fixed (that's the anchor); the dragged corner moves along
+    /// its outward diagonal. Aspect is locked to the original so photos
+    /// never stretch. A minimum of 40pt and 85% of the canvas provides
+    /// a sane range.
+    private func resizedFrame(
+        from initial: CGRect,
+        corner: ResizeCorner,
+        translationScreen: CGSize,
+        scale: CGFloat
+    ) -> CGRect {
+        let dxCanvas = translationScreen.width  / scale
+        let dyCanvas = translationScreen.height / scale
+        // Project drag onto the corner's outward direction: positive =
+        // grow, negative = shrink. A pure horizontal or vertical drag
+        // still produces a signed magnitude because the outward vector
+        // has both components.
+        let out = corner.outward
+        let outwardDelta = dxCanvas * out.width + dyCanvas * out.height
+
+        let aspect = initial.width / max(initial.height, 1)
+        let minW: CGFloat = 40
+        let maxW = max(minW + 1, app.wall.canvasSize.width * 0.85)
+        // Drag is scaled by √2 to feel natural: a full unit of diagonal
+        // motion (dxCanvas = dyCanvas = k) nets an outwardDelta of k√2,
+        // which is exactly what we want applied as a width change.
+        let rawW = initial.width + outwardDelta * CGFloat(1.4142135623730951)
+        let newW = min(maxW, max(minW, rawW))
+        let newH = newW / aspect
+
+        // Anchor point: the corner diagonally opposite the handle stays
+        // fixed in canvas space. New origin is derived from that anchor.
+        let anchor: CGPoint
+        switch corner {
+        case .topLeft:     anchor = CGPoint(x: initial.maxX, y: initial.maxY)
+        case .topRight:    anchor = CGPoint(x: initial.minX, y: initial.maxY)
+        case .bottomLeft:  anchor = CGPoint(x: initial.maxX, y: initial.minY)
+        case .bottomRight: anchor = CGPoint(x: initial.minX, y: initial.minY)
+        }
+        let newOrigin: CGPoint
+        switch corner {
+        case .topLeft:     newOrigin = CGPoint(x: anchor.x - newW, y: anchor.y - newH)
+        case .topRight:    newOrigin = CGPoint(x: anchor.x,         y: anchor.y - newH)
+        case .bottomLeft:  newOrigin = CGPoint(x: anchor.x - newW, y: anchor.y)
+        case .bottomRight: newOrigin = CGPoint(x: anchor.x,         y: anchor.y)
+        }
+        return CGRect(origin: newOrigin, size: CGSize(width: newW, height: newH))
+    }
+
+    /// Keep the tile's center within the canvas so a move can't strand
+    /// a tile off-screen. The tile can still extend beyond the canvas
+    /// edge — that matches the wall's existing bleed feel — but the
+    /// center stays reachable.
+    private func clampedToCanvas(_ rect: CGRect, canvas: CGSize) -> CGRect {
+        guard canvas.width > 0, canvas.height > 0 else { return rect }
+        let cx = min(canvas.width,  max(0, rect.midX))
+        let cy = min(canvas.height, max(0, rect.midY))
+        return CGRect(
+            x: cx - rect.width  / 2,
+            y: cy - rect.height / 2,
+            width: rect.width,
+            height: rect.height
+        )
     }
 
     /// Replace one tile's frame in ``app.wall`` with the new rect,
     /// preserving the wall's identity so downstream
     /// `.animation(_:, value: wall.id)` watchers don't re-fire.
-    private func commit(resizedPhotoID: PhotoID, to newFrame: CGRect) {
+    private func commit(photoID: PhotoID, to newFrame: CGRect) {
         var tiles = app.wall.tiles
-        guard let idx = tiles.firstIndex(where: { $0.photoID == resizedPhotoID }) else { return }
+        guard let idx = tiles.firstIndex(where: { $0.photoID == photoID }) else { return }
         tiles[idx].frame = newFrame
         app.wall = Wall(
             id: app.wall.id,

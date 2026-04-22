@@ -60,6 +60,57 @@ private struct GeneralSettings: View {
                 .labelsHidden()
             }
 
+            SettingsSection(title: "Wall density") {
+                VStack(alignment: .leading, spacing: LoomSpacing.sm) {
+                    Picker("", selection: Binding(
+                        get: { app.density },
+                        set: { newValue in
+                            app.setDensity(newValue)
+                            // Re-shuffle so the change is immediately
+                            // visible — density only affects new
+                            // compositions, not the current tile frames.
+                            NotificationCenter.default.post(
+                                name: .loomShuffle, object: nil
+                            )
+                        }
+                    )) {
+                        ForEach(WallDensity.allCases, id: \.self) { d in
+                            Text(d.displayName).tag(d)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    Text("Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed.")
+                        .font(LoomType.caption)
+                        .foregroundStyle(Palette.inkFaint)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            SettingsSection(title: "Quality filter") {
+                VStack(alignment: .leading, spacing: LoomSpacing.sm) {
+                    Toggle(isOn: Binding(
+                        get: { app.filterQuality },
+                        set: { newValue in
+                            app.setFilterQuality(newValue)
+                            NotificationCenter.default.post(
+                                name: .loomShuffle, object: nil
+                            )
+                        }
+                    )) {
+                        Text("Filter low-quality photos")
+                            .font(LoomType.body)
+                            .foregroundStyle(Palette.ink)
+                    }
+                    Text("Skip blurry, overexposed, and very small photos when composing the wall. Pinned photos are always shown.")
+                        .font(LoomType.caption)
+                        .foregroundStyle(Palette.inkFaint)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
             SettingsSection(title: "Gestures") {
                 VStack(alignment: .leading, spacing: LoomSpacing.sm) {
                     Toggle(isOn: Binding(
@@ -74,7 +125,7 @@ private struct GeneralSettings: View {
                             .font(LoomType.body)
                             .foregroundStyle(Palette.ink)
                     }
-                    Text("Open your palm to spread · make a fist to gather · swipe to shuffle. Camera access required. Video is processed in memory and never recorded.")
+                    Text("Open your palm to spread · make a fist to gather · shake to shuffle. Camera access required. Video is processed in memory and never recorded.")
                         .font(LoomType.caption)
                         .foregroundStyle(Palette.inkFaint)
                         .lineLimit(nil)

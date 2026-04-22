@@ -87,16 +87,20 @@ public actor Indexer {
             if cancelled { break }
             let id = PhotoIdentity.id(for: url)
 
-            // Skip already-indexed, unmodified files.
+            // Skip already-indexed, unmodified files. Still emit
+            // the existing photo as ``recentPhoto`` at a throttled
+            // cadence so the MiniWall animation replays on re-opens.
             if known.contains(id),
-               let rowDate = try? store.find(id)?.indexedAt,
+               let existing = try? store.find(id),
                let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
                let mtime = attrs[.modificationDate] as? Date,
-               mtime <= rowDate {
+               mtime <= existing.indexedAt {
                 done += 1
+                let emitInterval = max(1, total / 96)
                 out.yield(IndexProgress(
                     stage: .extracting, completed: done, total: total,
-                    currentFile: url.lastPathComponent
+                    currentFile: url.lastPathComponent,
+                    recentPhoto: (done % emitInterval == 0) ? existing : nil
                 ))
                 continue
             }
@@ -160,6 +164,9 @@ public actor Indexer {
                 temperature: .neutral
             )
         let print = VisionFeatures.extract(from: url)
+        let clip = CLIPFeatures.extract(from: url)
+        let quality = QualityAnalyzer.analyze(url, pixelSize: meta.pixelSize)
+        let borders = BorderDetector.detect(url)
         return Photo(
             id: id,
             url: url,
@@ -168,6 +175,9 @@ public actor Indexer {
             dominantColor: color.dominant,
             colorTemperature: color.temperature,
             featurePrint: print,
+            clipEmbedding: clip,
+            qualityScore: quality,
+            cropInsets: borders,
             indexedAt: Date()
         )
     }

@@ -48,15 +48,36 @@ public struct Wall: Identifiable, Hashable, Sendable {
     public var isEmpty: Bool { tiles.isEmpty }
 }
 
-/// A phase of the rendering layer's per-tile resize drag.
+/// A phase of a per-tile direct-manipulation drag (resize or move).
 ///
 /// Lives in ``LoomCore`` so both ``LoomUI.TileView`` (which emits) and
 /// ``LoomUI.WallCanvas`` (which consumes) can reference the type without
 /// either depending on the other.
-public enum ResizePhase: Sendable {
+public enum TileDragPhase: Sendable {
     case began
     case changed(CGSize)   // cumulative screen-space translation from drag start
     case ended
+}
+
+/// Which corner-handle the user is dragging during a resize. The handle's
+/// *opposite* corner is the anchor — it stays pinned while the drag grows
+/// or shrinks the tile along the diagonal.
+public enum ResizeCorner: Sendable, Hashable {
+    case topLeft, topRight, bottomLeft, bottomRight
+
+    /// Unit-length outward direction from the tile center through the
+    /// corner. Dragging along this vector grows the tile; along the
+    /// opposite vector shrinks it. Used by ``WallCanvas`` to project the
+    /// screen-space drag onto a single signed magnitude.
+    public var outward: CGSize {
+        let s = CGFloat(0.7071067811865476) // 1/√2
+        switch self {
+        case .topLeft:     return CGSize(width: -s, height: -s)
+        case .topRight:    return CGSize(width:  s, height: -s)
+        case .bottomLeft:  return CGSize(width: -s, height:  s)
+        case .bottomRight: return CGSize(width:  s, height:  s)
+        }
+    }
 }
 
 /// A placed photo on a wall.

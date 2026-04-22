@@ -109,7 +109,7 @@ public struct PermissionSheet: View {
                 .lineSpacing(4)
 
         case .cameraExplainer:
-            Text("Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, swipe to shuffle. Video is processed frame by frame in memory and never recorded.")
+            Text("Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, shake to shuffle. Video is processed frame by frame in memory and never recorded.")
                 .font(LoomType.body)
                 .foregroundStyle(Palette.inkMuted)
                 .lineSpacing(4)

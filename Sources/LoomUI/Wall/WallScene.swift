@@ -23,8 +23,11 @@ public struct WallScene: View {
 
     @Environment(AppModel.self) private var app
     @State private var canvasSize: CGSize = .zero
+    @State private var chromeVisible = true
+    @State private var chromeIdleTask: Task<Void, Never>?
 
     private let composer = Composer(candidates: 4)
+    private static let chromeIdleDelay: UInt64 = 3_000_000_000 // 3s
 
     public init() {}
 
@@ -44,8 +47,29 @@ public struct WallScene: View {
                 .animation(LoomMotion.breathe, value: app.wall.isEmpty)
         }
         .overlay(alignment: .bottom) {
-            WallChrome(shuffle: shuffleNow)
-                .padding(.bottom, LoomSpacing.xl)
+            WallChrome(
+                shuffle: shuffleNow,
+                isNarrow: canvasSize.width > 100 && canvasSize.width < 520
+            )
+            .padding(.bottom, LoomSpacing.lg)
+            .opacity(chromeVisible ? 1 : 0)
+            .offset(y: chromeVisible ? 0 : 16)
+            .animation(LoomMotion.breathe, value: chromeVisible)
+            .onHover { hovering in
+                if hovering { revealChrome() }
+                else { scheduleHideChrome() }
+            }
+        }
+        // Invisible trigger zone: mouse approaching the bottom edge
+        // reveals the chrome even when it's faded out.
+        .overlay(alignment: .bottom) {
+            Color.clear
+                .frame(height: 70)
+                .contentShape(Rectangle())
+                .onHover { near in
+                    if near { revealChrome() }
+                }
+                .allowsHitTesting(chromeVisible ? false : true)
         }
         .overlay(alignment: .topLeading) {
             LibraryChip()
@@ -59,11 +83,11 @@ public struct WallScene: View {
             // Auto-shuffle on first entry so users see a wall immediately.
             if app.wall.isEmpty && !app.photos.isEmpty {
                 Task { @MainActor in
-                    // Small delay so the scene has a measured canvas size.
                     try? await Task.sleep(nanoseconds: 120_000_000)
                     shuffleNow()
                 }
             }
+            scheduleHideChrome()
         }
         .onReceive(NotificationCenter.default.publisher(for: .loomShuffle)) { _ in
             shuffleNow()
@@ -160,19 +184,28 @@ public struct WallScene: View {
     }
 
     private func effectiveCanvas(_ raw: CGSize) -> CGSize {
-        // Subtract chrome padding so the wall actually fits without clipping.
+        // ``canvas`` applies its own ``.padding(LoomSpacing.xl)`` to inset
+        // the visible rendering region, so we subtract that once. The
+        // chrome and library/settings chips are ``.overlay``s — zero
+        // height in the layout flow — so they *float* over the wall and
+        // must not shrink the composition canvas. Subtracting for them
+        // (the old "-120") just produced fewer, smaller tiles and left a
+        // strip of empty space the user reads as a sizing bug.
         CGSize(
             width:  max(0, raw.width  - LoomSpacing.xl * 2),
-            height: max(0, raw.height - LoomSpacing.xl * 2 - 120)  // chrome region
+            height: max(0, raw.height - LoomSpacing.xl * 2)
         )
     }
 
     // MARK: — Shuffle
 
     private func shuffleNow() {
+        revealChrome()
+        scheduleHideChrome()
+
         let size = canvasSize.width > 100
             ? canvasSize
-            : CGSize(width: 1200, height: 700)  // fallback until GeometryReader paints
+            : CGSize(width: 1200, height: 700)
 
         let seedBase = UInt64(Date().timeIntervalSinceReferenceDate * 1000)
         var rng = SeededRNG(seed: seedBase ^ UInt64(app.style.hashValue & 0xFFFFFFFF))
@@ -183,10 +216,28 @@ public struct WallScene: View {
             axis: app.axis,
             canvasSize: size,
             lockedPhotoIDs: app.lockedPhotoIDs,
+            densityFactor: app.density.tileAreaFactor,
+            filterQuality: app.filterQuality,
             rng: &rng
         )
         withLoomAnimation(LoomMotion.weave) {
             app.wall = wall
+        }
+    }
+
+    // MARK: — Chrome visibility
+
+    private func revealChrome() {
+        chromeIdleTask?.cancel()
+        chromeVisible = true
+    }
+
+    private func scheduleHideChrome() {
+        chromeIdleTask?.cancel()
+        chromeIdleTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: Self.chromeIdleDelay)
+            guard !Task.isCancelled else { return }
+            chromeVisible = false
         }
     }
 }

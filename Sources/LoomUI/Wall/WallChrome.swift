@@ -4,55 +4,63 @@ import LoomDesign
 
 /// The floating toolbar at the bottom of the wall.
 ///
-/// Redesigned: **secondary + primary**. Axis and Style live as plain
-/// text chips with a chevron (no capsule-in-capsule clutter); Shuffle
-/// keeps its brass hero styling and now sits alone on the right with a
-/// thin paper-rule hairline separating it from the secondary controls.
-/// Background is a solid warm surface — no ``.ultraThinMaterial`` blur,
-/// which read as translucent glass and fought the paper-canvas metaphor.
+/// **Auto-hide**: appears on launch, fades out after ~3s of idle, slides
+/// back in when the cursor approaches the bottom edge. During hover the
+/// chrome stays solid; on exit the idle timer restarts.
 ///
-/// One visual vocabulary across the three regions: matching horizontal
-/// padding, matching chevron weight, matching hover lift. The chrome is
-/// meant to disappear; the wall is the product.
+/// **Layout**: two groups separated by breathing room (no explicit divider).
+/// Secondary controls (Axis / Style) sit left as quiet text chips;
+/// the primary Shuffle button sits right in brass. Material-backed with
+/// a warm canvas tint — frosted glass that belongs on the paper canvas
+/// rather than fighting it.
 public struct WallChrome: View {
 
     @Environment(AppModel.self) private var app
     public let shuffle: () -> Void
+    public let isNarrow: Bool
 
-    @State private var hoveringBar = false
     @State private var hoveredChip: Chip?
 
     private enum Chip: Hashable { case axis, style }
 
-    public init(shuffle: @escaping () -> Void) {
+    public init(shuffle: @escaping () -> Void, isNarrow: Bool = false) {
         self.shuffle = shuffle
+        self.isNarrow = isNarrow
     }
 
     public var body: some View {
         HStack(spacing: 0) {
             axisChip
-            gap
+            separator
             styleChip
 
-            ruleDivider
+            Spacer()
+                .frame(width: LoomSpacing.lg)
 
-            ShuffleButton(compact: true, action: shuffle)
-                .padding(.leading, LoomSpacing.xs)
+            ShuffleButton(showShortcut: !isNarrow, action: shuffle)
         }
-        .padding(.horizontal, LoomSpacing.sm)
-        .padding(.vertical, LoomSpacing.xs)
+        .padding(.horizontal, LoomSpacing.md)
+        .padding(.vertical, LoomSpacing.xs + 2)
         .background(
             Capsule(style: .continuous)
-                .fill(Palette.surface)
+                .fill(.ultraThinMaterial)
+        )
+        .background(
+            Capsule(style: .continuous)
+                .fill(Palette.canvas.opacity(0.55))
         )
         .overlay(
             Capsule(style: .continuous)
-                .strokeBorder(Palette.hairline, lineWidth: 1)
+                .strokeBorder(Palette.hairline.opacity(0.6), lineWidth: 0.5)
         )
-        .surfaceShadow()
-        .offset(y: hoveringBar ? -4 : 0)
-        .onHover { hoveringBar = $0 }
-        .animation(LoomMotion.hover, value: hoveringBar)
+        .shadow(
+            color: LoomShadow.tone.opacity(0.10),
+            radius: 20, x: 0, y: 8
+        )
+        .shadow(
+            color: LoomShadow.tone.opacity(0.04),
+            radius: 2, x: 0, y: 1
+        )
     }
 
     // MARK: — Chips
@@ -110,9 +118,6 @@ public struct WallChrome: View {
         .fixedSize()
     }
 
-    /// Single source of truth for chip appearance — any future chips
-    /// (e.g. a palette-mode toggle) reuse this shape and spacing so the
-    /// rhythm across the chrome stays consistent.
     private func chipLabel(_ text: Text, kind: Chip) -> some View {
         HStack(spacing: LoomSpacing.xs) {
             text
@@ -121,14 +126,16 @@ public struct WallChrome: View {
                 .fixedSize(horizontal: true, vertical: false)
                 .foregroundStyle(Palette.ink)
             Image(systemName: "chevron.down")
-                .font(.system(size: 8, weight: .bold))
+                .font(.system(size: 7, weight: .semibold))
                 .foregroundStyle(Palette.inkFaint)
         }
-        .padding(.horizontal, LoomSpacing.md)
-        .padding(.vertical, LoomSpacing.xs + 1)
+        .padding(.horizontal, LoomSpacing.sm + 2)
+        .padding(.vertical, LoomSpacing.xs + 2)
         .background(
             Capsule(style: .continuous)
-                .fill(hoveredChip == kind ? Palette.surfaceElevated : Color.clear)
+                .fill(hoveredChip == kind
+                      ? Palette.ink.opacity(0.06)
+                      : Color.clear)
         )
         .onHover { entered in
             if entered { hoveredChip = kind }
@@ -137,19 +144,13 @@ public struct WallChrome: View {
         .animation(LoomMotion.hover, value: hoveredChip)
     }
 
-    // MARK: — Rule / spacer
+    // MARK: — Separator
 
-    private var gap: some View {
-        Spacer().frame(width: LoomSpacing.xxs)
-    }
-
-    /// Paper-rule style divider — not a heavy pipe. Signals the
-    /// secondary-vs-primary transition without visual noise.
-    private var ruleDivider: some View {
-        Rectangle()
-            .fill(Palette.hairline)
-            .frame(width: 1, height: 20)
-            .padding(.horizontal, LoomSpacing.sm)
+    private var separator: some View {
+        Text("·")
+            .font(.system(size: 11, weight: .light))
+            .foregroundStyle(Palette.inkFaint)
+            .padding(.horizontal, LoomSpacing.xs)
     }
 
     private func isAvailable(_ axis: ClusterAxis) -> Bool {
