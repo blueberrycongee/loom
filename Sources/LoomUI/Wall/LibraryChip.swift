@@ -56,7 +56,10 @@ public struct LibraryChip: View {
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
-        .fixedSize()
+        // No .fixedSize() here — the inner label handles width via the
+        // 340pt max-width cap + truncation on the folder name, so the
+        // chip stays within the top-left region instead of extending
+        // across the wall on long folder names.
         .onHover { hovered = $0 }
         .animation(LoomMotion.hover, value: hovered)
     }
@@ -69,19 +72,28 @@ public struct LibraryChip: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Palette.brass)
 
+            // Folder basenames can be arbitrarily long. Let the Text
+            // truncate (middle ellipsis) rather than demanding ideal
+            // width via .fixedSize — on narrow windows the chip would
+            // otherwise overflow toward the right edge and collide with
+            // SettingsChip. Surrounding items are .fixedSize() so only
+            // this one flexes when the 340pt frame cap bites.
             libraryNameText
                 .font(LoomType.caption)
                 .foregroundStyle(Palette.ink)
                 .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
+                .truncationMode(.middle)
 
             Text("·")
                 .font(LoomType.caption)
                 .foregroundStyle(Palette.inkFaint)
+                .fixedSize()
 
             Text("\(app.photos.count) photos")
                 .font(LoomType.monoSm)
                 .foregroundStyle(Palette.inkMuted)
+                .lineLimit(1)
+                .fixedSize()
 
             Image(systemName: "chevron.down")
                 .font(.system(size: 8, weight: .bold))
@@ -96,6 +108,7 @@ public struct LibraryChip: View {
                 .background(.ultraThinMaterial, in: Capsule())
         )
         .overlay(Capsule().strokeBorder(Palette.hairline, lineWidth: 1))
+        .frame(maxWidth: 340, alignment: .leading)
         .offset(y: hovered ? -1 : 0)
     }
 
