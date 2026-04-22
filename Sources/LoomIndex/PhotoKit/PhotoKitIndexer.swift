@@ -55,8 +55,7 @@ public actor PhotoKitIndexer {
         if status != .authorized && status != .limited {
             let result = await PhotoKitAuthorization.request()
             if result != .authorized && result != .limited {
-                let message = String(localized: "Photos access denied — grant in System Settings → Privacy.")
-                out.yield(IndexProgress(stage: .failed(message)))
+                out.yield(IndexProgress(stage: .failed("Photos access denied — grant in System Settings → Privacy.")))
                 return
             }
         }
