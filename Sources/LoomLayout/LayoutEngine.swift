@@ -27,7 +27,7 @@ public enum LayoutRegistry {
         case .tapestry:  return TapestryEngine()
         case .editorial: return EditorialEngine()
         case .gallery:   return GalleryEngine()
-        case .collage:   return TapestryEngine()   // TODO M3
+        case .collage:   return CollageEngine()
         case .minimal:   return MinimalEngine()
         case .vintage:   return TapestryEngine()   // TODO M3
         }
