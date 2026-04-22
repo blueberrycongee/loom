@@ -9,11 +9,33 @@ import Foundation
 /// as opaque (users should point at plain folders, not libraries).
 public enum FolderSource {
 
-    /// Photo-like extensions we index. Kept conservative — we skip RAW for
-    /// now because Vision's feature-print model expects baked-in sRGB and
-    /// adding RAW decoding risks slow/incorrect results in v1.
+    /// Photo-like extensions we index.
+    ///
+    /// RAW formats are included: CoreImage / ImageIO (the same stack Photos
+    /// and Preview use) natively decode every major RAW format. At
+    /// indexing time we prefer the **embedded JPEG preview** on each RAW
+    /// file (see ``ThumbnailCache`` / ``ColorAnalyzer``) so we pay
+    /// milliseconds, not seconds, per file — the embedded preview is
+    /// already in the palette/exposure space the photographer committed
+    /// to, which is exactly what Loom wants to analyse.
     public static let extensions: Set<String> = [
-        "jpg", "jpeg", "heic", "heif", "png", "tif", "tiff", "webp"
+        // Common baked-in formats
+        "jpg", "jpeg", "heic", "heif", "png", "tif", "tiff", "webp", "bmp", "gif",
+        // RAW (decoded through ImageIO; embedded previews used when present)
+        "dng",                                 // Adobe / Apple ProRAW / generic
+        "cr2", "cr3", "crw",                   // Canon
+        "nef", "nrw",                          // Nikon
+        "arw", "srf", "sr2",                   // Sony
+        "raf",                                 // Fujifilm
+        "orf",                                 // Olympus
+        "rw2",                                 // Panasonic
+        "pef",                                 // Pentax
+        "srw",                                 // Samsung
+        "raw", "rwl",                          // generic
+        "3fr",                                 // Hasselblad
+        "erf",                                 // Epson
+        "x3f",                                 // Sigma
+        "mrw"                                  // Minolta / Konica
     ]
 
     /// Walk `root` recursively and return every photo URL found.

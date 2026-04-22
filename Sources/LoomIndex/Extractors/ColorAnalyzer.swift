@@ -30,10 +30,16 @@ enum ColorAnalyzer {
 
     static func analyze(_ url: URL) -> Result? {
         guard let src = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        // Prefer the file's embedded thumbnail if present (fast), decode the
+        // full image only if absent (slower, mainly the RAW-without-preview
+        // edge case). Saves ~100–400ms per RAW by reusing the camera's
+        // baked JPEG preview — which is also what we want perceptually:
+        // the photographer's committed rendering, not a naive RAW decode.
         let opts: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceThumbnailMaxPixelSize: 256,
-            kCGImageSourceShouldCacheImmediately: true
+            kCGImageSourceCreateThumbnailFromImageIfAbsent: true,
+            kCGImageSourceCreateThumbnailWithTransform:   true,
+            kCGImageSourceThumbnailMaxPixelSize:          256,
+            kCGImageSourceShouldCacheImmediately:         true
         ]
         guard let cg = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary) else {
             return nil

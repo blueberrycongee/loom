@@ -52,11 +52,14 @@ public final class ThumbnailCache {
         if FileManager.default.fileExists(atPath: dest.path) { return dest }
 
         guard let src = CGImageSourceCreateWithURL(source as CFURL, nil) else { return nil }
+        // Prefer embedded preview when present (fast, correct for RAW;
+        // effectively free for JPEG/HEIC which already are the "preview").
+        // Falls back to a full decode when the file has no embedded thumb.
         let opts: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform:  true,
-            kCGImageSourceThumbnailMaxPixelSize:         size.rawValue,
-            kCGImageSourceShouldCacheImmediately:        true
+            kCGImageSourceCreateThumbnailFromImageIfAbsent: true,
+            kCGImageSourceCreateThumbnailWithTransform:    true,
+            kCGImageSourceThumbnailMaxPixelSize:           size.rawValue,
+            kCGImageSourceShouldCacheImmediately:          true
         ]
         guard let cg = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary) else {
             return nil
