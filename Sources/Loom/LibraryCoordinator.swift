@@ -166,11 +166,10 @@ final class LibraryCoordinator {
     /// MiniWall wave always plays even on a fast re-scan.
     private static let minAnimationTime: TimeInterval = 5.5
 
-    /// Photos per second during the MiniWall replay feed. Slow enough
-    /// that each swatch's enter-transition (scale + rotate + fade) is
-    /// individually perceptible; fast enough that a 96-tile grid fills
-    /// in ~6 seconds, which reads as "loading a lot of photos".
-    private static let replayFeedRate: Double = 15
+    /// Target duration for the MiniWall replay regardless of photo
+    /// count. Fewer photos = slower pace so each swatch gets a
+    /// dramatic entrance; many photos = faster cascade.
+    private static let replayDuration: TimeInterval = 5.0
 
     private func openPhotosLibrary() {
         task?.cancel()
@@ -274,8 +273,14 @@ final class LibraryCoordinator {
         _ photos: [Photo],
         into app: AppModel
     ) async {
-        let sample = photos.shuffled().prefix(96)
-        let interval = UInt64(1_000_000_000 / replayFeedRate)
+        let sample = Array(photos.shuffled().prefix(96))
+        guard !sample.isEmpty else { return }
+        // Pace adapts to count: 96 photos → ~52ms each (brisk cascade),
+        // 10 photos → ~500ms each (each swatch lands deliberately).
+        // Floor at 50ms (20/sec) so large libraries don't outrun the
+        // animation; ceiling at 500ms so tiny libraries don't drag.
+        let rawInterval = replayDuration / Double(sample.count)
+        let interval = UInt64(min(0.5, max(0.05, rawInterval)) * 1_000_000_000)
         for photo in sample {
             guard !Task.isCancelled else { break }
             await MainActor.run { app.pushIndexed(photo) }
