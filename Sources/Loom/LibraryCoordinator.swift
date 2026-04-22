@@ -164,7 +164,7 @@ final class LibraryCoordinator {
 
     /// Minimum time the indexing animation stays visible so the
     /// MiniWall wave always plays even on a fast re-scan.
-    private static let minAnimationTime: TimeInterval = 2.0
+    private static let minAnimationTime: TimeInterval = 3.0
 
     private func openPhotosLibrary() {
         task?.cancel()

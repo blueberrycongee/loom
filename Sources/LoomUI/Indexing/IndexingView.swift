@@ -104,24 +104,70 @@ private struct MiniWall: View {
                     let x = CGFloat(c) * (cellW + gutter)
                     let y = startY + CGFloat(r) * (cellH + gutter)
                     let delay = Weave.stagger(
-                        normalizedPosition: Double(i % columns) / Double(columns),
+                        normalizedPosition: Double(i) / Double(max(1, photos.count)),
                         index: i,
-                        span: 0.12
+                        span: 0.7
                     )
+                    // Per-tile jitter rotation so the wave reads as
+                    // organic, not mechanical. Deterministic on index.
+                    let jitterAngle = Weave.tileJitterAngle(index: i)
 
                     Swatch(color: sRGB(for: photo.dominantColor))
                         .frame(width: cellW, height: cellH)
                         .position(x: x + cellW / 2, y: y + cellH / 2)
-                        .transition(Weave.insertTransition(delay: delay))
+                        .transition(Self.swatchTransition(delay: delay, angle: jitterAngle))
                 }
             }
-            .animation(Weave.settleAnimation(), value: photos.count)
+            .animation(Self.swatchSettleAnimation, value: photos.count)
         }
     }
+
+    // MARK: — Transition
+
+    /// Richer entrance than the wall tiles: swatches tumble in from a
+    /// small scale + rotation with a perceptible bounce. The stagger
+    /// span (0.7s) + settle spring (0.65 response) gives the full
+    /// wave ~1.4s of visual motion — enough to feel cinematic on
+    /// every library open.
+    private static func swatchTransition(
+        delay: Double,
+        angle: Double
+    ) -> AnyTransition {
+        .asymmetric(
+            insertion: AnyTransition
+                .scale(scale: 0.55)
+                .combined(with: .opacity)
+                .combined(with: .modifier(
+                    active: SwatchRotation(angle: angle),
+                    identity: SwatchRotation(angle: 0)
+                ))
+                .animation(
+                    .spring(response: 0.65, dampingFraction: 0.72, blendDuration: 0.2)
+                    .delay(delay)
+                ),
+            removal: AnyTransition
+                .scale(scale: 1.08)
+                .combined(with: .opacity)
+                .animation(.easeOut(duration: 0.18))
+        )
+    }
+
+    /// Settle animation for the whole grid — slightly bouncier than
+    /// the wall's Weave settle so the MiniWall feels playful.
+    private static let swatchSettleAnimation: Animation =
+        .spring(response: 0.65, dampingFraction: 0.72, blendDuration: 0.2)
 
     private func sRGB(for lab: LabColor) -> Color {
         let rgb = labToSRGB(lab)
         return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+    }
+}
+
+/// Rotation modifier used by the swatch insert transition.
+private struct SwatchRotation: ViewModifier {
+    let angle: Double
+    func body(content: Content) -> some View {
+        content.rotationEffect(.degrees(angle))
     }
 }
 
