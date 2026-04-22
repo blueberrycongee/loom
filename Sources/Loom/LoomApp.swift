@@ -7,6 +7,7 @@ import LoomUI
 struct LoomApp: App {
 
     @State private var app = AppModel()
+    @State private var coordinator: LibraryCoordinator?
 
     var body: some Scene {
         WindowGroup {
@@ -15,6 +16,16 @@ struct LoomApp: App {
                 .frame(minWidth: 960, minHeight: 640)
                 .preferredColorScheme(.dark)
                 .background(Palette.canvas.ignoresSafeArea())
+                .task {
+                    // Create the coordinator on first scene appearance — it
+                    // registers notification observers and resumes the last
+                    // library, if any.
+                    if coordinator == nil {
+                        let c = LibraryCoordinator(app: app)
+                        coordinator = c
+                        c.bootstrap()
+                    }
+                }
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)

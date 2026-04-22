@@ -27,8 +27,16 @@ public final class AppModel {
     /// security-scoped bookmark inside ``LibraryBookmark``.
     public var libraryURL: URL?
 
+    /// Full set of photos in the active library's index, newest first.
+    /// Populated by the Indexer once it reaches the `done` stage.
+    public var photos: [Photo] = []
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
     public func setAxis(_ a: ClusterAxis) { axis = a }
+
+    public func setPhotos(_ p: [Photo]) { photos = p }
+
+    public func setPhase(_ p: Phase) { phase = p }
 }
