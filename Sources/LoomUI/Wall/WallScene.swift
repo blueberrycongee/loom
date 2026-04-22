@@ -99,10 +99,33 @@ public struct WallScene: View {
             Color.clear
                 .onAppear { canvasSize = effectiveCanvas(geo.size) }
                 .onChange(of: geo.size) { _, new in
-                    canvasSize = effectiveCanvas(new)
+                    let next = effectiveCanvas(new)
+                    canvasSize = next
+                    // Real-time reflow: every resize re-lays the wall on the
+                    // new canvas using the current seed. The composition
+                    // *adapts*, not just scales — portrait windows get
+                    // cascade-vertical, wide ones get cascadeLeft/Right, etc.
+                    reflowToCurrentCanvas()
                 }
                 .overlay(WallCanvas(photos: app.photos))
                 .padding(LoomSpacing.xl)
+        }
+    }
+
+    private func reflowToCurrentCanvas() {
+        guard !app.wall.isEmpty else { return }
+        let size = canvasSize.width > 100 ? canvasSize : CGSize(width: 1200, height: 700)
+        let reflowed = Composer.reflow(
+            app.wall,
+            toCanvas: size,
+            library: app.photos
+        )
+        // .snap (fast spring) rather than .weave — during a resize drag we
+        // don't want the full staggered wave, we want tiles to glide to
+        // their new frames. Wall.id is preserved by reflow() so the
+        // per-tile .animation(_:, value: wall.id) watchers don't re-fire.
+        withLoomAnimation(LoomMotion.snap) {
+            app.wall = reflowed
         }
     }
 

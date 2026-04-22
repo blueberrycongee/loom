@@ -107,6 +107,42 @@ public struct Composer {
         )
     }
 
+    /// Re-layout an existing Wall on a new canvas size, preserving its
+    /// identity, seed, and exact photo set.
+    ///
+    /// Used by the responsive reflow path in ``WallScene``: when the window
+    /// resizes, we want "the same wall adapted to the new shape", not a
+    /// new composition. Bypasses clustering entirely — the engine replays
+    /// on the stored seed + the same photo shortlist at the new size.
+    ///
+    /// The returned Wall carries the *original* id so any SwiftUI
+    /// `.animation(_:, value: wall.id)` watchers don't fire a full
+    /// staggered wave — frame changes animate implicitly under whatever
+    /// outer `withAnimation(...)` wraps the state mutation.
+    public static func reflow(
+        _ wall: Wall,
+        toCanvas newSize: CGSize,
+        library: [Photo]
+    ) -> Wall {
+        let byID = Dictionary(uniqueKeysWithValues: library.map { ($0.id, $0) })
+        let photos = wall.tiles.map(\.photoID).compactMap { byID[$0] }
+        guard !photos.isEmpty, newSize.width > 2, newSize.height > 2 else {
+            return wall
+        }
+        let engine = LayoutRegistry.engine(for: wall.style)
+        var rng = SeededRNG(seed: wall.seed)
+        let fresh = engine.compose(photos: photos, canvasSize: newSize, rng: &rng)
+        return Wall(
+            id: wall.id,
+            style: wall.style,
+            axis: wall.axis,
+            seed: wall.seed,
+            tiles: fresh.tiles,
+            canvasSize: newSize,
+            composedAt: Date()
+        )
+    }
+
     /// Rehydrate a saved ``Favorite`` to its exact Wall.
     ///
     /// Bypasses clustering and candidate scoring — the favorite already
