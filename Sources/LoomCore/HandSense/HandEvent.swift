@@ -73,14 +73,20 @@ public enum HandGesture: Sendable, Equatable {
 /// ergonomics pass retunes the whole feature from here.
 public enum HandSenseTuning {
 
-    // Smoothing + deadzone
-    public static let opennessSmoothingAlpha: Double = 0.15
-    public static let opennessDeadzone: Double      = 0.03
+    // Smoothing + deadzone. Alpha is the exponential-moving-average
+    // weight on the latest raw sample — higher = more responsive, lower
+    // = more smoothing. 0.22 + a 2% deadzone together read as "tracks
+    // small, deliberate hand movements without flinching on hand tremor".
+    public static let opennessSmoothingAlpha: Double = 0.22
+    public static let opennessDeadzone: Double      = 0.02
 
     // Openness calibration (average fingertip-to-wrist distance in
-    // Vision's normalized image coords).
-    public static let minFingerSpan: Double = 0.06   // fist
-    public static let maxFingerSpan: Double = 0.28   // open palm
+    // Vision's normalized image coords). Tightened from the initial
+    // 0.06…0.28 range: users shouldn't have to make a *hard* fist or a
+    // *fully splayed* palm to reach the extremes. A loose closed hand
+    // now maps to openness≈0; a comfortably-open hand to ≈1.
+    public static let minFingerSpan: Double = 0.08   // loose fist
+    public static let maxFingerSpan: Double = 0.22   // comfortably open
 
     // Confidence floor under which a frame is ignored.
     public static let jointConfidenceFloor: Double = 0.20
@@ -94,10 +100,12 @@ public enum HandSenseTuning {
 
     // How openness maps to tile-layout scale. These feed
     // ``HandSenseTuning.spreadFactor(for:)`` — the WallCanvas scales tile
-    // positions around the canvas center by this factor.
-    public static let minSpreadFactor: Double = 0.55     // openness=0 → tight
+    // positions around the canvas center by this factor. Widened the
+    // visible range so the same openness gesture produces a more
+    // noticeable gather/spread, and the effect rewards subtler gestures.
+    public static let minSpreadFactor: Double = 0.45     // openness=0 → tight gather
     public static let neutralSpreadFactor: Double = 1.00 // openness=0.5 → composed layout
-    public static let maxSpreadFactor: Double = 1.35     // openness=1 → dispersed but not flying away
+    public static let maxSpreadFactor: Double = 1.55     // openness=1 → dispersed but still on-canvas
 
     /// Map openness [0, 1] to a position-scale factor around canvas
     /// center. Piecewise linear so 0.5 is exactly "no change".
