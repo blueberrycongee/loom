@@ -25,7 +25,7 @@ public enum LayoutRegistry {
     public static func engine(for style: Style) -> LayoutEngine {
         switch style {
         case .tapestry:  return TapestryEngine()
-        case .editorial: return TapestryEngine()   // TODO M3
+        case .editorial: return EditorialEngine()
         case .gallery:   return GalleryEngine()
         case .collage:   return TapestryEngine()   // TODO M3
         case .minimal:   return MinimalEngine()
