@@ -21,6 +21,7 @@ struct LoomApp: App {
                 .frame(minWidth: 960, minHeight: 640)
                 .preferredColorScheme(.light)
                 .background(Palette.canvas.ignoresSafeArea())
+                .id(app.languagePreference.rawValue)
                 .task {
                     if coordinator == nil {
                         let c = LibraryCoordinator(app: app, favorites: favorites)
@@ -51,6 +52,7 @@ struct LoomApp: App {
                 .environment(app)
                 .environment(\.locale, app.languagePreference.locale ?? Locale.autoupdatingCurrent)
                 .preferredColorScheme(.light)
+                .id(app.languagePreference.rawValue)
         }
     }
 }

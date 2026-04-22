@@ -101,6 +101,11 @@ struct AppCommands: Commands {
         }
 
         CommandGroup(replacing: .saveItem) {
+            Button(localized("Snapshot Wall")) {
+                NotificationCenter.default.post(name: .loomSnapshotWall, object: nil)
+            }
+            .keyboardShortcut("s", modifiers: [.command, .shift])
+
             Button(localized("Export as PNG…")) {
                 NotificationCenter.default.post(name: .loomExportPNG, object: nil)
             }

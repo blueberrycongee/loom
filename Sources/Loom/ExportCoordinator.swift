@@ -21,6 +21,12 @@ final class ExportCoordinator {
     private func register() {
         let center = NotificationCenter.default
         center.addObserver(
+            forName: .loomSnapshotWall,
+            object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.snapshotWall() }
+        }
+        center.addObserver(
             forName: .loomExportPNG,
             object: nil, queue: .main
         ) { [weak self] _ in
@@ -32,6 +38,22 @@ final class ExportCoordinator {
         ) { [weak self] _ in
             Task { @MainActor in self?.exportPDF() }
         }
+    }
+
+    private func snapshotWall() {
+        guard !app.wall.isEmpty else { return }
+        let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd-HH-mm-ss"
+        let name = "Loom-Wall-\(df.string(from: Date())).png"
+        let url = desktop.appendingPathComponent(name)
+        _ = WallRenderer.renderToPNG(
+            wall: app.wall,
+            photos: app.photos,
+            scale: 3.0,
+            applyCropInsets: app.autoTrimEnabled,
+            to: url
+        )
     }
 
     private func exportPNG() {
