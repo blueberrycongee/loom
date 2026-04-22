@@ -10,12 +10,14 @@ import LoomDesign
 /// enter with a staggered scale-fade-in; removed tiles leave with a
 /// staggered scale-fade-out. Remaining tiles' position changes inherit the
 /// same stagger delay so *everything* feels like one coherent wave.
+///
+/// Photos are rendered as-is — no cursor aura, no proximity brightness
+/// shift, no saturation grading. The photo is the product; the chrome
+/// disappears.
 public struct WallCanvas: View {
 
     @Environment(AppModel.self) private var app
     let photos: [Photo]
-
-    @State private var cursor: CGPoint?
 
     public init(photos: [Photo]) {
         self.photos = photos
@@ -30,14 +32,10 @@ public struct WallCanvas: View {
                 available: geo.size,
                 scale: scale
             )
-            let cursorInWall = cursorProjectedIntoWall(
-                cursor: cursor, offset: offset, scale: scale
-            )
 
             ZStack(alignment: .topLeading) {
                 ForEach(wall.tiles, id: \.photoID) { tile in
                     let delay = staggerDelay(for: tile, wall: wall)
-                    let proximity = tileProximity(tile: tile, cursor: cursorInWall)
 
                     TileView(
                         tile: tile,
@@ -51,11 +49,6 @@ public struct WallCanvas: View {
                             Haptics.snap()
                         }
                     )
-                    // Paper canvas wants *much* gentler proximity effects than
-                    // dark — any noticeable brightness lift reads as
-                    // over-processed. Halved from the dark-mode values.
-                    .brightness(proximity * 0.025)
-                    .saturation(1.0 - (1.0 - proximity) * 0.07)
                     .position(
                         x: tile.frame.midX * scale + offset.x,
                         y: tile.frame.midY * scale + offset.y
@@ -66,18 +59,6 @@ public struct WallCanvas: View {
                     )
                     .transition(Weave.insertTransition(delay: delay))
                     .animation(Weave.settleAnimation(delay: delay), value: wall.id)
-                    .animation(LoomMotion.hover, value: proximity)
-                }
-            }
-            .overlay {
-                CursorAura(cursor: cursor)
-                    .allowsHitTesting(false)
-            }
-            .contentShape(Rectangle())
-            .onContinuousHover(coordinateSpace: .local) { phase in
-                switch phase {
-                case .active(let p): cursor = p
-                case .ended:         cursor = nil
                 }
             }
         }
@@ -96,36 +77,10 @@ public struct WallCanvas: View {
         let xp = Double(tile.frame.midX / w)
         let yp = Double(tile.frame.midY / max(1, wall.canvasSize.height))
         let normalized = xp * 0.85 + yp * 0.15
-        // Deterministic index from photo-ID string hash so jitter is stable
-        // per identity, not per-render.
         return Weave.stagger(
             normalizedPosition: normalized,
             index: tile.photoID.rawValue.hashValue
         )
-    }
-
-    // MARK: — Pointer aura
-
-    private func cursorProjectedIntoWall(
-        cursor: CGPoint?, offset: CGPoint, scale: CGFloat
-    ) -> CGPoint? {
-        guard let c = cursor, scale > 0 else { return nil }
-        return CGPoint(
-            x: (c.x - offset.x) / scale,
-            y: (c.y - offset.y) / scale
-        )
-    }
-
-    private func tileProximity(tile: Tile, cursor: CGPoint?) -> Double {
-        guard let c = cursor else { return 0.45 }  // ambient wash when idle
-        let dx = Double(tile.frame.midX - c.x)
-        let dy = Double(tile.frame.midY - c.y)
-        let dist = (dx * dx + dy * dy).squareRoot()
-        // 240pt halo — anything closer gets a glow; anything farther is base.
-        let halo = 240.0
-        let near = max(0, 1 - dist / halo)
-        // Ease-in so the fall-off feels "warm", not linear.
-        return near * near
     }
 
     // MARK: — Geometry
@@ -146,42 +101,5 @@ public struct WallCanvas: View {
             x: (available.width  - wallSize.width  * scale) / 2,
             y: (available.height - wallSize.height * scale) / 2
         )
-    }
-}
-
-// MARK: — Cursor aura
-
-/// A very soft warm glow that follows the pointer. Sits above the tiles
-/// with `.plusLighter` blend at low alpha, so it lifts whatever's under it
-/// without adding hard edges. Fades in smoothly when the cursor enters
-/// the wall, out when it leaves.
-private struct CursorAura: View {
-    let cursor: CGPoint?
-
-    var body: some View {
-        GeometryReader { _ in
-            if let c = cursor {
-                // Paper canvas wash: terracotta at barely-there alpha with
-                // .multiply, so the aura *darkens* rather than lightens —
-                // a warm shadow-glow centered on where you're looking.
-                // .plusLighter (used on dark canvas) would flatten the
-                // paper instead of warming it.
-                RadialGradient(
-                    stops: [
-                        .init(color: Palette.brass.opacity(0.10),      location: 0.0),
-                        .init(color: Palette.brassShade.opacity(0.04), location: 0.40),
-                        .init(color: .clear,                            location: 1.0)
-                    ],
-                    center: UnitPoint(x: 0.5, y: 0.5),
-                    startRadius: 0,
-                    endRadius: 260
-                )
-                .frame(width: 520, height: 520)
-                .position(c)
-                .blendMode(.multiply)
-                .transition(.opacity)
-            }
-        }
-        .animation(.easeOut(duration: 0.18), value: cursor == nil)
     }
 }
