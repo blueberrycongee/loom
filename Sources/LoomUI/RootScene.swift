@@ -19,7 +19,7 @@ public struct RootScene: View {
             content
                 .transition(.opacity.combined(with: .scale(scale: 0.992)))
 
-            Grain(intensity: 0.03)
+            NoiseTexture(baseOpacity: 0.032)
                 .ignoresSafeArea()
         }
         .animation(LoomMotion.breathe, value: phaseKey)
