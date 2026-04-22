@@ -62,13 +62,14 @@ struct TileView: View {
         }
     }
 
-    /// The default tile rendering: a photo that fades into the paper.
+    /// The default tile rendering: a photo clipped to a small rounded
+    /// rectangle with a hairline border and a soft warm shadow.
     ///
-    /// Edges are feathered via a masked blur (``FeatheredEdge``) so the
-    /// tile doesn't read as a rectangular cutout — it reads as an ink
-    /// print that absorbed into the page. The feather amount is smaller
-    /// (0.10) for styles that rely on hard structure (Tapestry, Gallery)
-    /// and larger (0.16) for Exhibit where the bleed is the aesthetic.
+    /// An earlier version feathered the edge (blurred mask bleed into the
+    /// paper canvas) to read as "ink absorbed into the page" — but on
+    /// real photos the feather read as *faded/white-edged photos*, which
+    /// is not what anyone wants. Clean rounded corners read as "a
+    /// photograph sitting on paper", which is the intended metaphor.
     private var plainTile: some View {
         ZStack {
             if let photo {
@@ -82,20 +83,12 @@ struct TileView: View {
                     .transition(.opacity)
             }
         }
-        .featheredEdge(featherAmount)
+        .clipShape(RoundedRectangle(cornerRadius: LoomRadius.tile, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: LoomRadius.tile, style: .continuous)
+                .strokeBorder(Palette.hairline, lineWidth: 1)
+        )
         .tileShadow()
-    }
-
-    /// How much bleed to give the edges per style. Styles with hard
-    /// structure get a whisper of feather; Exhibit leans into it.
-    private var featherAmount: Double {
-        switch style {
-        case .exhibit:              return 0.16
-        case .tapestry, .gallery:   return 0.08
-        case .editorial, .minimal:  return 0.10
-        case .collage:              return 0.18     // handmade-torn vibe
-        case .vintage:              return 0.0      // polaroid overrides
-        }
     }
 
     /// Polaroid chrome: thick white border, extra-thick on the bottom for
