@@ -78,8 +78,20 @@ public struct WallCanvas: View {
                         by: spread
                     )
 
+                    // Build a display-tile whose frame tracks the live
+                    // drag override so TileView's internal .frame() —
+                    // which sizes the photo, clip shape, and overlays —
+                    // updates in real time during a resize/move drag.
+                    // Without this, TileView uses the committed tile.frame
+                    // and the image stays frozen at the original size.
+                    let displayTile: Tile = {
+                        var t = tile
+                        t.frame = effectiveFrame
+                        return t
+                    }()
+
                     TileView(
-                        tile: tile,
+                        tile: displayTile,
                         photo: photoByID[tile.photoID],
                         style: wall.style,
                         isLocked: app.lockedPhotoIDs.contains(tile.photoID),
