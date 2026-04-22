@@ -31,7 +31,10 @@ public struct LoomTapestry: View {
                     draw(thread, at: t, into: ctx, size: size)
                 }
             }
-            .blendMode(.plusLighter)
+            // Paper canvas: multiply darkens the threads into the cream,
+            // reading like ink-on-paper. .plusLighter (dark-mode default)
+            // would invert the intent.
+            .blendMode(.multiply)
             .allowsHitTesting(false)
         }
     }
@@ -71,13 +74,14 @@ public struct LoomTapestry: View {
         layer.opacity = opacity
         layer.fill(path, with: .color(thread.color))
 
-        // Hairline inner line so the rect reads as a woven element, not a
-        // flat fill. Very subtle.
+        // Subtle inner line so the rect reads as a woven element, not a
+        // flat fill. On paper we use a darker ink stroke rather than the
+        // canvas color (which would be invisible against itself).
         var outline = layer
-        outline.opacity = opacity * 0.5
+        outline.opacity = opacity * 0.35
         outline.stroke(
             path,
-            with: .color(Palette.canvas.opacity(0.25)),
+            with: .color(Palette.ink.opacity(0.35)),
             lineWidth: 0.5
         )
     }
@@ -99,15 +103,19 @@ public struct LoomTapestry: View {
         // Hand-composed zones so the motion has intention, not randomness.
         // The palette is restricted to the brand's warm neutrals + a few
         // supports so the whole background reads as one piece.
+        // Paper-canvas palette: muted pigments that read as darker than
+        // the cream background under .multiply blend. Pure white / very
+        // light tints would vanish; we want something like ink washes in
+        // the catalogue style.
         let palette: [Color] = [
-            Palette.brass.opacity(0.28),
-            Palette.brassLift.opacity(0.22),
-            Palette.brassShade.opacity(0.20),
-            Palette.surface.opacity(0.55),
-            Palette.surfaceElevated.opacity(0.45),
-            Color(red: 0.32, green: 0.36, blue: 0.46).opacity(0.22),   // soft indigo
-            Color(red: 0.52, green: 0.30, blue: 0.34).opacity(0.18),   // muted rose
-            Color(red: 0.24, green: 0.36, blue: 0.34).opacity(0.20)    // deep teal
+            Palette.brass.opacity(0.36),                               // terracotta
+            Palette.brassShade.opacity(0.40),                          // deep terracotta
+            Color(red: 0.32, green: 0.36, blue: 0.46).opacity(0.30),   // soft indigo
+            Color(red: 0.52, green: 0.30, blue: 0.34).opacity(0.26),   // muted rose
+            Color(red: 0.24, green: 0.36, blue: 0.34).opacity(0.28),   // deep teal
+            Color(red: 0.42, green: 0.38, blue: 0.30).opacity(0.24),   // olive umber
+            Color(red: 0.60, green: 0.54, blue: 0.46).opacity(0.22),   // linen gray
+            Color(red: 0.18, green: 0.20, blue: 0.24).opacity(0.20)    // warm charcoal
         ]
 
         // Layout: alternating warp (tall) + weft (wide) rectangles distributed
