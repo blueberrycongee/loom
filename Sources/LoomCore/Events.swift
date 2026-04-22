@@ -19,4 +19,5 @@ public extension Notification.Name {
     static let loomFavoriteApply        = Notification.Name("loom.favoriteApply")
     static let loomExportPNG            = Notification.Name("loom.exportPNG")
     static let loomExportPDF            = Notification.Name("loom.exportPDF")
+    static let loomPickPhotosLibrary    = Notification.Name("loom.pickPhotosLibrary")
 }

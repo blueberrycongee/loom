@@ -105,10 +105,7 @@ private struct PhotosLibraryButton: View {
 
     var body: some View {
         Button {
-            // When the PhotoKit-backed indexer path is wired, this will post
-            // a dedicated pick-notification. For now it's a no-op so the
-            // affordance is visible without misleading the user about
-            // M7 readiness.
+            NotificationCenter.default.post(name: .loomPickPhotosLibrary, object: nil)
         } label: {
             HStack(spacing: LoomSpacing.xs) {
                 Image(systemName: "photo.on.rectangle.angled")
@@ -126,7 +123,7 @@ private struct PhotosLibraryButton: View {
         .buttonStyle(.plain)
         .onHover { hovered = $0 }
         .animation(LoomMotion.hover, value: hovered)
-        .help("Coming soon — PhotoKit indexing. Use a folder for now.")
+        .help("Index the Apple Photos library instead of a folder.")
     }
 }
 

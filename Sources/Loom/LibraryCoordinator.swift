@@ -14,6 +14,7 @@ final class LibraryCoordinator {
     private let app: AppModel
     private let favorites: FavoritesCoordinator?
     private var indexer: Indexer?
+    private var photoKitIndexer: PhotoKitIndexer?
     private var task: Task<Void, Never>?
 
     init(app: AppModel, favorites: FavoritesCoordinator? = nil) {
@@ -38,6 +39,12 @@ final class LibraryCoordinator {
         ) { [weak self] note in
             guard let fav = note.object as? Favorite else { return }
             Task { @MainActor in self?.favorites?.save(fav) }
+        }
+        center.addObserver(
+            forName: .loomPickPhotosLibrary,
+            object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.openPhotosLibrary() }
         }
     }
 
@@ -71,6 +78,48 @@ final class LibraryCoordinator {
     }
 
     // MARK: — Run
+
+    private func openPhotosLibrary() {
+        task?.cancel()
+        app.libraryURL = URL(fileURLWithPath: "/photokit")
+        // Favorites for PhotoKit-based libraries share one store keyed off
+        // the sentinel URL — PhotoIDs in this store are PhotoKit-local
+        // identifiers, so cross-library favorites don't resolve anyway.
+        favorites?.open(forLibraryRoot: app.libraryURL!)
+        app.setPhase(.indexing(progress: 0, message: "Asking Photos for access…"))
+
+        task = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let indexer = try PhotoKitIndexer()
+                self.photoKitIndexer = indexer
+                let stream = await indexer.run()
+                for await snapshot in stream {
+                    if Task.isCancelled { return }
+                    await MainActor.run {
+                        self.app.setPhase(.indexing(
+                            progress: snapshot.fraction,
+                            message: snapshot.message
+                        ))
+                    }
+                    if case .done = snapshot.stage {
+                        let photos = (try? await indexer.allPhotos()) ?? []
+                        await MainActor.run {
+                            self.app.setPhotos(photos)
+                            self.app.setPhase(.ready)
+                        }
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.app.setPhase(.indexing(
+                        progress: 0,
+                        message: "Couldn't open Photos — \(error.localizedDescription)"
+                    ))
+                }
+            }
+        }
+    }
 
     private func openLibrary(_ url: URL) {
         task?.cancel()
