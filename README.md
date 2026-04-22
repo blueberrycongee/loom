@@ -51,24 +51,34 @@ Full architectural spec: [VISION.md](./VISION.md).
 
 ## Getting started
 
-> **Status:** M1/M2 scaffold. Open in Xcode 15+ on macOS 14+. See [milestones](#milestones).
+> **Status:** M2 complete — Tapestry + Shuffle, indexing pipeline, wall renderer. Open in Xcode 15+ on macOS 14+. See [milestones](#milestones).
 
 ```bash
 git clone https://github.com/blueberrycongee/loom.git
 cd loom
-open Package.swift   # Xcode
+open Package.swift          # Xcode
+# or
+swift test                  # run the pure-compute test suite
 ```
+
+Press **⌘O** to pick a folder. The first scan indexes every photo
+(Vision feature-print + dominant Lab color + EXIF), then the wall
+auto-composes. Press **Space** — or hit the brass button — to weave
+a new wall from the same library.
 
 ## Milestones
 
 - [x] **M0** · Vision, scaffold, atomic-commit workflow
-- [ ] **M1** · Folder → Vision → SQLite → grid browser
-- [ ] **M2** · Tapestry layout + Shuffle
+- [x] **M1** · Folder → Vision → SQLite → grid browser
+- [x] **M2** · Tapestry layout + Shuffle
 - [ ] **M3** · Collage · Editorial · Gallery · Minimal · Vintage
 - [ ] **M4** · Mood embedding
 - [ ] **M5** · Edit · lock · favorites
 - [ ] **M6** · Export · PDF · print
 - [ ] **M7** · PhotoKit source
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the module graph and the Shuffle
+pipeline in detail.
 
 ## Principles
 
