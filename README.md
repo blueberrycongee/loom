@@ -51,7 +51,7 @@ Full architectural spec: [VISION.md](./VISION.md).
 
 ## Getting started
 
-> **Status:** M2 complete — Tapestry + Shuffle, indexing pipeline, wall renderer. Open in Xcode 15+ on macOS 14+. See [milestones](#milestones).
+> **Status:** M1 – M6 complete · M7 scaffolded. Six style engines, mood clustering, pin-to-keep, favorites, PNG/PDF export. Open in Xcode 15+ on macOS 14+. See [milestones](#milestones).
 
 ```bash
 git clone https://github.com/blueberrycongee/loom.git
@@ -71,14 +71,27 @@ a new wall from the same library.
 - [x] **M0** · Vision, scaffold, atomic-commit workflow
 - [x] **M1** · Folder → Vision → SQLite → grid browser
 - [x] **M2** · Tapestry layout + Shuffle
-- [ ] **M3** · Collage · Editorial · Gallery · Minimal · Vintage
-- [ ] **M4** · Mood embedding
-- [ ] **M5** · Edit · lock · favorites
-- [ ] **M6** · Export · PDF · print
-- [ ] **M7** · PhotoKit source
+- [x] **M3** · Collage · Editorial · Gallery · Minimal · Vintage
+- [x] **M4** · Mood embedding (via Vision feature-print k-medoids)
+- [x] **M5** · Pin-to-keep (tile locks) · favorites (save + reproduce)
+- [x] **M6** · Export — PNG (3×) · PDF (vector-backed)
+- [ ] **M7** · PhotoKit source — *authorization + enumeration scaffolded; indexer integration pending*
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for the module graph and the Shuffle
 pipeline in detail.
+
+## Keyboard
+
+| Key             | Action                         |
+|-----------------|--------------------------------|
+| **Space**       | Shuffle                        |
+| **⌘1 – ⌘6**    | Switch style                   |
+| **⌘O**          | Open folder                    |
+| **⌘S**          | Save current wall as favorite  |
+| **⌘E**          | Export as PNG                  |
+| **⌘⇧P**        | Export as PDF                  |
+| **⌘⇧L**        | Clear all tile locks           |
+| **Double-click tile** | Pin / unpin photo        |
 
 ## Principles
 
