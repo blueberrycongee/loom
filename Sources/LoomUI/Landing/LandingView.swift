@@ -9,7 +9,7 @@ import LoomDesign
 ///   2. Offer a single, obvious action: pick a library.
 ///   3. Feel *finished* — not a "Getting started" checklist.
 ///
-/// Aesthetics: oversized rounded wordmark, a slow brass shimmer behind it,
+/// Aesthetics: oversized rounded wordmark, drifting warm threads behind it,
 /// and a single primary button. No tutorials, no marketing copy, no fine
 /// print.
 public struct LandingView: View {
@@ -20,41 +20,77 @@ public struct LandingView: View {
 
     public var body: some View {
         ZStack {
+            // Ambient woven background — hints at the product without needing
+            // a photo library loaded. Fades at edges so it never competes
+            // with the wordmark.
+            LoomTapestry()
+                .mask(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .clear, location: 0.00),
+                            .init(color: .white, location: 0.22),
+                            .init(color: .white, location: 0.68),
+                            .init(color: .clear, location: 1.00)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .opacity(0.55)
+
+            content
+        }
+    }
+
+    private var content: some View {
+        VStack(spacing: 0) {
+            // Push content to the visual sweet-spot (~40 % from top).
+            Spacer()
+            Spacer()
+
             VStack(spacing: LoomSpacing.xl) {
-                Spacer()
+                WordmarkLoom()
+                    .foregroundStyle(Palette.ink)
 
-                VStack(spacing: LoomSpacing.sm) {
-                    WordmarkLoom()
-                        .foregroundStyle(Palette.ink)
-
+                VStack(spacing: LoomSpacing.lg) {
                     Text("Weave your photos into a wall.")
                         .font(LoomType.body)
                         .foregroundStyle(Palette.inkMuted)
-                }
 
-                VStack(spacing: LoomSpacing.md) {
-                    PickLibraryButton {
-                        NotificationCenter.default.post(name: .loomPickLibrary, object: nil)
+                    // Tiny brass dot — a quiet punctuation between promise
+                    // and action.
+                    Capsule()
+                        .fill(Palette.brass.opacity(0.35))
+                        .frame(width: 3, height: 3)
+
+                    VStack(spacing: LoomSpacing.lg) {
+                        PickLibraryButton {
+                            NotificationCenter.default.post(name: .loomPickLibrary, object: nil)
+                        }
+
+                        PhotosLibraryButton()
                     }
-
-                    PhotosLibraryButton()
                 }
-
-                Spacer()
-
-                Text("Local · offline · private")
-                    .font(LoomType.micro)
-                    .microTracking()
-                    .foregroundStyle(Palette.inkFaint)
-                    .padding(.bottom, LoomSpacing.lg)
             }
-            .padding(LoomSpacing.xl)
+
+            Spacer()
+            Spacer()
+            Spacer()
+
+            Text("Local · offline · private")
+                .font(LoomType.micro)
+                .microTracking()
+                .foregroundStyle(Palette.inkFaint)
+                .padding(.bottom, LoomSpacing.lg)
         }
+        .padding(LoomSpacing.xl)
     }
 }
 
+// MARK: — Wordmark
+
 /// The wordmark. Rounded SF Pro display weight, with a single faintly
-/// animated underline thread that traces across the width every ~7s — a
+/// animated underline thread that traces across the width every ~9 s — a
 /// quiet tie-in to the weaving metaphor without being kinetic about it.
 private struct WordmarkLoom: View {
 
@@ -72,7 +108,7 @@ private struct WordmarkLoom: View {
                     : Weave.driftPhase(
                         time: timeline.date.timeIntervalSinceReferenceDate,
                         index: 0,
-                        period: 7
+                        period: 9
                     )
                 underline(phase: phase)
             }
@@ -84,22 +120,23 @@ private struct WordmarkLoom: View {
         GeometryReader { geo in
             let w = geo.size.width
             // A short brass segment travels left → right and loops.
-            let segmentW = w * 0.32
+            let segmentW = w * 0.28
             let travel = (w + segmentW) * phase - segmentW
             Capsule()
-                .fill(Palette.brass.opacity(0.55))
-                .frame(width: segmentW, height: 2)
+                .fill(Palette.brass.opacity(0.40))
+                .frame(width: segmentW, height: 1.5)
                 .offset(x: travel)
         }
     }
 }
 
+// MARK: — Buttons
+
 /// Secondary CTA that links the Photos library (M7, skeleton).
 ///
-/// Presented as a subdued text button under the primary folder CTA so the
-/// first-use flow still points at the lower-friction, already-wired-up
-/// folder path. Full indexer integration for Photos-sourced assets lands
-/// after the folder path has field time.
+/// Rendered as a plain text button so the primary CTA dominates visually.
+/// Hover brightens the ink to invite interaction without adding visual
+/// weight.
 private struct PhotosLibraryButton: View {
     @State private var hovered = false
 
@@ -113,12 +150,9 @@ private struct PhotosLibraryButton: View {
                 Text("Use Photos library")
                     .font(LoomType.caption)
             }
-            .foregroundStyle(Palette.inkMuted)
-            .padding(.horizontal, LoomSpacing.md)
-            .padding(.vertical, LoomSpacing.sm)
-            .background(Capsule().fill(Palette.surface.opacity(0.5)))
-            .overlay(Capsule().strokeBorder(Palette.hairline, lineWidth: 1))
-            .opacity(hovered ? 1.0 : 0.8)
+            .foregroundStyle(hovered ? Palette.inkMuted : Palette.inkFaint)
+            .padding(.horizontal, LoomSpacing.sm)
+            .padding(.vertical, LoomSpacing.xs)
         }
         .buttonStyle(.plain)
         .onHover { hovered = $0 }
@@ -148,7 +182,7 @@ private struct PickLibraryButton: View {
             .overlay(
                 Capsule().strokeBorder(Palette.brassLift.opacity(0.6), lineWidth: 0.5)
             )
-            .scaleEffect(hovering ? 1.03 : 1.0)
+            .scaleEffect(hovering ? 1.02 : 1.0)
         }
         .buttonStyle(.plain)
         .brassShadow()
