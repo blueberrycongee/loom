@@ -25,6 +25,7 @@ public struct WallScene: View {
     @State private var canvasSize: CGSize = .zero
     @State private var chromeVisible = true
     @State private var chromeIdleTask: Task<Void, Never>?
+    @State private var flashOpacity: Double = 0
 
     private let composer = Composer(candidates: 4)
     private static let chromeIdleDelay: UInt64 = 3_000_000_000 // 3s
@@ -45,6 +46,13 @@ public struct WallScene: View {
             emptyHint
                 .opacity(app.wall.isEmpty ? 1 : 0)
                 .animation(LoomMotion.breathe, value: app.wall.isEmpty)
+        }
+        .overlay {
+            Color.white
+                .ignoresSafeArea()
+                .opacity(flashOpacity)
+                .animation(.easeOut(duration: 0.35), value: flashOpacity)
+                .allowsHitTesting(false)
         }
         .overlay(alignment: .bottom) {
             WallChrome(
@@ -97,6 +105,9 @@ public struct WallScene: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .loomFavoriteApply)) { note in
             if let fav = note.object as? Favorite { apply(fav) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .loomSnapshotWall)) { _ in
+            triggerFlash()
         }
     }
 
@@ -238,6 +249,14 @@ public struct WallScene: View {
             try? await Task.sleep(nanoseconds: Self.chromeIdleDelay)
             guard !Task.isCancelled else { return }
             chromeVisible = false
+        }
+    }
+
+    private func triggerFlash() {
+        flashOpacity = 1.0
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 80_000_000)
+            flashOpacity = 0.0
         }
     }
 }
