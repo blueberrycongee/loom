@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Loom</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.blueberrycongee.loom</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.photography</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>© 2026 Jiahe Wu. MIT licensed.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Loom reads your photos locally to compose aesthetic walls. Nothing is uploaded.</string>
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>Loom indexes photos from folders you pick. Access is scoped to folders you grant.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Loom indexes photos from folders you pick. Access is scoped to folders you grant.</string>
+</dict>
+</plist>
