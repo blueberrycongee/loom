@@ -135,7 +135,7 @@ private struct MiniWall: View {
     ) -> AnyTransition {
         .asymmetric(
             insertion: AnyTransition
-                .scale(scale: 0.55)
+                .scale(scale: 0.3)
                 .combined(with: .opacity)
                 .combined(with: .modifier(
                     active: SwatchRotation(angle: angle),

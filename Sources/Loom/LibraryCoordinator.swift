@@ -167,12 +167,12 @@ final class LibraryCoordinator {
 
     /// Minimum time the indexing animation stays visible so the
     /// MiniWall wave always plays even on a fast re-scan.
-    private static let minAnimationTime: TimeInterval = 5.5
+    private static let minAnimationTime: TimeInterval = 10.0
 
     /// Target duration for the MiniWall replay regardless of photo
     /// count. Fewer photos = slower pace so each swatch gets a
     /// dramatic entrance; many photos = faster cascade.
-    private static let replayDuration: TimeInterval = 5.0
+    private static let replayDuration: TimeInterval = 8.0
 
     private func openPhotosLibrary() {
         task?.cancel()

@@ -89,10 +89,11 @@ public enum Weave {
     }
 
     /// Deterministic per-tile rotation jitter for the MiniWall entrance.
-    /// Returns an angle in degrees (±8°) so each swatch tumbles in from
-    /// a slightly different tilt — organic, not mechanical.
+    /// Returns an angle in degrees (±15°) so each swatch tumbles in from
+    /// a visible tilt that settles to flat — like photos being tossed
+    /// onto a table.
     public static func tileJitterAngle(index: Int) -> Double {
-        deterministicJitter(seed: index &+ 7919, magnitude: 8)
+        deterministicJitter(seed: index &+ 7919, magnitude: 15)
     }
 
     // MARK: — Helpers
