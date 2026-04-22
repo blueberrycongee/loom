@@ -165,38 +165,17 @@ final class LibraryCoordinator {
 
     // MARK: — Run
 
-    /// Minimum time the indexing animation stays visible so the
-    /// MiniWall wave always plays even on a fast re-scan.
-    private static let minAnimationTime: TimeInterval = 10.0
-
-    /// Target duration for the MiniWall replay regardless of photo
-    /// count. Fewer photos = slower pace so each swatch gets a
-    /// dramatic entrance; many photos = faster cascade.
-    private static let replayDuration: TimeInterval = 8.0
-
     private func openPhotosLibrary() {
         task?.cancel()
         app.libraryURL = URL(fileURLWithPath: "/photokit")
-        // Favorites for PhotoKit-based libraries share one store keyed off
-        // the sentinel URL — PhotoIDs in this store are PhotoKit-local
-        // identifiers, so cross-library favorites don't resolve anyway.
         favorites?.open(forLibraryRoot: app.libraryURL!)
         app.setPhase(.indexing(.discovering))
 
-        let scanStart = Date()
         task = Task { [weak self] in
             guard let self else { return }
             do {
                 let indexer = try PhotoKitIndexer()
                 self.photoKitIndexer = indexer
-                // Pre-fill the MiniWall with existing photos in one
-                // batch so the stagger wave animates in a single pass.
-                // Individual pushIndexed calls would fire N separate
-                // animations that cancel each other's stagger delays.
-                let existing = (try? await indexer.allPhotos()) ?? []
-                if !existing.isEmpty {
-                    await Self.replayFeed(existing, into: self.app)
-                }
                 let stream = await indexer.run()
                 for await snapshot in stream {
                     if Task.isCancelled { return }
@@ -209,7 +188,6 @@ final class LibraryCoordinator {
                     }
                     if case .done = snapshot.stage {
                         let photos = (try? await indexer.allPhotos()) ?? []
-                        await Self.waitForAnimation(since: scanStart)
                         await MainActor.run {
                             self.app.setPhotos(photos)
                             self.app.clearIndexed()
@@ -233,16 +211,11 @@ final class LibraryCoordinator {
         favorites?.open(forLibraryRoot: url)
         app.setPhase(.indexing(.discovering))
 
-        let scanStart = Date()
         task = Task { [weak self] in
             guard let self else { return }
             do {
                 let indexer = try Indexer(libraryRoot: url)
                 self.indexer = indexer
-                let existing = (try? await indexer.allPhotos()) ?? []
-                if !existing.isEmpty {
-                    await Self.replayFeed(existing, into: self.app)
-                }
                 let progress = await indexer.run()
                 for await snapshot in progress {
                     if Task.isCancelled { return }
@@ -255,7 +228,6 @@ final class LibraryCoordinator {
                     }
                     if case .done = snapshot.stage {
                         let photos = (try? await indexer.allPhotos()) ?? []
-                        await Self.waitForAnimation(since: scanStart)
                         await MainActor.run {
                             self.app.setPhotos(photos)
                             self.app.clearIndexed()
@@ -273,35 +245,6 @@ final class LibraryCoordinator {
         }
     }
 
-    /// Drip-feed existing photos into the MiniWall at a paced rate so
-    /// each swatch's entrance (scale + rotate + fade) is individually
-    /// visible. Reads as "loading your library" even on a re-open.
-    private static func replayFeed(
-        _ photos: [Photo],
-        into app: AppModel
-    ) async {
-        let sample = Array(photos.shuffled().prefix(96))
-        guard !sample.isEmpty else { return }
-        // Pace adapts to count: 96 photos → ~52ms each (brisk cascade),
-        // 10 photos → ~500ms each (each swatch lands deliberately).
-        // Floor at 50ms (20/sec) so large libraries don't outrun the
-        // animation; ceiling at 500ms so tiny libraries don't drag.
-        let rawInterval = replayDuration / Double(sample.count)
-        let interval = UInt64(min(0.5, max(0.05, rawInterval)) * 1_000_000_000)
-        for photo in sample {
-            guard !Task.isCancelled else { break }
-            await MainActor.run { app.pushIndexed(photo) }
-            try? await Task.sleep(nanoseconds: interval)
-        }
-    }
-
-    private static func waitForAnimation(since start: Date) async {
-        let elapsed = Date().timeIntervalSince(start)
-        let remaining = minAnimationTime - elapsed
-        if remaining > 0 {
-            try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
-        }
-    }
 }
 
 // MARK: — Snapshot mapping

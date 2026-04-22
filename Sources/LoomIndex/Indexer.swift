@@ -71,12 +71,10 @@ public actor Indexer {
             return
         }
 
-        let known: Set<PhotoID>
-        do { known = try store.knownIDs() } catch { known = [] }
-
-        // Stage 1 — extract for every URL we don't already have indexed,
-        // batching into 200-photo transactions to keep the SQLite writer
-        // warm without losing too much work on a crash.
+        // Stage 1 — extract every photo, every time. No skip for
+        // already-indexed files: the user wants the real indexing
+        // animation on every library open, and re-extraction keeps
+        // quality scores + crop insets fresh when the analyzer improves.
         var done = 0
         let total = urls.count
         let batchSize = 64
@@ -86,20 +84,6 @@ public actor Indexer {
         for url in urls {
             if cancelled { break }
             let id = PhotoIdentity.id(for: url)
-
-            // Skip already-indexed, unmodified files.
-            if known.contains(id),
-               let rowDate = try? store.find(id)?.indexedAt,
-               let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
-               let mtime = attrs[.modificationDate] as? Date,
-               mtime <= rowDate {
-                done += 1
-                out.yield(IndexProgress(
-                    stage: .extracting, completed: done, total: total,
-                    currentFile: url.lastPathComponent
-                ))
-                continue
-            }
 
             var freshPhoto: Photo?
             if let photo = extractOne(url: url, id: id) {
@@ -111,8 +95,6 @@ public actor Indexer {
                 }
             }
             done += 1
-            // Attach every freshly indexed photo to the progress snapshot
-            // so the indexing UI can grow a live mini-wall in real time.
             out.yield(IndexProgress(
                 stage: .extracting, completed: done, total: total,
                 currentFile: url.lastPathComponent,
