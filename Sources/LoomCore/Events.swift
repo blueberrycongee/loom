@@ -21,4 +21,5 @@ public extension Notification.Name {
     static let loomExportPDF            = Notification.Name("loom.exportPDF")
     static let loomPickPhotosLibrary    = Notification.Name("loom.pickPhotosLibrary")
     static let loomPermissionAllow      = Notification.Name("loom.permissionAllow")
+    static let loomClearIndex           = Notification.Name("loom.clearIndex")
 }

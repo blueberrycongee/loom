@@ -53,6 +53,35 @@ final class LibraryCoordinator {
             guard let prompt = note.object as? PermissionPrompt else { return }
             Task { @MainActor in self?.handleAllow(prompt) }
         }
+        center.addObserver(
+            forName: .loomClearIndex,
+            object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.clearIndex() }
+        }
+    }
+
+    /// Wipes the on-disk index + thumbnail cache for the current library
+    /// and returns the app to the landing state so the user can pick
+    /// fresh. Non-destructive to original photo files — only derived
+    /// artefacts are removed.
+    private func clearIndex() {
+        task?.cancel()
+        let fm = FileManager.default
+        let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let base = appSupport.appendingPathComponent("Loom", isDirectory: true)
+        // Remove Indexes/ and Thumbs/ under ~/Library/Application Support/Loom
+        for sub in ["Indexes", "Thumbs"] {
+            let dir = base.appendingPathComponent(sub, isDirectory: true)
+            try? fm.removeItem(at: dir)
+        }
+        LibraryBookmark.clear()
+        app.setPhotos([])
+        app.clearIndexed()
+        app.clearLocks()
+        app.wall = .empty
+        app.libraryURL = nil
+        app.setPhase(.landing)
     }
 
     /// User tapped "Allow" in the in-app explainer. Follow up with the

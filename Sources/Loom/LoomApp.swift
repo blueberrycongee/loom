@@ -16,6 +16,7 @@ struct LoomApp: App {
             RootScene()
                 .environment(app)
                 .environment(\.loomFavorites, favorites)
+                .environment(\.locale, app.languagePreference.locale ?? Locale.autoupdatingCurrent)
                 .frame(minWidth: 960, minHeight: 640)
                 .preferredColorScheme(.light)
                 .background(Palette.canvas.ignoresSafeArea())
@@ -39,6 +40,7 @@ struct LoomApp: App {
         Settings {
             SettingsView()
                 .environment(app)
+                .environment(\.locale, app.languagePreference.locale ?? Locale.autoupdatingCurrent)
                 .preferredColorScheme(.light)
         }
     }

@@ -44,6 +44,10 @@ public struct WallScene: View {
             LibraryChip()
                 .padding(LoomSpacing.md)
         }
+        .overlay(alignment: .topTrailing) {
+            SettingsChip()
+                .padding(LoomSpacing.md)
+        }
         .onAppear {
             // Auto-shuffle on first entry so users see a wall immediately.
             if app.wall.isEmpty && !app.photos.isEmpty {

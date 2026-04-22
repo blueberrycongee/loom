@@ -46,6 +46,10 @@ public final class AppModel {
     public var recentlyIndexed: [Photo] = []
     private let recentlyIndexedCap = 96
 
+    /// User-facing language override. Persisted; applied at runtime via
+    /// `.environment(\.locale, …)` on the root scene.
+    public var languagePreference: LanguagePreference = LanguagePreference.persisted
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
@@ -76,4 +80,9 @@ public final class AppModel {
     }
 
     public func clearIndexed() { recentlyIndexed.removeAll() }
+
+    public func setLanguage(_ pref: LanguagePreference) {
+        languagePreference = pref
+        LanguagePreference.persisted = pref
+    }
 }
