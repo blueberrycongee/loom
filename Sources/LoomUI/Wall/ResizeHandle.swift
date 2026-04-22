@@ -31,7 +31,7 @@ struct ResizeHandle: View {
             // 12pt dot is still easy to grab on a small tile.
             .contentShape(Circle().inset(by: -6))
             .gesture(
-                DragGesture(minimumDistance: 1)
+                DragGesture(minimumDistance: 1, coordinateSpace: .global)
                     .onChanged { value in
                         if !dragging {
                             dragging = true

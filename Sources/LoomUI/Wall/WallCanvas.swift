@@ -222,10 +222,7 @@ public struct WallCanvas: View {
         let aspect = initial.width / max(initial.height, 1)
         let minW: CGFloat = 40
         let maxW = max(minW + 1, app.wall.canvasSize.width * 0.85)
-        // Drag is scaled by √2 to feel natural: a full unit of diagonal
-        // motion (dxCanvas = dyCanvas = k) nets an outwardDelta of k√2,
-        // which is exactly what we want applied as a width change.
-        let rawW = initial.width + outwardDelta * CGFloat(1.4142135623730951)
+        let rawW = initial.width + outwardDelta
         let newW = min(maxW, max(minW, rawW))
         let newH = newW / aspect
 

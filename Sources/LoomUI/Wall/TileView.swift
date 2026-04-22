@@ -138,7 +138,7 @@ struct TileView: View {
     /// ``minimumDistance: 4`` keeps small clicks from being misread as
     /// moves, which preserves the double-tap lock gesture.
     private var moveDragGesture: some Gesture {
-        DragGesture(minimumDistance: 4)
+        DragGesture(minimumDistance: 4, coordinateSpace: .global)
             .onChanged { value in
                 guard let onMove else { return }
                 if !moving {
