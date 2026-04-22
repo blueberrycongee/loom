@@ -51,7 +51,7 @@ Full architectural spec: [VISION.md](./VISION.md).
 
 ## Getting started
 
-> **Status:** M1 – M6 complete · M7 scaffolded. Six style engines, mood clustering, pin-to-keep, favorites, PNG/PDF export. Open in Xcode 15+ on macOS 14+. See [milestones](#milestones).
+> **Status:** all milestones complete (M0 – M7). Six style engines, color + mood clustering, pin-to-keep, favorites with byte-identical replay, PNG/PDF export, both folder and Photos-library indexers. Open in Xcode 15+ on macOS 14+.
 
 ```bash
 git clone https://github.com/blueberrycongee/loom.git
@@ -75,7 +75,7 @@ a new wall from the same library.
 - [x] **M4** · Mood embedding (via Vision feature-print k-medoids)
 - [x] **M5** · Pin-to-keep (tile locks) · favorites (save + reproduce)
 - [x] **M6** · Export — PNG (3×) · PDF (vector-backed)
-- [ ] **M7** · PhotoKit source — *authorization + enumeration scaffolded; indexer integration pending*
+- [x] **M7** · PhotoKit source — full indexer + permission + incremental rescan
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for the module graph and the Shuffle
 pipeline in detail.
