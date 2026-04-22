@@ -53,6 +53,43 @@ public struct WallScene: View {
         .onReceive(NotificationCenter.default.publisher(for: .loomShuffle)) { _ in
             shuffleNow()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .loomFavoriteSave)) { _ in
+            saveCurrentAsFavorite()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .loomFavoriteApply)) { note in
+            if let fav = note.object as? Favorite { apply(fav) }
+        }
+    }
+
+    private func saveCurrentAsFavorite() {
+        guard !app.wall.isEmpty else { return }
+        let name = defaultFavoriteName(for: app.wall)
+        let fav = Favorite(
+            name: name,
+            style: app.wall.style,
+            axis: app.wall.axis,
+            seed: app.wall.seed,
+            photoIDs: app.wall.tiles.map(\.photoID),
+            canvasSize: app.wall.canvasSize
+        )
+        NotificationCenter.default.post(
+            name: .loomFavoriteSavePayload,
+            object: fav
+        )
+        Haptics.confirm()
+    }
+
+    private func apply(_ favorite: Favorite) {
+        app.setStyle(favorite.style)
+        app.setAxis(favorite.axis)
+        let wall = Composer.reproduce(favorite, library: app.photos)
+        withLoomAnimation(LoomMotion.weave) { app.wall = wall }
+    }
+
+    private func defaultFavoriteName(for wall: Wall) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM d · HH:mm"
+        return "\(wall.style.displayName) — \(df.string(from: Date()))"
     }
 
     // MARK: — Canvas

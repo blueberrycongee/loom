@@ -12,11 +12,13 @@ import LoomIndex
 final class LibraryCoordinator {
 
     private let app: AppModel
+    private let favorites: FavoritesCoordinator?
     private var indexer: Indexer?
     private var task: Task<Void, Never>?
 
-    init(app: AppModel) {
+    init(app: AppModel, favorites: FavoritesCoordinator? = nil) {
         self.app = app
+        self.favorites = favorites
         registerNotifications()
     }
 
@@ -29,6 +31,13 @@ final class LibraryCoordinator {
             object: nil, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.pickLibrary() }
+        }
+        center.addObserver(
+            forName: .loomFavoriteSavePayload,
+            object: nil, queue: .main
+        ) { [weak self] note in
+            guard let fav = note.object as? Favorite else { return }
+            Task { @MainActor in self?.favorites?.save(fav) }
         }
     }
 
@@ -66,6 +75,7 @@ final class LibraryCoordinator {
     private func openLibrary(_ url: URL) {
         task?.cancel()
         app.libraryURL = url
+        favorites?.open(forLibraryRoot: url)
         app.setPhase(.indexing(progress: 0, message: "Finding photos…"))
 
         task = Task { [weak self] in

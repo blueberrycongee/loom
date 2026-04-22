@@ -10,6 +10,7 @@ import LoomDesign
 struct AppCommands: Commands {
 
     let app: AppModel
+    let favorites: FavoritesCoordinator
 
     var body: some Commands {
 
@@ -49,14 +50,36 @@ struct AppCommands: Commands {
                     }
                 }
             }
+
+            Divider()
+
+            Button("Save Wall as Favorite") {
+                NotificationCenter.default.post(name: .loomFavoriteSave, object: nil)
+            }
+            .keyboardShortcut("s", modifiers: [.command])
+
+            Button("Clear Locks") {
+                app.clearLocks()
+            }
+            .keyboardShortcut("l", modifiers: [.command, .shift])
+        }
+
+        CommandMenu("Favorites") {
+            if favorites.favorites.isEmpty {
+                Text("No saved walls yet — ⌘S to save the current one.")
+            } else {
+                ForEach(favorites.favorites.prefix(12)) { fav in
+                    Button(fav.name) {
+                        NotificationCenter.default.post(
+                            name: .loomFavoriteApply, object: fav
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
-/// App-wide event bus. NotificationCenter stays the simplest dependency-free
-/// option for global commands; when the app grows we'll swap in a dedicated
-/// router.
-public extension Notification.Name {
-    static let loomShuffle     = Notification.Name("loom.shuffle")
-    static let loomPickLibrary = Notification.Name("loom.pickLibrary")
-}
+// Notification.Name constants now live in LoomCore/Events.swift so both
+// the Loom executable target and LoomUI views can reference them without
+// introducing a cross-target dependency.

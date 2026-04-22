@@ -16,8 +16,8 @@ import LoomCore
 ///
 /// Collision probability with a 64-bit prefix over realistic library sizes
 /// (≤ 10⁶ photos) is < 10⁻⁷ — acceptable for a local-only index.
-enum PhotoIdentity {
-    static func id(for url: URL) -> PhotoID {
+public enum PhotoIdentity {
+    public static func id(for url: URL) -> PhotoID {
         let digest = SHA256.hash(data: Data(url.path.utf8))
         let hex = digest.prefix(8).map { String(format: "%02x", $0) }.joined()
         return PhotoID(hex)

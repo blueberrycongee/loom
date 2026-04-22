@@ -72,8 +72,10 @@ public struct Composer {
         // Step 4+5+6: generate candidates with sub-seeds, score, pick best.
         var best: Wall?
         var bestScore: Double = -.infinity
+        var bestSubseed: UInt64 = rng.state
         for _ in 0..<candidates {
-            var subrng = SeededRNG(seed: rng.next())
+            let subseed = rng.next()
+            var subrng = SeededRNG(seed: subseed)
             let wall = engine.compose(
                 photos: shortlist,
                 canvasSize: canvasSize,
@@ -83,11 +85,13 @@ public struct Composer {
             if score > bestScore {
                 bestScore = score
                 best = wall
+                bestSubseed = subseed
             }
         }
 
-        // Re-stamp axis and seed for the caller's records — Composer's seed,
-        // not the engine's sub-seed.
+        // Stamp the winning sub-seed so the wall can be reproduced later.
+        // Given (photoIDs, style, canvasSize, bestSubseed) you can replay
+        // through ``reproduce`` and get the same Wall byte-for-byte.
         let finalWall = best ?? Wall(
             style: style, axis: axis, seed: rng.state, tiles: [],
             canvasSize: canvasSize
@@ -96,9 +100,39 @@ public struct Composer {
             id: finalWall.id,
             style: style,
             axis: axis,
-            seed: rng.state,
+            seed: bestSubseed,
             tiles: finalWall.tiles,
             canvasSize: finalWall.canvasSize,
+            composedAt: Date()
+        )
+    }
+
+    /// Rehydrate a saved ``Favorite`` to its exact Wall.
+    ///
+    /// Bypasses clustering and candidate scoring — the favorite already
+    /// captured the winning (style, photoIDs, seed, canvasSize), so we
+    /// just replay the engine on that tuple.
+    public static func reproduce(_ favorite: Favorite, library: [Photo]) -> Wall {
+        let byID = Dictionary(uniqueKeysWithValues: library.map { ($0.id, $0) })
+        let photos = favorite.photoIDs.compactMap { byID[$0] }
+        guard !photos.isEmpty else {
+            return Wall(style: favorite.style, axis: favorite.axis,
+                        seed: favorite.seed, tiles: [], canvasSize: favorite.canvasSize)
+        }
+        let engine = LayoutRegistry.engine(for: favorite.style)
+        var rng = SeededRNG(seed: favorite.seed)
+        let wall = engine.compose(
+            photos: photos,
+            canvasSize: favorite.canvasSize,
+            rng: &rng
+        )
+        return Wall(
+            id: wall.id,
+            style: favorite.style,
+            axis: favorite.axis,
+            seed: favorite.seed,
+            tiles: wall.tiles,
+            canvasSize: favorite.canvasSize,
             composedAt: Date()
         )
     }
