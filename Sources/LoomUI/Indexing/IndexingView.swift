@@ -104,9 +104,9 @@ private struct MiniWall: View {
                     let x = CGFloat(c) * (cellW + gutter)
                     let y = startY + CGFloat(r) * (cellH + gutter)
                     let delay = Weave.stagger(
-                        normalizedPosition: Double(i) / Double(max(1, photos.count)),
+                        normalizedPosition: Double(i % columns) / Double(columns),
                         index: i,
-                        span: 0.7
+                        span: 0.18
                     )
                     // Per-tile jitter rotation so the wave reads as
                     // organic, not mechanical. Deterministic on index.

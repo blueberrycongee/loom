@@ -164,7 +164,13 @@ final class LibraryCoordinator {
 
     /// Minimum time the indexing animation stays visible so the
     /// MiniWall wave always plays even on a fast re-scan.
-    private static let minAnimationTime: TimeInterval = 3.0
+    private static let minAnimationTime: TimeInterval = 5.5
+
+    /// Photos per second during the MiniWall replay feed. Slow enough
+    /// that each swatch's enter-transition (scale + rotate + fade) is
+    /// individually perceptible; fast enough that a 96-tile grid fills
+    /// in ~6 seconds, which reads as "loading a lot of photos".
+    private static let replayFeedRate: Double = 15
 
     private func openPhotosLibrary() {
         task?.cancel()
@@ -181,15 +187,9 @@ final class LibraryCoordinator {
             do {
                 let indexer = try PhotoKitIndexer()
                 self.photoKitIndexer = indexer
-                // Pre-fill the MiniWall with existing photos in one
-                // batch so the stagger wave animates in a single pass.
-                // Individual pushIndexed calls would fire N separate
-                // animations that cancel each other's stagger delays.
                 let existing = (try? indexer.allPhotos()) ?? []
                 if !existing.isEmpty {
-                    await MainActor.run {
-                        self.app.prefillIndexed(existing)
-                    }
+                    await Self.replayFeed(existing, into: self.app)
                 }
                 let stream = await indexer.run()
                 for await snapshot in stream {
@@ -235,9 +235,7 @@ final class LibraryCoordinator {
                 self.indexer = indexer
                 let existing = (try? indexer.allPhotos()) ?? []
                 if !existing.isEmpty {
-                    await MainActor.run {
-                        self.app.prefillIndexed(existing)
-                    }
+                    await Self.replayFeed(existing, into: self.app)
                 }
                 let progress = await indexer.run()
                 for await snapshot in progress {
@@ -266,6 +264,22 @@ final class LibraryCoordinator {
                     ))
                 }
             }
+        }
+    }
+
+    /// Drip-feed existing photos into the MiniWall at a paced rate so
+    /// each swatch's entrance (scale + rotate + fade) is individually
+    /// visible. Reads as "loading your library" even on a re-open.
+    private static func replayFeed(
+        _ photos: [Photo],
+        into app: AppModel
+    ) async {
+        let sample = photos.shuffled().prefix(96)
+        let interval = UInt64(1_000_000_000 / replayFeedRate)
+        for photo in sample {
+            guard !Task.isCancelled else { break }
+            await MainActor.run { app.pushIndexed(photo) }
+            try? await Task.sleep(nanoseconds: interval)
         }
     }
 
