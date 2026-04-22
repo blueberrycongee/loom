@@ -54,16 +54,22 @@ enum BorderDetector {
 
     /// Variance threshold per channel. A pure-color strip (e.g.
     /// black letterbox) has variance ≈ 0; a noisy one from JPEG
-    /// compression might reach 20–40. 80 leaves headroom for
-    /// compression artifacts while rejecting actual image content.
-    private static let varianceThreshold: Double = 80
+    /// compression or 256px thumbnail scaling might reach 1000+.
+    /// 2500 leaves headroom for real film-scan borders while still
+    /// rejecting actual image content (variance in a real photo row
+    /// is typically 5000+).
+    private static let varianceThreshold: Double = 2500
 
-    /// Only crop near-white (≥230) or near-black (≤25) borders.
-    /// This avoids cropping valid solid-color backgrounds like
-    /// studio backdrops or blue-sky letterboxing.
+    /// Only crop near-white (≥200) or near-black (≤60) borders.
+    /// Thresholds are relaxed from the original 230/25 because
+    /// film-scan white borders often sit at 200–220 after JPEG
+    /// compression, and dark borders from underexposed film edges
+    /// sit at 30–50.  We still avoid cropping valid solid-color
+    /// backgrounds (studio backdrops are usually saturated colours
+    /// with at least one channel well outside 60–200).
     private static func isBlackOrWhiteBorder(meanR: Double, meanG: Double, meanB: Double) -> Bool {
-        let nearWhite = meanR >= 230 && meanG >= 230 && meanB >= 230
-        let nearBlack = meanR <= 25 && meanG <= 25 && meanB <= 25
+        let nearWhite = meanR >= 200 && meanG >= 200 && meanB >= 200
+        let nearBlack = meanR <= 60 && meanG <= 60 && meanB <= 60
         return nearWhite || nearBlack
     }
 
