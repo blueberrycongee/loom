@@ -69,7 +69,7 @@ public struct LibraryChip: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Palette.brass)
 
-            Text(libraryName)
+            libraryNameText
                 .font(LoomType.caption)
                 .foregroundStyle(Palette.ink)
                 .lineLimit(1)
@@ -101,11 +101,22 @@ public struct LibraryChip: View {
 
     // MARK: — Derived
 
-    private var libraryName: String {
-        guard let url = app.libraryURL else { return "No library" }
-        if url.path == "/photokit" { return "Photos Library" }
+    /// The library label as a ``Text``. This returns Text (rather than
+    /// String / LocalizedStringKey) because the folder-name case holds
+    /// user data (which must NOT be translated — "Travel 2024" stays
+    /// "Travel 2024" in every language) while the sentinel cases
+    /// ("Photos Library", "No library") are app strings (which must
+    /// translate). Only Text gives us one return type that expresses
+    /// both.
+    private var libraryNameText: Text {
+        guard let url = app.libraryURL else {
+            return Text("No library")
+        }
+        if url.path == "/photokit" {
+            return Text("Photos Library")
+        }
         let name = url.lastPathComponent
-        return name.isEmpty ? url.path : name
+        return Text(verbatim: name.isEmpty ? url.path : name)
     }
 
     private var iconName: String {

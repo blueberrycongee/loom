@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// User-facing language override. Defaults to ``system`` — respect the
 /// Mac's language — but lets the user pin Loom to English or Chinese
@@ -26,12 +27,21 @@ public enum LanguagePreference: String, CaseIterable, Sendable, Codable {
         }
     }
 
-    /// Localizable display label for the settings picker.
-    public var displayName: String {
+    /// Picker-label strings. Returned as ``LocalizedStringKey`` so the
+    /// Settings picker switches languages live via the Environment locale
+    /// — `String(localized:)` would bake in the call-time locale and miss
+    /// the in-app override.
+    ///
+    /// Convention: language labels display in their *native* script —
+    /// "English" stays "English" in Chinese UI; "中文" stays "中文" in
+    /// English UI. This is the standard macOS Language-picker style and
+    /// helps users who don't read the current UI language find their
+    /// own.
+    public var displayName: LocalizedStringKey {
         switch self {
-        case .system:  return String(localized: "Follow system")
-        case .english: return String(localized: "English")
-        case .chinese: return String(localized: "中文")
+        case .system:  return "Follow system"
+        case .english: return "English"
+        case .chinese: return "中文"
         }
     }
 

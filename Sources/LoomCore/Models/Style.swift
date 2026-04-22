@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// A wall style. Each value is backed by its own `LayoutEngine` and
 /// aesthetic-scoring profile.
@@ -17,27 +18,33 @@ public enum Style: String, CaseIterable, Sendable, Codable, Identifiable {
 
     public var id: String { rawValue }
 
-    public var displayName: String {
+    /// Localized display name.
+    ///
+    /// Returns ``LocalizedStringKey`` rather than ``String`` so the Text /
+    /// Button / Label that displays it gets live language switching via
+    /// SwiftUI's environment locale — `String(localized:)` would only
+    /// read the process-level locale and skip the in-app override.
+    public var displayName: LocalizedStringKey {
         switch self {
-        case .exhibit:   return String(localized: "Exhibit")
-        case .tapestry:  return String(localized: "Tapestry")
-        case .editorial: return String(localized: "Editorial")
-        case .gallery:   return String(localized: "Gallery")
-        case .collage:   return String(localized: "Collage")
-        case .minimal:   return String(localized: "Minimal")
-        case .vintage:   return String(localized: "Vintage")
+        case .exhibit:   return "Exhibit"
+        case .tapestry:  return "Tapestry"
+        case .editorial: return "Editorial"
+        case .gallery:   return "Gallery"
+        case .collage:   return "Collage"
+        case .minimal:   return "Minimal"
+        case .vintage:   return "Vintage"
         }
     }
 
-    public var tagline: String {
+    public var tagline: LocalizedStringKey {
         switch self {
-        case .exhibit:   return String(localized: "Handcrafted composition · breathing room")
-        case .tapestry:  return String(localized: "Justified rows · woven like a textile")
-        case .editorial: return String(localized: "One hero · supporting satellites")
-        case .gallery:   return String(localized: "Golden-ratio grid · generous whitespace")
-        case .collage:   return String(localized: "Overlap · rotation · torn edges")
-        case .minimal:   return String(localized: "Three to five photos · high contrast")
-        case .vintage:   return String(localized: "Polaroid frames · mild skew")
+        case .exhibit:   return "Handcrafted composition · breathing room"
+        case .tapestry:  return "Justified rows · woven like a textile"
+        case .editorial: return "One hero · supporting satellites"
+        case .gallery:   return "Golden-ratio grid · generous whitespace"
+        case .collage:   return "Overlap · rotation · torn edges"
+        case .minimal:   return "Three to five photos · high contrast"
+        case .vintage:   return "Polaroid frames · mild skew"
         }
     }
 
@@ -64,13 +71,13 @@ public enum ClusterAxis: String, CaseIterable, Sendable, Codable {
     case people   // face clusters
     case time     // capture-time proximity
 
-    public var displayName: String {
+    public var displayName: LocalizedStringKey {
         switch self {
-        case .color:  return String(localized: "Color")
-        case .mood:   return String(localized: "Mood")
-        case .scene:  return String(localized: "Scene")
-        case .people: return String(localized: "People")
-        case .time:   return String(localized: "Time")
+        case .color:  return "Color"
+        case .mood:   return "Mood"
+        case .scene:  return "Scene"
+        case .people: return "People"
+        case .time:   return "Time"
         }
     }
 }

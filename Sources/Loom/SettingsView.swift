@@ -119,7 +119,7 @@ private struct LibrarySettings: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(Palette.brass)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(libraryName)
+                        libraryNameText
                             .font(LoomType.heading)
                             .foregroundStyle(Palette.ink)
                         Text("\(app.photos.count) photos")
@@ -157,10 +157,13 @@ private struct LibrarySettings: View {
         }
     }
 
-    private var libraryName: String {
-        guard let url = app.libraryURL else { return String(localized: "No library") }
-        if url.path == "/photokit" { return String(localized: "Photos Library") }
-        return url.lastPathComponent
+    /// Library name as Text — folder basename stays verbatim (user data),
+    /// sentinels localize via LocalizedStringKey so they flip live with
+    /// the environment locale.
+    private var libraryNameText: Text {
+        guard let url = app.libraryURL else { return Text("No library") }
+        if url.path == "/photokit" { return Text("Photos Library") }
+        return Text(verbatim: url.lastPathComponent)
     }
 
     private var iconName: String {

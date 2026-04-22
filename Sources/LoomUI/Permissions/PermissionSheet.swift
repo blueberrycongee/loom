@@ -67,6 +67,10 @@ public struct PermissionSheet: View {
             .brassShadow()
 
             VStack(alignment: .leading, spacing: 2) {
+                // Title / subtitle are LocalizedStringKey so they flip with
+                // the SwiftUI environment locale on an in-app language
+                // change — String(localized:) baked the call-time locale
+                // and would have stayed stale here.
                 Text(title(for: prompt))
                     .font(LoomType.displayS)
                     .foregroundStyle(Palette.ink)
@@ -150,19 +154,19 @@ public struct PermissionSheet: View {
         }
     }
 
-    private func title(for p: PermissionPrompt) -> String {
+    private func title(for p: PermissionPrompt) -> LocalizedStringKey {
         switch p {
-        case .photosExplainer:   return String(localized: "Access your Photos")
-        case .photosDenied:      return String(localized: "Photos access is off")
-        case .photosRestricted:  return String(localized: "Photos is restricted")
+        case .photosExplainer:   return "Access your Photos"
+        case .photosDenied:      return "Photos access is off"
+        case .photosRestricted:  return "Photos is restricted"
         }
     }
 
-    private func subtitle(for p: PermissionPrompt) -> String {
+    private func subtitle(for p: PermissionPrompt) -> LocalizedStringKey {
         switch p {
-        case .photosExplainer:   return String(localized: "Loom · needs read-only access")
-        case .photosDenied:      return String(localized: "Granted in System Settings")
-        case .photosRestricted:  return String(localized: "Managed by this Mac's profile")
+        case .photosExplainer:   return "Loom · needs read-only access"
+        case .photosDenied:      return "Granted in System Settings"
+        case .photosRestricted:  return "Managed by this Mac's profile"
         }
     }
 }
