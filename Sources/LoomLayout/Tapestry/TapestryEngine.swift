@@ -125,8 +125,11 @@ public struct TapestryEngine: LayoutEngine, Sendable {
     private func variegate(_ photos: [Photo], rng: inout SeededRNG) -> [Photo] {
         guard photos.count > 2 else { return photos }
 
-        // Shuffle first so the "same input" case doesn't look identical.
-        var pool = photos
+        // Sort by ID first so the result is independent of input order.
+        // This guarantees that ``Composer.reproduce`` yields the same wall
+        // even though ``favorite.photoIDs`` arrives in tile-order rather
+        // than the original shortlist order.
+        var pool = photos.sorted { $0.id.rawValue < $1.id.rawValue }
         for i in stride(from: pool.count - 1, to: 0, by: -1) {
             let j = Int(rng.next() % UInt64(i + 1))
             pool.swapAt(i, j)

@@ -115,17 +115,53 @@ public enum QualityAnalyzer {
     private static func grayscalePixels(
         _ image: CGImage, width: Int, height: Int
     ) -> [UInt8] {
+        // Primary path: 8-bit DeviceGray (fast, standard).
         var pixels = [UInt8](repeating: 0, count: width * height)
         let colorSpace = CGColorSpaceCreateDeviceGray()
-        guard let ctx = CGContext(
+        if let ctx = CGContext(
             data: &pixels,
             width: width, height: height,
             bitsPerComponent: 8,
             bytesPerRow: width,
             space: colorSpace,
             bitmapInfo: CGImageAlphaInfo.none.rawValue
+        ) {
+            ctx.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            // If we got any non-zero data, trust the primary path.
+            if pixels.contains(where: { $0 != 0 }) {
+                return pixels
+            }
+        }
+
+        // Fallback: 32-bit RGBX then luminance conversion.
+        // Some macOS configurations silently fail with 8-bit grayscale
+        // CGContext (same root cause as the BorderDetector 24-bit RGB bug).
+        // 32-bit RGBX is guaranteed supported, so we draw there and convert.
+        let bytesPerRow = width * 4
+        var rgba = [UInt8](repeating: 0, count: bytesPerRow * height)
+        let rgbSpace = CGColorSpaceCreateDeviceRGB()
+        guard let ctx = CGContext(
+            data: &rgba,
+            width: width, height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: rgbSpace,
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
         ) else { return [] }
         ctx.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
-        return pixels
+
+        // ITU-R BT.601 luma coefficients.
+        var gray = [UInt8](repeating: 0, count: width * height)
+        for y in 0..<height {
+            for x in 0..<width {
+                let i = y * bytesPerRow + x * 4
+                let r = Int(rgba[i])
+                let g = Int(rgba[i + 1])
+                let b = Int(rgba[i + 2])
+                let lum = (76 * r + 150 * g + 29 * b) >> 8
+                gray[y * width + x] = UInt8(max(0, min(255, lum)))
+            }
+        }
+        return gray
     }
 }

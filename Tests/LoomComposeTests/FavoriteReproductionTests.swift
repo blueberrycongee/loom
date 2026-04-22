@@ -7,11 +7,14 @@ import LoomLayout
 final class FavoriteReproductionTests: XCTestCase {
 
     private func photo(_ i: Int, aspect: Double) -> Photo {
+        // L* is kept in the 30–80 range so the quality filter’s
+        // belt-and-suspenders L* check (< 12 or > 95) does not reject
+        // synthetic test photos.
         Photo(
             id: PhotoID("p\(i)"),
             url: URL(fileURLWithPath: "/dev/null/\(i)"),
             pixelSize: PixelSize(width: Int(100 * aspect), height: 100),
-            dominantColor: LabColor(l: Double(i) * 3, a: Double(i - 10), b: 5),
+            dominantColor: LabColor(l: 30 + Double(i) * 1.5, a: Double(i - 10), b: 5),
             colorTemperature: ColorTemperature(kelvin: 5500),
             indexedAt: Date(timeIntervalSince1970: 0)
         )

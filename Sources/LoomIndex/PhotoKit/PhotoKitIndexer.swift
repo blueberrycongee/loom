@@ -55,7 +55,8 @@ public actor PhotoKitIndexer {
         if status != .authorized && status != .limited {
             let result = await PhotoKitAuthorization.request()
             if result != .authorized && result != .limited {
-                out.yield(IndexProgress(stage: .failed("Photos access denied — grant in System Settings → Privacy.")))
+                let message = String(localized: "Photos access denied — grant in System Settings → Privacy.")
+                out.yield(IndexProgress(stage: .failed(message)))
                 return
             }
         }
@@ -146,6 +147,9 @@ public actor PhotoKitIndexer {
         let color = ColorAnalyzer.analyze(url)
             ?? ColorAnalyzer.Result(dominant: .midGray, temperature: .neutral)
         let print = VisionFeatures.extract(from: url)
+        let clip = CLIPFeatures.extract(from: url)
+        let quality = QualityAnalyzer.analyze(url, pixelSize: size)
+        let borders = BorderDetector.detect(url)
 
         return Photo(
             id: id,
@@ -155,6 +159,9 @@ public actor PhotoKitIndexer {
             dominantColor: color.dominant,
             colorTemperature: color.temperature,
             featurePrint: print,
+            clipEmbedding: clip,
+            qualityScore: quality,
+            cropInsets: borders,
             indexedAt: Date()
         )
     }
