@@ -51,8 +51,11 @@ public struct WallCanvas: View {
                             Haptics.snap()
                         }
                     )
-                    .brightness(proximity * 0.05)
-                    .saturation(1.0 - (1.0 - proximity) * 0.12)
+                    // Paper canvas wants *much* gentler proximity effects than
+                    // dark — any noticeable brightness lift reads as
+                    // over-processed. Halved from the dark-mode values.
+                    .brightness(proximity * 0.025)
+                    .saturation(1.0 - (1.0 - proximity) * 0.07)
                     .position(
                         x: tile.frame.midX * scale + offset.x,
                         y: tile.frame.midY * scale + offset.y
@@ -158,11 +161,16 @@ private struct CursorAura: View {
     var body: some View {
         GeometryReader { _ in
             if let c = cursor {
+                // Paper canvas wash: terracotta at barely-there alpha with
+                // .multiply, so the aura *darkens* rather than lightens —
+                // a warm shadow-glow centered on where you're looking.
+                // .plusLighter (used on dark canvas) would flatten the
+                // paper instead of warming it.
                 RadialGradient(
                     stops: [
-                        .init(color: Palette.brassLift.opacity(0.14), location: 0.0),
-                        .init(color: Palette.brass.opacity(0.06),     location: 0.35),
-                        .init(color: .clear,                          location: 1.0)
+                        .init(color: Palette.brass.opacity(0.10),      location: 0.0),
+                        .init(color: Palette.brassShade.opacity(0.04), location: 0.40),
+                        .init(color: .clear,                            location: 1.0)
                     ],
                     center: UnitPoint(x: 0.5, y: 0.5),
                     startRadius: 0,
@@ -170,7 +178,7 @@ private struct CursorAura: View {
                 )
                 .frame(width: 520, height: 520)
                 .position(c)
-                .blendMode(.plusLighter)
+                .blendMode(.multiply)
                 .transition(.opacity)
             }
         }
