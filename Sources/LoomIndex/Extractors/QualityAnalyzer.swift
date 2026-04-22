@@ -28,6 +28,11 @@ public enum QualityAnalyzer {
         let blur = blurScore(pixels, width: width, height: height)
         let exposure = exposureScore(pixels)
 
+        // Extreme exposure (near-black or near-white) is a hard reject:
+        // no amount of resolution or sharpness saves a completely
+        // crushed or blown photo.
+        guard exposure > 0.0 else { return 0.0 }
+
         return resScore * 0.2 + blur * 0.5 + exposure * 0.3
     }
 
