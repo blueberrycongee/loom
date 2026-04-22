@@ -58,6 +58,15 @@ enum BorderDetector {
     /// compression artifacts while rejecting actual image content.
     private static let varianceThreshold: Double = 80
 
+    /// Only crop near-white (≥230) or near-black (≤25) borders.
+    /// This avoids cropping valid solid-color backgrounds like
+    /// studio backdrops or blue-sky letterboxing.
+    private static func isBlackOrWhiteBorder(meanR: Double, meanG: Double, meanB: Double) -> Bool {
+        let nearWhite = meanR >= 230 && meanG >= 230 && meanB >= 230
+        let nearBlack = meanR <= 25 && meanG <= 25 && meanB <= 25
+        return nearWhite || nearBlack
+    }
+
     /// Scan rows from one edge inward. Returns how many rows are
     /// considered a uniform-color border strip.
     private static func scanRows(
@@ -68,7 +77,9 @@ enum BorderDetector {
         var borderRows = 0
         for step in 0..<maxRows {
             let row = fromTop ? step : (h - 1 - step)
-            if rowVariance(pixels, row: row, width: w) < varianceThreshold {
+            let stats = rowStats(pixels, row: row, width: w)
+            if stats.variance < varianceThreshold &&
+               isBlackOrWhiteBorder(meanR: stats.meanR, meanG: stats.meanG, meanB: stats.meanB) {
                 borderRows += 1
             } else {
                 break
@@ -86,7 +97,9 @@ enum BorderDetector {
         var borderCols = 0
         for step in 0..<maxCols {
             let col = fromLeft ? step : (w - 1 - step)
-            if colVariance(pixels, col: col, width: w, height: h) < varianceThreshold {
+            let stats = colStats(pixels, col: col, width: w, height: h)
+            if stats.variance < varianceThreshold &&
+               isBlackOrWhiteBorder(meanR: stats.meanR, meanG: stats.meanG, meanB: stats.meanB) {
                 borderCols += 1
             } else {
                 break
@@ -95,10 +108,18 @@ enum BorderDetector {
         return borderCols
     }
 
-    /// Max per-channel variance across R, G, B for one row.
-    private static func rowVariance(
+    // MARK: — Edge stats (variance + mean colour)
+
+    private struct EdgeStats {
+        let variance: Double
+        let meanR: Double
+        let meanG: Double
+        let meanB: Double
+    }
+
+    private static func rowStats(
         _ pixels: [UInt8], row: Int, width: Int
-    ) -> Double {
+    ) -> EdgeStats {
         var sumR = 0.0, sumG = 0.0, sumB = 0.0
         var sqR  = 0.0, sqG  = 0.0, sqB  = 0.0
         let base = row * width * 4
@@ -114,13 +135,17 @@ enum BorderDetector {
         func v(_ s: Double, _ sq: Double) -> Double {
             sq / n - (s / n) * (s / n)
         }
-        return max(v(sumR, sqR), max(v(sumG, sqG), v(sumB, sqB)))
+        return EdgeStats(
+            variance: max(v(sumR, sqR), max(v(sumG, sqG), v(sumB, sqB))),
+            meanR: sumR / n,
+            meanG: sumG / n,
+            meanB: sumB / n
+        )
     }
 
-    /// Max per-channel variance across R, G, B for one column.
-    private static func colVariance(
+    private static func colStats(
         _ pixels: [UInt8], col: Int, width: Int, height: Int
-    ) -> Double {
+    ) -> EdgeStats {
         var sumR = 0.0, sumG = 0.0, sumB = 0.0
         var sqR  = 0.0, sqG  = 0.0, sqB  = 0.0
         for y in 0..<height {
@@ -135,7 +160,12 @@ enum BorderDetector {
         func v(_ s: Double, _ sq: Double) -> Double {
             sq / n - (s / n) * (s / n)
         }
-        return max(v(sumR, sqR), max(v(sumG, sqG), v(sumB, sqB)))
+        return EdgeStats(
+            variance: max(v(sumR, sqR), max(v(sumG, sqG), v(sumB, sqB))),
+            meanR: sumR / n,
+            meanG: sumG / n,
+            meanB: sumB / n
+        )
     }
 
     // MARK: — Helpers

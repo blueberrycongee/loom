@@ -44,6 +44,7 @@ final class ExportCoordinator {
                 wall: self.app.wall,
                 photos: self.app.photos,
                 scale: 3.0,
+                applyCropInsets: self.app.autoTrimEnabled,
                 to: url
             )
         }
@@ -58,6 +59,7 @@ final class ExportCoordinator {
             _ = WallRenderer.renderToPDF(
                 wall: self.app.wall,
                 photos: self.app.photos,
+                applyCropInsets: self.app.autoTrimEnabled,
                 to: url
             )
         }

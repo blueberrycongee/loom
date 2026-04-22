@@ -96,6 +96,7 @@ public struct WallCanvas: View {
                         style: wall.style,
                         isLocked: app.lockedPhotoIDs.contains(tile.photoID),
                         isInteracting: isInteracting,
+                        applyCropInsets: app.autoTrimEnabled,
                         onToggleLock: {
                             withLoomAnimation(LoomMotion.snap) {
                                 app.toggleLock(tile.photoID)

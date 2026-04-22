@@ -22,9 +22,10 @@ public enum WallRenderer {
     public static func renderToImage(
         wall: Wall,
         photos: [Photo],
-        scale: CGFloat = 2.0
+        scale: CGFloat = 2.0,
+        applyCropInsets: Bool = true
     ) -> NSImage? {
-        let view = ExportWallView(wall: wall, photos: photos)
+        let view = ExportWallView(wall: wall, photos: photos, applyCropInsets: applyCropInsets)
             .frame(width: wall.canvasSize.width, height: wall.canvasSize.height)
             .background(Palette.canvas)
 
@@ -39,9 +40,10 @@ public enum WallRenderer {
         wall: Wall,
         photos: [Photo],
         scale: CGFloat = 3.0,
+        applyCropInsets: Bool = true,
         to url: URL
     ) -> Bool {
-        guard let image = renderToImage(wall: wall, photos: photos, scale: scale),
+        guard let image = renderToImage(wall: wall, photos: photos, scale: scale, applyCropInsets: applyCropInsets),
               let tiff = image.tiffRepresentation,
               let rep = NSBitmapImageRep(data: tiff),
               let png = rep.representation(using: .png, properties: [:])
@@ -54,9 +56,10 @@ public enum WallRenderer {
     public static func renderToPDF(
         wall: Wall,
         photos: [Photo],
+        applyCropInsets: Bool = true,
         to url: URL
     ) -> Bool {
-        let view = ExportWallView(wall: wall, photos: photos)
+        let view = ExportWallView(wall: wall, photos: photos, applyCropInsets: applyCropInsets)
             .frame(width: wall.canvasSize.width, height: wall.canvasSize.height)
             .background(Palette.canvas)
 
@@ -84,6 +87,7 @@ public enum WallRenderer {
 private struct ExportWallView: View {
     let wall: Wall
     let photos: [Photo]
+    let applyCropInsets: Bool
 
     private var photoByID: [PhotoID: Photo] {
         Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
@@ -97,7 +101,8 @@ private struct ExportWallView: View {
                 TileView(
                     tile: tile,
                     photo: photoByID[tile.photoID],
-                    style: wall.style
+                    style: wall.style,
+                    applyCropInsets: applyCropInsets
                 )
                 .position(x: tile.frame.midX, y: tile.frame.midY)
                 .frame(width: tile.frame.width, height: tile.frame.height)

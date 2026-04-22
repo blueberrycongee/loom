@@ -20,6 +20,7 @@ struct TileView: View {
     let style: Style
     let isLocked: Bool
     let isInteracting: Bool
+    let applyCropInsets: Bool
     let onToggleLock: (() -> Void)?
     let onResize: ((ResizeCorner, TileDragPhase) -> Void)?
     let onMove: ((TileDragPhase) -> Void)?
@@ -35,6 +36,7 @@ struct TileView: View {
         style: Style = .tapestry,
         isLocked: Bool = false,
         isInteracting: Bool = false,
+        applyCropInsets: Bool = true,
         onToggleLock: (() -> Void)? = nil,
         onResize: ((ResizeCorner, TileDragPhase) -> Void)? = nil,
         onMove: ((TileDragPhase) -> Void)? = nil
@@ -44,6 +46,7 @@ struct TileView: View {
         self.style = style
         self.isLocked = isLocked
         self.isInteracting = isInteracting
+        self.applyCropInsets = applyCropInsets
         self.onToggleLock = onToggleLock
         self.onResize = onResize
         self.onMove = onMove
@@ -187,7 +190,7 @@ struct TileView: View {
     /// are zero the view is identical to a plain .fill.
     @ViewBuilder
     private func croppedImage(_ img: Image) -> some View {
-        let insets = photo?.cropInsets ?? .zero
+        let insets = applyCropInsets ? (photo?.cropInsets ?? .zero) : .zero
         if insets.isZero {
             img.resizable()
                 .aspectRatio(contentMode: .fill)
