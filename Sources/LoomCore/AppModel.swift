@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import LoomCore
 
 /// The root observable. Single source of truth for the active library,
 /// current wall, style, axis, and indexing progress.
