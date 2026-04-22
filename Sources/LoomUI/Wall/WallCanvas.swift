@@ -34,7 +34,7 @@ public struct WallCanvas: View {
 
             ZStack(alignment: .topLeading) {
                 ForEach(wall.tiles, id: \.photoID) { tile in
-                    TileView(tile: tile, photo: photoByID[tile.photoID])
+                    TileView(tile: tile, photo: photoByID[tile.photoID], style: wall.style)
                         .position(
                             x: (tile.frame.midX) * scale + offset.x,
                             y: (tile.frame.midY) * scale + offset.y

@@ -29,7 +29,7 @@ public enum LayoutRegistry {
         case .gallery:   return GalleryEngine()
         case .collage:   return CollageEngine()
         case .minimal:   return MinimalEngine()
-        case .vintage:   return TapestryEngine()   // TODO M3
+        case .vintage:   return VintageEngine()
         }
     }
 }

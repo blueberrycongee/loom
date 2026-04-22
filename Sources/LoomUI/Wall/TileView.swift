@@ -17,12 +17,37 @@ struct TileView: View {
 
     let tile: Tile
     let photo: Photo?
+    let style: Style
 
     private let thumbnails = ThumbnailCache()
     @State private var image: NSImage?
     @State private var hovered = false
 
+    init(tile: Tile, photo: Photo?, style: Style = .tapestry) {
+        self.tile = tile
+        self.photo = photo
+        self.style = style
+    }
+
     var body: some View {
+        Group {
+            if style == .vintage {
+                polaroid
+            } else {
+                plainTile
+            }
+        }
+        .frame(width: tile.frame.width, height: tile.frame.height)
+        .scaleEffect(hovered ? 1.015 : 1.0)
+        .rotationEffect(.radians(tile.rotation))
+        .onHover { hovered = $0 }
+        .animation(LoomMotion.hover, value: hovered)
+        .task(id: photo?.id) {
+            await load()
+        }
+    }
+
+    private var plainTile: some View {
         ZStack {
             if let photo {
                 dominantSwatch(for: photo)
@@ -35,20 +60,49 @@ struct TileView: View {
                     .transition(.opacity)
             }
         }
-        .frame(width: tile.frame.width, height: tile.frame.height)
         .clipShape(RoundedRectangle(cornerRadius: LoomRadius.tile, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: LoomRadius.tile, style: .continuous)
                 .strokeBorder(Palette.hairline, lineWidth: 1)
         )
-        .scaleEffect(hovered ? 1.015 : 1.0)
         .tileShadow()
-        .rotationEffect(.radians(tile.rotation))
-        .onHover { hovered = $0 }
-        .animation(LoomMotion.hover, value: hovered)
-        .task(id: photo?.id) {
-            await load()
+    }
+
+    /// Polaroid chrome: thick white border, extra-thick on the bottom for
+    /// the signature space; paper-texture off-white rather than pure white.
+    private var polaroid: some View {
+        let paper = Color(red: 0.97, green: 0.95, blue: 0.90)
+        let topMargin: CGFloat = 10
+        let sideMargin: CGFloat = 10
+        let bottomMargin: CGFloat = max(24, tile.frame.height * 0.18)
+        return ZStack {
+            paper
+            VStack(spacing: 0) {
+                ZStack {
+                    if let photo {
+                        dominantSwatch(for: photo)
+                    }
+                    if let image {
+                        Image(nsImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .transition(.opacity)
+                    }
+                }
+                .clipped()
+                .padding(.top, topMargin)
+                .padding(.horizontal, sideMargin)
+
+                Spacer(minLength: 0)
+            }
+            .padding(.bottom, bottomMargin)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                .strokeBorder(Color.black.opacity(0.06), lineWidth: 0.5)
+        )
+        .tileShadow()
     }
 
     private func dominantSwatch(for photo: Photo) -> some View {
