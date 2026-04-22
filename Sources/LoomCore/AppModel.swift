@@ -12,8 +12,12 @@ public final class AppModel {
     public enum Phase: Equatable {
         /// No library chosen yet. Renders the landing hero.
         case landing
-        /// Indexing the chosen library.
-        case indexing(progress: Double, message: String)
+        /// Indexing the chosen library. Carries the raw snapshot (stage +
+        /// counts) so the view layer formats the progress message with
+        /// LocalizedStringKey at render time — a pre-formatted String
+        /// would bake in the call-time locale and break in-session
+        /// language switching.
+        case indexing(IndexingSnapshot)
         /// Library ready; a wall has been composed (or is empty awaiting Shuffle).
         case ready
     }

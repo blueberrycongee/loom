@@ -222,11 +222,9 @@ final class LibraryCoordinator {
                 let progress = await indexer.run()
                 for await snapshot in progress {
                     if Task.isCancelled { return }
+                    let coreSnapshot = IndexingSnapshot.from(snapshot)
                     await MainActor.run {
-                        self.app.setPhase(.indexing(
-                            progress: snapshot.fraction,
-                            message: snapshot.message
-                        ))
+                        self.app.setPhase(.indexing(coreSnapshot))
                         if let fresh = snapshot.recentPhoto {
                             self.app.pushIndexed(fresh)
                         }
@@ -243,11 +241,35 @@ final class LibraryCoordinator {
             } catch {
                 await MainActor.run {
                     self.app.setPhase(.indexing(
-                        progress: 0,
-                        message: "Couldn't open that folder — \(error.localizedDescription)"
+                        IndexingSnapshot(stage: .failed(error.localizedDescription))
                     ))
                 }
             }
         }
+    }
+}
+
+// MARK: — Snapshot mapping
+
+extension IndexingSnapshot {
+    /// Map a ``LoomIndex.IndexProgress`` into the platform-free snapshot
+    /// that ``AppModel.Phase.indexing`` carries. The mapping is total:
+    /// every stage has a sensible destination and the counts pass
+    /// through unchanged.
+    fileprivate static func from(_ progress: IndexProgress) -> IndexingSnapshot {
+        let stage: Stage = {
+            switch progress.stage {
+            case .discovering:       return .discovering
+            case .extracting:        return .extracting
+            case .thumbnailing:      return .thumbnailing
+            case .done:              return .done
+            case .failed(let why):   return .failed(why)
+            }
+        }()
+        return IndexingSnapshot(
+            stage: stage,
+            completed: progress.completed,
+            total: progress.total
+        )
     }
 }

@@ -44,8 +44,8 @@ public struct RootScene: View {
         switch app.phase {
         case .landing:
             LandingView()
-        case .indexing(let progress, let message):
-            IndexingView(progress: progress, message: message)
+        case .indexing(let snapshot):
+            IndexingView(snapshot: snapshot)
         case .ready:
             WallScene()
         }

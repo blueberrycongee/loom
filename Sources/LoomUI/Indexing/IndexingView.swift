@@ -16,12 +16,10 @@ import LoomDesign
 public struct IndexingView: View {
 
     @Environment(AppModel.self) private var app
-    let progress: Double
-    let message: String
+    let snapshot: IndexingSnapshot
 
-    public init(progress: Double, message: String) {
-        self.progress = progress
-        self.message = message
+    public init(snapshot: IndexingSnapshot) {
+        self.snapshot = snapshot
     }
 
     public var body: some View {
@@ -33,14 +31,14 @@ public struct IndexingView: View {
                 .padding(.horizontal, LoomSpacing.xl)
 
             VStack(spacing: LoomSpacing.sm) {
-                ShuttleBar(progress: progress)
+                ShuttleBar(progress: snapshot.fraction)
                     .frame(maxWidth: 360, maxHeight: 2)
 
                 HStack(spacing: LoomSpacing.sm) {
-                    Text(message)
+                    messageText
                         .font(LoomType.body)
                         .foregroundStyle(Palette.inkMuted)
-                    Text("· \(Int((progress * 100).rounded()))%")
+                    Text("· \(Int((snapshot.fraction * 100).rounded()))%")
                         .font(LoomType.monoSm)
                         .foregroundStyle(Palette.inkFaint)
                 }
@@ -55,7 +53,27 @@ public struct IndexingView: View {
                 .foregroundStyle(Palette.inkFaint)
                 .padding(.bottom, LoomSpacing.lg)
         }
-        .animation(LoomMotion.breathe, value: message)
+        .animation(LoomMotion.breathe, value: snapshot)
+    }
+
+    /// Built at render time via LocalizedStringKey interpolation, so
+    /// an in-app language switch flips the progress copy immediately
+    /// instead of requiring a fresh indexing run to re-bake the
+    /// message String.
+    @ViewBuilder
+    private var messageText: some View {
+        switch snapshot.stage {
+        case .discovering:
+            Text("Finding photos…")
+        case .extracting:
+            Text("Analysing \(snapshot.completed) of \(snapshot.total)…")
+        case .thumbnailing:
+            Text("Baking previews \(snapshot.completed) of \(snapshot.total)…")
+        case .done:
+            Text("\(snapshot.completed) photos ready.")
+        case .failed(let why):
+            Text("Indexing failed: \(why)")
+        }
     }
 }
 
