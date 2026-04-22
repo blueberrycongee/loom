@@ -18,15 +18,25 @@ struct TileView: View {
     let tile: Tile
     let photo: Photo?
     let style: Style
+    let isLocked: Bool
+    let onToggleLock: (() -> Void)?
 
     private let thumbnails = ThumbnailCache()
     @State private var image: NSImage?
     @State private var hovered = false
 
-    init(tile: Tile, photo: Photo?, style: Style = .tapestry) {
+    init(
+        tile: Tile,
+        photo: Photo?,
+        style: Style = .tapestry,
+        isLocked: Bool = false,
+        onToggleLock: (() -> Void)? = nil
+    ) {
         self.tile = tile
         self.photo = photo
         self.style = style
+        self.isLocked = isLocked
+        self.onToggleLock = onToggleLock
     }
 
     var body: some View {
@@ -37,11 +47,16 @@ struct TileView: View {
                 plainTile
             }
         }
+        .overlay(alignment: .topTrailing) {
+            LockBadge(isLocked: isLocked, hovered: hovered)
+                .padding(8)
+        }
         .frame(width: tile.frame.width, height: tile.frame.height)
         .scaleEffect(hovered ? 1.015 : 1.0)
         .rotationEffect(.radians(tile.rotation))
         .onHover { hovered = $0 }
         .animation(LoomMotion.hover, value: hovered)
+        .onTapGesture(count: 2) { onToggleLock?() }
         .task(id: photo?.id) {
             await load()
         }
@@ -122,5 +137,29 @@ struct TileView: View {
         await MainActor.run {
             withLoomAnimation(LoomMotion.ease) { self.image = loaded }
         }
+    }
+}
+
+/// A pin/lock indicator that sits in the tile's upper-right corner.
+/// Visible when locked; fades in on hover when unlocked so users discover
+/// the affordance.
+private struct LockBadge: View {
+    let isLocked: Bool
+    let hovered: Bool
+
+    var body: some View {
+        ZStack {
+            Circle().fill(Palette.surface.opacity(0.85))
+                .background(.ultraThinMaterial, in: Circle())
+            Image(systemName: isLocked ? "pin.fill" : "pin")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(isLocked ? Palette.brass : Palette.inkMuted)
+                .rotationEffect(.degrees(45))
+        }
+        .frame(width: 22, height: 22)
+        .opacity(isLocked ? 1.0 : (hovered ? 0.75 : 0.0))
+        .animation(LoomMotion.hover, value: hovered)
+        .animation(LoomMotion.snap, value: isLocked)
+        .allowsHitTesting(false)
     }
 }

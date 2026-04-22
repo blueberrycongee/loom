@@ -35,6 +35,7 @@ public struct Composer {
         style: Style,
         axis: ClusterAxis,
         canvasSize: CGSize,
+        lockedPhotoIDs: Set<PhotoID> = [],
         rng: inout SeededRNG
     ) -> Wall {
         guard !photos.isEmpty, canvasSize.width > 2, canvasSize.height > 2 else {
@@ -45,20 +46,28 @@ public struct Composer {
         let engine = LayoutRegistry.engine(for: style)
         let targetCount = targetTileCount(canvasSize: canvasSize, libraryCount: photos.count)
 
-        // Step 2+3: cluster + pick on the active axis.
-        let shortlist: [Photo]
+        // Step 1: lift locked photos out of the pool so they are guaranteed
+        // to appear in the shortlist. The clusterer operates on the
+        // remainder; locks go in first.
+        let lockedPhotos = photos.filter { lockedPhotoIDs.contains($0.id) }
+        let freePool     = photos.filter { !lockedPhotoIDs.contains($0.id) }
+        let freeTarget   = max(0, targetCount - lockedPhotos.count)
+
+        // Step 2+3: cluster + pick on the active axis (against the free pool).
+        let freeShortlist: [Photo]
         switch axis {
         case .color:
-            shortlist = sampleFromColorClusters(photos: photos, count: targetCount, rng: &rng)
+            freeShortlist = sampleFromColorClusters(photos: freePool, count: freeTarget, rng: &rng)
         case .mood:
-            shortlist = sampleFromFeaturePrintClusters(photos: photos, count: targetCount, rng: &rng)
+            freeShortlist = sampleFromFeaturePrintClusters(photos: freePool, count: freeTarget, rng: &rng)
         case .scene, .people, .time:
-            // No dedicated clusterer yet; fall back to uniform sampling so the
-            // UI is usable end-to-end and the user can flip axes without dead
-            // buttons. M5+ adds scene-classifier / face-landmark / time-window
-            // clusterers; each one slots in here behind the same interface.
-            shortlist = sampleUniform(photos: photos, count: targetCount, rng: &rng)
+            freeShortlist = sampleUniform(photos: freePool, count: freeTarget, rng: &rng)
         }
+
+        // Merge: locked first so the engine biases them to earlier tiles
+        // (Editorial's hero selection, Tapestry's first rows) — the visible
+        // promise of "your pins stay".
+        let shortlist = lockedPhotos + freeShortlist
 
         // Step 4+5+6: generate candidates with sub-seeds, score, pick best.
         var best: Wall?

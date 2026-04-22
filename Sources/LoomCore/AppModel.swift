@@ -31,6 +31,10 @@ public final class AppModel {
     /// Populated by the Indexer once it reaches the `done` stage.
     public var photos: [Photo] = []
 
+    /// Photos the user has pinned. These are guaranteed to appear in every
+    /// Shuffle until unpinned — position may change, inclusion doesn't.
+    public var lockedPhotoIDs: Set<PhotoID> = []
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
@@ -39,4 +43,14 @@ public final class AppModel {
     public func setPhotos(_ p: [Photo]) { photos = p }
 
     public func setPhase(_ p: Phase) { phase = p }
+
+    public func toggleLock(_ id: PhotoID) {
+        if lockedPhotoIDs.contains(id) {
+            lockedPhotoIDs.remove(id)
+        } else {
+            lockedPhotoIDs.insert(id)
+        }
+    }
+
+    public func clearLocks() { lockedPhotoIDs.removeAll() }
 }

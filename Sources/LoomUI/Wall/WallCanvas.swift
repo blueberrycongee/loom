@@ -34,7 +34,18 @@ public struct WallCanvas: View {
 
             ZStack(alignment: .topLeading) {
                 ForEach(wall.tiles, id: \.photoID) { tile in
-                    TileView(tile: tile, photo: photoByID[tile.photoID], style: wall.style)
+                    TileView(
+                        tile: tile,
+                        photo: photoByID[tile.photoID],
+                        style: wall.style,
+                        isLocked: app.lockedPhotoIDs.contains(tile.photoID),
+                        onToggleLock: {
+                            withLoomAnimation(LoomMotion.snap) {
+                                app.toggleLock(tile.photoID)
+                            }
+                            Haptics.snap()
+                        }
+                    )
                         .position(
                             x: (tile.frame.midX) * scale + offset.x,
                             y: (tile.frame.midY) * scale + offset.y

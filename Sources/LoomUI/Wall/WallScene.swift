@@ -105,6 +105,7 @@ public struct WallScene: View {
             style: app.style,
             axis: app.axis,
             canvasSize: size,
+            lockedPhotoIDs: app.lockedPhotoIDs,
             rng: &rng
         )
         withLoomAnimation(LoomMotion.weave) {
