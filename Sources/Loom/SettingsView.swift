@@ -60,6 +60,28 @@ private struct GeneralSettings: View {
                 .labelsHidden()
             }
 
+            SettingsSection(title: "Gestures") {
+                VStack(alignment: .leading, spacing: LoomSpacing.sm) {
+                    Toggle(isOn: Binding(
+                        get: { app.handSenseEnabled },
+                        set: { newValue in
+                            NotificationCenter.default.post(
+                                name: .loomHandSenseToggle, object: newValue
+                            )
+                        }
+                    )) {
+                        Text("Control the wall with hand gestures")
+                            .font(LoomType.body)
+                            .foregroundStyle(Palette.ink)
+                    }
+                    Text("Open your palm to spread · make a fist to gather · swipe to shuffle. Camera access required. Video is processed in memory and never recorded.")
+                        .font(LoomType.caption)
+                        .foregroundStyle(Palette.inkFaint)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
             SettingsSection(title: "Keyboard") {
                 KeyboardCheatsheet()
             }

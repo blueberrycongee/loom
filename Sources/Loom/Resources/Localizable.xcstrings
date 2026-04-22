@@ -514,6 +514,66 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Polaroid frames · mild skew" } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "宝丽来白边 · 轻微倾斜" } }
       }
+    },
+    "Gestures" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gestures" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手势" } }
+      }
+    },
+    "Control the wall with hand gestures" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Control the wall with hand gestures" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用手势控制墙面" } }
+      }
+    },
+    "Open your palm to spread · make a fist to gather · swipe to shuffle. Camera access required. Video is processed in memory and never recorded." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open your palm to spread · make a fist to gather · swipe to shuffle. Camera access required. Video is processed in memory and never recorded." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "张开手掌就散开 · 握拳就聚拢 · 左右滑就重排。需要摄像头权限。视频仅在内存里处理,不会被录制或保存。" } }
+      }
+    },
+    "Turn on hand gestures" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Turn on hand gestures" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开启手势控制" } }
+      }
+    },
+    "Loom · needs camera access" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loom · needs camera access" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Loom · 需要摄像头权限" } }
+      }
+    },
+    "Camera access is off" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Camera access is off" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "摄像头权限已关闭" } }
+      }
+    },
+    "Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, swipe to shuffle. Video is processed frame by frame in memory and never recorded." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, swipe to shuffle. Video is processed frame by frame in memory and never recorded." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手势功能需要摄像头权限。Loom 实时读取你手掌的张开程度——张开手散开墙面,握拳聚拢,左右滑动重排。视频在内存里逐帧处理,不会录制保存。" } }
+      }
+    },
+    "You previously declined camera access. macOS won't show the permission dialog again — to use hand gestures you'll need to grant access manually in System Settings." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You previously declined camera access. macOS won't show the permission dialog again — to use hand gestures you'll need to grant access manually in System Settings." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "你之前拒绝了摄像头权限。macOS 不会再弹出权限对话框——要使用手势,需要手动去系统设置开启。" } }
+      }
+    },
+    "Nothing recorded." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing recorded." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "不会录制任何内容。" } }
+      }
+    },
+    "Turn off any time in Settings." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Turn off any time in Settings." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "随时在设置里关闭。" } }
+      }
     }
   }
 }

@@ -33,9 +33,25 @@ public struct WallCanvas: View {
                 scale: scale
             )
 
+            // Spread factor derived from the live hand-openness signal.
+            // 0.5 openness = 1.0 factor (no change from composer).
+            // Fist pulls tiles toward the canvas center by up to 45%;
+            // open hand pushes them out by up to 35% — bounded so
+            // tiles never vanish into the middle or fly off the wall.
+            let spread = HandSenseTuning.spreadFactor(for: app.wallOpenness)
+            let wallCenter = CGPoint(
+                x: wall.canvasSize.width / 2,
+                y: wall.canvasSize.height / 2
+            )
+
             ZStack(alignment: .topLeading) {
                 ForEach(wall.tiles, id: \.photoID) { tile in
                     let delay = staggerDelay(for: tile, wall: wall)
+                    let spreadMid = spreadPosition(
+                        original: CGPoint(x: tile.frame.midX, y: tile.frame.midY),
+                        around: wallCenter,
+                        by: spread
+                    )
 
                     TileView(
                         tile: tile,
@@ -50,8 +66,8 @@ public struct WallCanvas: View {
                         }
                     )
                     .position(
-                        x: tile.frame.midX * scale + offset.x,
-                        y: tile.frame.midY * scale + offset.y
+                        x: spreadMid.x * scale + offset.x,
+                        y: spreadMid.y * scale + offset.y
                     )
                     .frame(
                         width: tile.frame.width * scale,
@@ -59,9 +75,27 @@ public struct WallCanvas: View {
                     )
                     .transition(Weave.insertTransition(delay: delay))
                     .animation(Weave.settleAnimation(delay: delay), value: wall.id)
+                    // Subtle spring just for the openness-driven glide so
+                    // hand motion reads as a physical pull rather than an
+                    // abrupt reposition. Separate from the shuffle
+                    // animation (value: wall.id) so they don't fight.
+                    .animation(.spring(response: 0.45, dampingFraction: 0.78), value: app.wallOpenness)
                 }
             }
         }
+    }
+
+    /// Scale `original` around `center` by `factor`. `factor` = 1 is
+    /// no-op; < 1 pulls closer to center; > 1 pushes away.
+    private func spreadPosition(
+        original: CGPoint,
+        around center: CGPoint,
+        by factor: Double
+    ) -> CGPoint {
+        CGPoint(
+            x: center.x + (original.x - center.x) * factor,
+            y: center.y + (original.y - center.y) * factor
+        )
     }
 
     private var photoByID: [PhotoID: Photo] {

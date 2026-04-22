@@ -107,6 +107,24 @@ public struct PermissionSheet: View {
                 .font(LoomType.body)
                 .foregroundStyle(Palette.inkMuted)
                 .lineSpacing(4)
+
+        case .cameraExplainer:
+            Text("Hand gestures need camera access. Loom reads your palm in real time — open your hand to spread the wall, make a fist to gather it, swipe to shuffle. Video is processed frame by frame in memory and never recorded.")
+                .font(LoomType.body)
+                .foregroundStyle(Palette.inkMuted)
+                .lineSpacing(4)
+
+            PrivacyBullets(items: [
+                ("bolt.slash.fill",  "Nothing recorded."),
+                ("bolt.horizontal", "Nothing uploads."),
+                ("switch.2",         "Turn off any time in Settings.")
+            ])
+
+        case .cameraDenied:
+            Text("You previously declined camera access. macOS won't show the permission dialog again — to use hand gestures you'll need to grant access manually in System Settings.")
+                .font(LoomType.body)
+                .foregroundStyle(Palette.inkMuted)
+                .lineSpacing(4)
         }
     }
 
@@ -140,6 +158,17 @@ public struct PermissionSheet: View {
                 PrimaryCapsule(title: "Use a folder instead", systemImage: "folder.badge.plus") {
                     onAllow()   // caller treats as "route to folder picker"
                 }
+            case .cameraExplainer:
+                PrimaryCapsule(title: "Allow Access", systemImage: "checkmark.seal.fill") {
+                    onAllow()
+                }
+            case .cameraDenied:
+                PrimaryCapsule(title: "Open System Settings", systemImage: "arrow.up.right.square") {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
+                        openURL(url)
+                    }
+                    onDismiss()
+                }
             }
         }
     }
@@ -151,6 +180,8 @@ public struct PermissionSheet: View {
         case .photosExplainer:   return "photo.on.rectangle.angled"
         case .photosDenied:      return "lock.fill"
         case .photosRestricted:  return "lock.shield.fill"
+        case .cameraExplainer:   return "hand.raised.fill"
+        case .cameraDenied:      return "lock.fill"
         }
     }
 
@@ -159,6 +190,8 @@ public struct PermissionSheet: View {
         case .photosExplainer:   return "Access your Photos"
         case .photosDenied:      return "Photos access is off"
         case .photosRestricted:  return "Photos is restricted"
+        case .cameraExplainer:   return "Turn on hand gestures"
+        case .cameraDenied:      return "Camera access is off"
         }
     }
 
@@ -167,6 +200,8 @@ public struct PermissionSheet: View {
         case .photosExplainer:   return "Loom · needs read-only access"
         case .photosDenied:      return "Granted in System Settings"
         case .photosRestricted:  return "Managed by this Mac's profile"
+        case .cameraExplainer:   return "Loom · needs camera access"
+        case .cameraDenied:      return "Granted in System Settings"
         }
     }
 }
@@ -174,7 +209,7 @@ public struct PermissionSheet: View {
 // MARK: — Building blocks
 
 private struct PrivacyBullets: View {
-    let items: [(icon: String, text: String)]
+    let items: [(icon: String, text: LocalizedStringKey)]
     var body: some View {
         VStack(alignment: .leading, spacing: LoomSpacing.sm) {
             ForEach(items.indices, id: \.self) { i in
@@ -203,7 +238,7 @@ private struct PrivacyBullets: View {
 }
 
 private struct PrimaryCapsule: View {
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String
     let action: () -> Void
 

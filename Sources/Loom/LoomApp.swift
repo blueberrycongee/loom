@@ -10,6 +10,7 @@ struct LoomApp: App {
     @State private var coordinator: LibraryCoordinator?
     @State private var favorites = FavoritesCoordinator()
     @State private var exporter: ExportCoordinator?
+    @State private var handSense: HandSenseCoordinator?
 
     var body: some Scene {
         WindowGroup {
@@ -28,6 +29,14 @@ struct LoomApp: App {
                     }
                     if exporter == nil {
                         exporter = ExportCoordinator(app: app)
+                    }
+                    if handSense == nil {
+                        let h = HandSenseCoordinator(app: app)
+                        handSense = h
+                        // Auto-resume capture if the user had it on
+                        // previously and camera is still authorized —
+                        // never cold-prompts for camera at launch.
+                        h.bootstrap()
                     }
                 }
         }

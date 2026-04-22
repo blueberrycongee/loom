@@ -26,4 +26,12 @@ public enum PermissionPrompt: Equatable, Sendable {
     /// Explains that this isn't user-fixable and points at folder mode as
     /// a workaround.
     case photosRestricted
+
+    /// Shown on first enablement of the hand-gesture feature, before
+    /// the TCC camera prompt fires.
+    case cameraExplainer
+
+    /// Shown when camera access has previously been denied. Deep-links
+    /// to System Settings → Privacy & Security → Camera.
+    case cameraDenied
 }

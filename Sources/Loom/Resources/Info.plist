@@ -47,5 +47,8 @@
 
     <key>NSNetworkVolumesUsageDescription</key>
     <string>Needed only when you pick a folder on a network share. Loom reads those photos to build a wall, and doesn't touch anything else.</string>
+
+    <key>NSCameraUsageDescription</key>
+    <string>Loom uses the camera only when you turn on hand gestures in Settings — to read the openness of your hand and detect swipes. Video is processed in memory frame by frame and never recorded, saved, or sent anywhere.</string>
 </dict>
 </plist>

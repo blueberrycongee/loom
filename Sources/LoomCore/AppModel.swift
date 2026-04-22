@@ -54,6 +54,17 @@ public final class AppModel {
     /// `.environment(\.locale, …)` on the root scene.
     public var languagePreference: LanguagePreference = LanguagePreference.persisted
 
+    /// Hand-sense (camera-driven gestures) enablement. Persisted —
+    /// if the user turned it on previously and granted camera access,
+    /// Loom auto-starts capture next launch.
+    public var handSenseEnabled: Bool = HandSensePreference.enabled
+
+    /// Continuous openness scalar driven by ``HandSense``. 0 = fist
+    /// (tiles pull together), 0.5 = neutral (composition as laid),
+    /// 1 = open palm (tiles spread). Consumed by WallCanvas as a
+    /// spread factor around the canvas center.
+    public var wallOpenness: Double = 0.5
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
@@ -88,5 +99,31 @@ public final class AppModel {
     public func setLanguage(_ pref: LanguagePreference) {
         languagePreference = pref
         LanguagePreference.persisted = pref
+    }
+
+    public func setHandSenseEnabled(_ enabled: Bool) {
+        handSenseEnabled = enabled
+        HandSensePreference.enabled = enabled
+        if !enabled {
+            // Reset openness so disabling doesn't leave the wall frozen
+            // in whatever spread state the last gesture produced.
+            wallOpenness = 0.5
+        }
+    }
+
+    public func setOpenness(_ value: Double) {
+        wallOpenness = max(0, min(1, value))
+    }
+}
+
+/// Persistence for the hand-sense master switch. Kept separate from
+/// ``AppModel`` so launch-time coordinators can read it before an
+/// AppModel instance exists.
+public enum HandSensePreference {
+    private static let key = "loom.handSenseEnabled"
+
+    public static var enabled: Bool {
+        get { UserDefaults.standard.bool(forKey: key) }
+        set { UserDefaults.standard.set(newValue, forKey: key) }
     }
 }
