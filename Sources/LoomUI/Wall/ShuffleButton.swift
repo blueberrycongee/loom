@@ -10,10 +10,12 @@ import LoomDesign
 public struct ShuffleButton: View {
 
     public let action: () -> Void
+    public let compact: Bool
     @State private var hovered = false
     @State private var pressed = false
 
-    public init(action: @escaping () -> Void) {
+    public init(compact: Bool = false, action: @escaping () -> Void) {
+        self.compact = compact
         self.action = action
     }
 
@@ -26,6 +28,8 @@ public struct ShuffleButton: View {
                 Text("Shuffle")
                     .font(LoomType.heading)
                     .tracking(0.4)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
 
                 Spacer(minLength: LoomSpacing.md)
 
@@ -34,7 +38,12 @@ public struct ShuffleButton: View {
             .foregroundStyle(Palette.canvas)
             .padding(.horizontal, LoomSpacing.lg)
             .padding(.vertical, LoomSpacing.md)
-            .frame(minWidth: 220)
+            // Budget-driven: when WallChrome's ViewThatFits picks the wide
+            // layout, the chrome has room for a chunky 220pt button; the
+            // narrow layout swaps the button to its natural hugging size
+            // (~160pt). Apply the wide-mode minWidth from the parent
+            // instead of forcing it here so narrow mode shrinks gracefully.
+            .frame(minWidth: compact ? nil : 220)
             .background(
                 Capsule().fill(Palette.brassFill)
             )

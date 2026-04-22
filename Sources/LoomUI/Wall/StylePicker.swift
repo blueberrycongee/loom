@@ -46,6 +46,8 @@ public struct StylePicker: View {
         } label: {
             Text(style.displayName)
                 .font(LoomType.caption)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
                 .foregroundStyle(isSelected ? Palette.canvas : Palette.inkMuted)
                 .padding(.horizontal, LoomSpacing.md)
                 .padding(.vertical, LoomSpacing.xs + 2)

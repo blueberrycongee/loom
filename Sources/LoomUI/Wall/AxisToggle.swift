@@ -46,6 +46,8 @@ public struct AxisToggle: View {
                     .font(.system(size: 11, weight: .semibold))
                 Text(selected.displayName)
                     .font(LoomType.caption)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             }
             .foregroundStyle(Palette.inkMuted)
             .padding(.horizontal, LoomSpacing.md)
