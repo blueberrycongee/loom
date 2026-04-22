@@ -112,6 +112,9 @@ final class LibraryCoordinator {
             // User chose the "use a folder instead" fallback from the
             // restricted sheet. Route to the folder picker.
             pickLibrary()
+        case .cameraExplainer, .cameraDenied:
+            // Camera permission flow is owned by HandSenseCoordinator.
+            break
         }
     }
 
@@ -186,7 +189,11 @@ final class LibraryCoordinator {
             do {
                 let indexer = try PhotoKitIndexer()
                 self.photoKitIndexer = indexer
-                let existing = (try? indexer.allPhotos()) ?? []
+                // Pre-fill the MiniWall with existing photos in one
+                // batch so the stagger wave animates in a single pass.
+                // Individual pushIndexed calls would fire N separate
+                // animations that cancel each other's stagger delays.
+                let existing = (try? await indexer.allPhotos()) ?? []
                 if !existing.isEmpty {
                     await Self.replayFeed(existing, into: self.app)
                 }
@@ -232,7 +239,7 @@ final class LibraryCoordinator {
             do {
                 let indexer = try Indexer(libraryRoot: url)
                 self.indexer = indexer
-                let existing = (try? indexer.allPhotos()) ?? []
+                let existing = (try? await indexer.allPhotos()) ?? []
                 if !existing.isEmpty {
                     await Self.replayFeed(existing, into: self.app)
                 }
