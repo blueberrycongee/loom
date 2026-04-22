@@ -20,6 +20,7 @@ struct TileView: View {
     let style: Style
     let isLocked: Bool
     let onToggleLock: (() -> Void)?
+    let onResize: ((ResizePhase) -> Void)?
 
     private let thumbnails = ThumbnailCache()
     @State private var image: NSImage?
@@ -30,13 +31,15 @@ struct TileView: View {
         photo: Photo?,
         style: Style = .tapestry,
         isLocked: Bool = false,
-        onToggleLock: (() -> Void)? = nil
+        onToggleLock: (() -> Void)? = nil,
+        onResize: ((ResizePhase) -> Void)? = nil
     ) {
         self.tile = tile
         self.photo = photo
         self.style = style
         self.isLocked = isLocked
         self.onToggleLock = onToggleLock
+        self.onResize = onResize
     }
 
     var body: some View {
@@ -51,6 +54,14 @@ struct TileView: View {
             LockBadge(isLocked: isLocked, hovered: hovered)
                 .padding(8)
         }
+        .overlay(alignment: .bottomTrailing) {
+            if let onResize, hovered {
+                ResizeHandle(onResize: onResize)
+                    .padding(6)
+                    .transition(.opacity.combined(with: .scale(scale: 0.7)))
+            }
+        }
+        .animation(LoomMotion.snap, value: hovered && onResize != nil)
         .frame(width: tile.frame.width, height: tile.frame.height)
         .scaleEffect(hovered ? 1.015 : 1.0)
         .rotationEffect(.radians(tile.rotation))

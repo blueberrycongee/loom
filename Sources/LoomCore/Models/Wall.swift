@@ -48,6 +48,17 @@ public struct Wall: Identifiable, Hashable, Sendable {
     public var isEmpty: Bool { tiles.isEmpty }
 }
 
+/// A phase of the rendering layer's per-tile resize drag.
+///
+/// Lives in ``LoomCore`` so both ``LoomUI.TileView`` (which emits) and
+/// ``LoomUI.WallCanvas`` (which consumes) can reference the type without
+/// either depending on the other.
+public enum ResizePhase: Sendable {
+    case began
+    case changed(CGSize)   // cumulative screen-space translation from drag start
+    case ended
+}
+
 /// A placed photo on a wall.
 ///
 /// ``frame`` is in the wall's own coordinate system (top-left origin, points

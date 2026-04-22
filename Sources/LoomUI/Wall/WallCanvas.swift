@@ -19,6 +19,19 @@ public struct WallCanvas: View {
     @Environment(AppModel.self) private var app
     let photos: [Photo]
 
+    /// Per-tile manual-resize override, kept as local @State so we don't
+    /// rebuild the entire Wall struct on every drag tick. On drag-end
+    /// the final frame is committed back into app.wall (preserving
+    /// wall.id so downstream staggered-wave animations don't re-trigger)
+    /// and the override clears.
+    @State private var resizeOverride: ResizeOverride?
+
+    private struct ResizeOverride: Equatable {
+        let photoID: PhotoID
+        let initialFrame: CGRect
+        var currentFrame: CGRect
+    }
+
     public init(photos: [Photo]) {
         self.photos = photos
     }
@@ -47,8 +60,13 @@ public struct WallCanvas: View {
             ZStack(alignment: .topLeading) {
                 ForEach(wall.tiles, id: \.photoID) { tile in
                     let delay = staggerDelay(for: tile, wall: wall)
+                    // Effective frame: the drag-override's live rect during
+                    // a resize drag, otherwise the committed tile.frame.
+                    let effectiveFrame = (resizeOverride?.photoID == tile.photoID)
+                        ? resizeOverride!.currentFrame
+                        : tile.frame
                     let spreadMid = spreadPosition(
-                        original: CGPoint(x: tile.frame.midX, y: tile.frame.midY),
+                        original: CGPoint(x: effectiveFrame.midX, y: effectiveFrame.midY),
                         around: wallCenter,
                         by: spread
                     )
@@ -63,6 +81,9 @@ public struct WallCanvas: View {
                                 app.toggleLock(tile.photoID)
                             }
                             Haptics.snap()
+                        },
+                        onResize: { phase in
+                            handleResize(tile: tile, phase: phase, scale: scale)
                         }
                     )
                     .position(
@@ -70,8 +91,8 @@ public struct WallCanvas: View {
                         y: spreadMid.y * scale + offset.y
                     )
                     .frame(
-                        width: tile.frame.width * scale,
-                        height: tile.frame.height * scale
+                        width: effectiveFrame.width * scale,
+                        height: effectiveFrame.height * scale
                     )
                     .transition(Weave.insertTransition(delay: delay))
                     .animation(Weave.settleAnimation(delay: delay), value: wall.id)
@@ -83,6 +104,62 @@ public struct WallCanvas: View {
                 }
             }
         }
+    }
+
+    // MARK: — Resize
+
+    private func handleResize(tile: Tile, phase: ResizePhase, scale: CGFloat) {
+        switch phase {
+        case .began:
+            resizeOverride = ResizeOverride(
+                photoID: tile.photoID,
+                initialFrame: tile.frame,
+                currentFrame: tile.frame
+            )
+        case .changed(let translationScreen):
+            guard var override = resizeOverride,
+                  override.photoID == tile.photoID,
+                  scale > 0 else { return }
+            // Translate screen-space drag into canvas space. Width drives
+            // the resize; height follows to keep aspect locked (photos
+            // shouldn't stretch).
+            let deltaW = translationScreen.width / scale
+            let aspect = override.initialFrame.width / max(override.initialFrame.height, 1)
+            let minW: CGFloat = 40
+            let maxW = app.wall.canvasSize.width * 0.85
+            let newW = min(maxW, max(minW, override.initialFrame.width + deltaW))
+            let newH = newW / aspect
+            override.currentFrame = CGRect(
+                x: override.initialFrame.minX,
+                y: override.initialFrame.minY,
+                width: newW,
+                height: newH
+            )
+            resizeOverride = override
+        case .ended:
+            guard let override = resizeOverride,
+                  override.photoID == tile.photoID else { return }
+            commit(resizedPhotoID: override.photoID, to: override.currentFrame)
+            resizeOverride = nil
+        }
+    }
+
+    /// Replace one tile's frame in ``app.wall`` with the new rect,
+    /// preserving the wall's identity so downstream
+    /// `.animation(_:, value: wall.id)` watchers don't re-fire.
+    private func commit(resizedPhotoID: PhotoID, to newFrame: CGRect) {
+        var tiles = app.wall.tiles
+        guard let idx = tiles.firstIndex(where: { $0.photoID == resizedPhotoID }) else { return }
+        tiles[idx].frame = newFrame
+        app.wall = Wall(
+            id: app.wall.id,
+            style: app.wall.style,
+            axis: app.wall.axis,
+            seed: app.wall.seed,
+            tiles: tiles,
+            canvasSize: app.wall.canvasSize,
+            composedAt: app.wall.composedAt
+        )
     }
 
     /// Scale `original` around `center` by `factor`. `factor` = 1 is
