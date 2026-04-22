@@ -40,6 +40,10 @@ public struct WallScene: View {
             WallChrome(shuffle: shuffleNow)
                 .padding(.bottom, LoomSpacing.xl)
         }
+        .overlay(alignment: .topLeading) {
+            LibraryChip()
+                .padding(LoomSpacing.md)
+        }
         .onAppear {
             // Auto-shuffle on first entry so users see a wall immediately.
             if app.wall.isEmpty && !app.photos.isEmpty {
