@@ -29,14 +29,21 @@ public struct WallScene: View {
     public init() {}
 
     public var body: some View {
-        ZStack(alignment: .bottom) {
+        // Two layers, not three stacked at .bottom: the canvas+hint live
+        // in a centered ZStack (so the hint sits in the middle of the
+        // wall area), and the chrome is an overlay pinned to the bottom.
+        // Keeping them in the same .bottom-aligned ZStack was parking the
+        // hint's baseline right where the chrome sat and clipping it
+        // behind the capsule.
+        ZStack {
             canvas
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             emptyHint
                 .opacity(app.wall.isEmpty ? 1 : 0)
                 .animation(LoomMotion.breathe, value: app.wall.isEmpty)
-
+        }
+        .overlay(alignment: .bottom) {
             WallChrome(shuffle: shuffleNow)
                 .padding(.bottom, LoomSpacing.xl)
         }
@@ -147,7 +154,9 @@ public struct WallScene: View {
                 .font(LoomType.body)
                 .foregroundStyle(Palette.inkMuted)
         }
-        .padding(.bottom, LoomSpacing.xxl)
+        // Centered — no bottom padding (the chrome is its own overlay
+        // pinned to the bottom, so we don't need to budget room for it
+        // in the hint's own layout).
     }
 
     private func effectiveCanvas(_ raw: CGSize) -> CGSize {
