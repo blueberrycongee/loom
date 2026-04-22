@@ -38,8 +38,12 @@ public struct LandingView: View {
                         .foregroundStyle(Palette.inkMuted)
                 }
 
-                PickLibraryButton {
-                    NotificationCenter.default.post(name: .loomPickLibrary, object: nil)
+                VStack(spacing: LoomSpacing.md) {
+                    PickLibraryButton {
+                        NotificationCenter.default.post(name: .loomPickLibrary, object: nil)
+                    }
+
+                    PhotosLibraryButton()
                 }
 
                 Spacer()
@@ -87,6 +91,42 @@ private struct BrassShimmer: View {
             )
             .blendMode(.plusLighter)
         }
+    }
+}
+
+/// Secondary CTA that links the Photos library (M7, skeleton).
+///
+/// Presented as a subdued text button under the primary folder CTA so the
+/// first-use flow still points at the lower-friction, already-wired-up
+/// folder path. Full indexer integration for Photos-sourced assets lands
+/// after the folder path has field time.
+private struct PhotosLibraryButton: View {
+    @State private var hovered = false
+
+    var body: some View {
+        Button {
+            // When the PhotoKit-backed indexer path is wired, this will post
+            // a dedicated pick-notification. For now it's a no-op so the
+            // affordance is visible without misleading the user about
+            // M7 readiness.
+        } label: {
+            HStack(spacing: LoomSpacing.xs) {
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.system(size: 11, weight: .medium))
+                Text("Use Photos library")
+                    .font(LoomType.caption)
+            }
+            .foregroundStyle(Palette.inkMuted)
+            .padding(.horizontal, LoomSpacing.md)
+            .padding(.vertical, LoomSpacing.sm)
+            .background(Capsule().fill(Palette.surface.opacity(0.5)))
+            .overlay(Capsule().strokeBorder(Palette.hairline, lineWidth: 1))
+            .opacity(hovered ? 1.0 : 0.8)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovered = $0 }
+        .animation(LoomMotion.hover, value: hovered)
+        .help("Coming soon — PhotoKit indexing. Use a folder for now.")
     }
 }
 
