@@ -15,22 +15,29 @@ import LoomDesign
 public struct LandingView: View {
 
     @Environment(AppModel.self) private var app
-    @State private var shimmer: Double = 0
 
     public init() {}
 
     public var body: some View {
         ZStack {
-            BrassShimmer(phase: shimmer)
-                .allowsHitTesting(false)
+            // Ambient procedural tapestry — teaches the product metaphor
+            // without needing a library to demo against.
+            LoomTapestry()
+
+            // Soft radial vignette so the wordmark has air around it.
+            RadialGradient(
+                colors: [Color.clear, Palette.canvas.opacity(0.55)],
+                center: .center,
+                startRadius: 160,
+                endRadius: 540
+            )
+            .allowsHitTesting(false)
 
             VStack(spacing: LoomSpacing.xl) {
                 Spacer()
 
                 VStack(spacing: LoomSpacing.sm) {
-                    Text("Loom")
-                        .font(LoomType.displayXL)
-                        .displayTracking()
+                    WordmarkLoom()
                         .foregroundStyle(Palette.ink)
 
                     Text("Weave your photos into a wall.")
@@ -56,40 +63,46 @@ public struct LandingView: View {
             }
             .padding(LoomSpacing.xl)
         }
-        .onAppear {
-            withAnimation(.linear(duration: 18).repeatForever(autoreverses: false)) {
-                shimmer = 1
-            }
-        }
     }
 }
 
-/// A slow, almost-invisible diagonal brass wash. Takes ~18s to cross the
-/// window, which is long enough that the eye registers movement only when
-/// glancing away.
-private struct BrassShimmer: View {
-    var phase: Double
+/// The wordmark. Rounded SF Pro display weight, with a single faintly
+/// animated underline thread that traces across the width every ~7s — a
+/// quiet tie-in to the weaving metaphor without being kinetic about it.
+private struct WordmarkLoom: View {
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        VStack(spacing: 4) {
+            Text("Loom")
+                .font(LoomType.displayXL)
+                .displayTracking()
+
+            TimelineView(.animation(minimumInterval: reduceMotion ? nil : 1.0 / 30.0)) { timeline in
+                let phase = reduceMotion
+                    ? 0.5
+                    : Weave.driftPhase(
+                        time: timeline.date.timeIntervalSinceReferenceDate,
+                        index: 0,
+                        period: 7
+                    )
+                underline(phase: phase)
+            }
+            .frame(height: 2)
+        }
+    }
+
+    private func underline(phase: Double) -> some View {
         GeometryReader { geo in
-            let w = geo.size.width, h = geo.size.height
-            let maxDim = max(w, h)
-            LinearGradient(
-                stops: [
-                    .init(color: .clear, location: 0.00),
-                    .init(color: Palette.brass.opacity(0.08), location: 0.48),
-                    .init(color: Palette.brassLift.opacity(0.12), location: 0.50),
-                    .init(color: Palette.brass.opacity(0.08), location: 0.52),
-                    .init(color: .clear, location: 1.00)
-                ],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            )
-            .frame(width: maxDim * 2, height: maxDim * 2)
-            .offset(
-                x: -maxDim + (maxDim * 2 * CGFloat(phase)),
-                y: -maxDim + (maxDim * 2 * CGFloat(phase))
-            )
-            .blendMode(.plusLighter)
+            let w = geo.size.width
+            // A short brass segment travels left → right and loops.
+            let segmentW = w * 0.32
+            let travel = (w + segmentW) * phase - segmentW
+            Capsule()
+                .fill(Palette.brass.opacity(0.55))
+                .frame(width: segmentW, height: 2)
+                .offset(x: travel)
         }
     }
 }
