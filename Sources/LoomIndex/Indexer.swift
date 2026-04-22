@@ -87,20 +87,16 @@ public actor Indexer {
             if cancelled { break }
             let id = PhotoIdentity.id(for: url)
 
-            // Skip already-indexed, unmodified files. Still emit
-            // the existing photo as ``recentPhoto`` at a throttled
-            // cadence so the MiniWall animation replays on re-opens.
+            // Skip already-indexed, unmodified files.
             if known.contains(id),
-               let existing = try? store.find(id),
+               let rowDate = try? store.find(id)?.indexedAt,
                let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
                let mtime = attrs[.modificationDate] as? Date,
-               mtime <= existing.indexedAt {
+               mtime <= rowDate {
                 done += 1
-                let emitInterval = max(1, total / 96)
                 out.yield(IndexProgress(
                     stage: .extracting, completed: done, total: total,
-                    currentFile: url.lastPathComponent,
-                    recentPhoto: (done % emitInterval == 0) ? existing : nil
+                    currentFile: url.lastPathComponent
                 ))
                 continue
             }

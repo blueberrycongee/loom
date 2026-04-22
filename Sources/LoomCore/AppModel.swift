@@ -103,6 +103,14 @@ public final class AppModel {
         }
     }
 
+    /// One-shot fill for the MiniWall replay. A single array mutation
+    /// produces one SwiftUI update → one Weave stagger wave. Calling
+    /// ``pushIndexed`` N times in a loop would trigger N separate
+    /// animations that cancel each other.
+    public func prefillIndexed(_ photos: [Photo]) {
+        recentlyIndexed = Array(photos.suffix(recentlyIndexedCap))
+    }
+
     public func clearIndexed() { recentlyIndexed.removeAll() }
 
     public func setLanguage(_ pref: LanguagePreference) {
