@@ -76,6 +76,9 @@ let package = Package(
                 "LoomIndex",
                 "LoomLayout",
                 "LoomCompose"
+            ],
+            resources: [
+                .process("Resources")
             ]
         ),
         .testTarget(
