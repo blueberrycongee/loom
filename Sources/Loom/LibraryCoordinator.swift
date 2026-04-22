@@ -179,7 +179,8 @@ final class LibraryCoordinator {
                 let stream = await indexer.run()
                 for await snapshot in stream {
                     if Task.isCancelled { return }
-                    let coreSnapshot = IndexingSnapshot.from(snapshot)
+                    let locale = app.languagePreference.locale ?? Locale.autoupdatingCurrent
+                    let coreSnapshot = IndexingSnapshot.from(snapshot, locale: locale)
                     await MainActor.run {
                         self.app.setPhase(.indexing(coreSnapshot))
                         if let fresh = snapshot.recentPhoto {
@@ -221,7 +222,8 @@ final class LibraryCoordinator {
                 let progress = await indexer.run()
                 for await snapshot in progress {
                     if Task.isCancelled { return }
-                    let coreSnapshot = IndexingSnapshot.from(snapshot)
+                    let locale = app.languagePreference.locale ?? Locale.autoupdatingCurrent
+                    let coreSnapshot = IndexingSnapshot.from(snapshot, locale: locale)
                     await MainActor.run {
                         self.app.setPhase(.indexing(coreSnapshot))
                         if let fresh = snapshot.recentPhoto {
@@ -238,9 +240,12 @@ final class LibraryCoordinator {
                     }
                 }
             } catch {
+                let locale = app.languagePreference.locale ?? Locale.autoupdatingCurrent
+                let format = String(localized: String.LocalizationValue("Couldn't open that folder — %@"), locale: locale)
+                let message = String(format: format, locale: locale, arguments: [error.localizedDescription])
                 await MainActor.run {
                     self.app.setPhase(.indexing(
-                        IndexingSnapshot(stage: .failed(error.localizedDescription))
+                        IndexingSnapshot(stage: .failed(message))
                     ))
                 }
             }
@@ -256,14 +261,18 @@ extension IndexingSnapshot {
     /// that ``AppModel.Phase.indexing`` carries. The mapping is total:
     /// every stage has a sensible destination and the counts pass
     /// through unchanged.
-    fileprivate static func from(_ progress: IndexProgress) -> IndexingSnapshot {
+    fileprivate static func from(_ progress: IndexProgress, locale: Locale) -> IndexingSnapshot {
         let stage: Stage = {
             switch progress.stage {
             case .discovering:       return .discovering
             case .extracting:        return .extracting
             case .thumbnailing:      return .thumbnailing
             case .done:              return .done
-            case .failed(let why):   return .failed(why)
+            case .failed(let why):
+                // Re-localize using the app's chosen locale so an in-app
+                // language switch updates the visible error text.
+                let localized = String(localized: String.LocalizationValue(why), locale: locale)
+                return .failed(localized)
             }
         }()
         return IndexingSnapshot(

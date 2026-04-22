@@ -191,6 +191,12 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%lld 张照片就绪。" } }
       }
     },
+    "Couldn't open that folder — %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't open that folder — %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法打开该文件夹 — %@" } }
+      }
+    },
     "Couldn't open Photos — %@" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't open Photos — %@" } },

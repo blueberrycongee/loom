@@ -7,22 +7,58 @@ import LoomDesign
 /// Loom leans on the keyboard: Space is Shuffle, ⌘1–6 pick a style, ⌘K opens
 /// the style palette. We declare them here instead of peppering views with
 /// `.keyboardShortcut` so the menu bar mirrors reality.
+///
+/// ⚠️ macOS `Commands` does **not** read SwiftUI's `\.locale` environment,
+/// so an in-app language switch would leave the menu bar stale. We work
+/// around this by explicitly passing the user's language preference into
+/// `String(localized:locale:)` so every menu item resolves at build-time
+/// against the current app-level locale instead of the system one.
 struct AppCommands: Commands {
 
     let app: AppModel
     let favorites: FavoritesCoordinator
 
+    private var locale: Locale {
+        app.languagePreference.locale ?? Locale.autoupdatingCurrent
+    }
+
+    private func localized(_ key: String) -> String {
+        String(localized: String.LocalizationValue(key), locale: locale)
+    }
+
+    private func styleName(_ style: Style) -> String {
+        switch style {
+        case .exhibit:   return localized("Exhibit")
+        case .tapestry:  return localized("Tapestry")
+        case .editorial: return localized("Editorial")
+        case .gallery:   return localized("Gallery")
+        case .collage:   return localized("Collage")
+        case .minimal:   return localized("Minimal")
+        case .vintage:   return localized("Vintage")
+        }
+    }
+
+    private func axisName(_ axis: ClusterAxis) -> String {
+        switch axis {
+        case .color:  return localized("Color")
+        case .mood:   return localized("Mood")
+        case .scene:  return localized("Scene")
+        case .people: return localized("People")
+        case .time:   return localized("Time")
+        }
+    }
+
     var body: some Commands {
 
         CommandGroup(replacing: .newItem) {
-            Button("Pick Library…") {
+            Button(localized("Pick Library…")) {
                 NotificationCenter.default.post(name: .loomPickLibrary, object: nil)
             }
             .keyboardShortcut("o", modifiers: .command)
         }
 
-        CommandMenu("Weave") {
-            Button("Shuffle") {
+        CommandMenu(localized("Weave")) {
+            Button(localized("Shuffle")) {
                 NotificationCenter.default.post(name: .loomShuffle, object: nil)
             }
             .keyboardShortcut(.space, modifiers: [])
@@ -30,7 +66,7 @@ struct AppCommands: Commands {
             Divider()
 
             ForEach(Style.allCases) { style in
-                Button(style.displayName) {
+                Button(styleName(style)) {
                     app.setStyle(style)
                     NotificationCenter.default.post(name: .loomShuffle, object: nil)
                 }
@@ -42,9 +78,9 @@ struct AppCommands: Commands {
 
             Divider()
 
-            Menu("Cluster By") {
+            Menu(localized("Cluster By")) {
                 ForEach(ClusterAxis.allCases, id: \.self) { axis in
-                    Button(axis.displayName) {
+                    Button(axisName(axis)) {
                         app.setAxis(axis)
                         NotificationCenter.default.post(name: .loomShuffle, object: nil)
                     }
@@ -53,31 +89,31 @@ struct AppCommands: Commands {
 
             Divider()
 
-            Button("Save Wall as Favorite") {
+            Button(localized("Save Wall as Favorite")) {
                 NotificationCenter.default.post(name: .loomFavoriteSave, object: nil)
             }
             .keyboardShortcut("s", modifiers: [.command])
 
-            Button("Clear Locks") {
+            Button(localized("Clear Locks")) {
                 app.clearLocks()
             }
             .keyboardShortcut("l", modifiers: [.command, .shift])
         }
 
         CommandGroup(replacing: .saveItem) {
-            Button("Export as PNG…") {
+            Button(localized("Export as PNG…")) {
                 NotificationCenter.default.post(name: .loomExportPNG, object: nil)
             }
             .keyboardShortcut("e", modifiers: [.command])
-            Button("Export as PDF…") {
+            Button(localized("Export as PDF…")) {
                 NotificationCenter.default.post(name: .loomExportPDF, object: nil)
             }
             .keyboardShortcut("p", modifiers: [.command, .shift])
         }
 
-        CommandMenu("Favorites") {
+        CommandMenu(localized("Favorites")) {
             if favorites.favorites.isEmpty {
-                Text("No saved walls yet — ⌘S to save the current one.")
+                Text(localized("No saved walls yet — ⌘S to save the current one."))
             } else {
                 ForEach(favorites.favorites.prefix(12)) { fav in
                     Button(fav.name) {
