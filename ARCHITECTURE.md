@@ -109,3 +109,26 @@ Every view in LoomUI pulls its colors from `Palette`, type from `LoomType`, anim
 ## Randomness
 
 `SeededRNG` is SplitMix64. Every `Wall` carries the top-level seed the Composer used to build it, so a favorited wall reproduces byte-for-byte. The composer derives sub-seeds for internal loops, so a single user-visible Shuffle explores the candidate space deterministically given its top seed.
+
+## Motion vocabulary — `Weave`
+
+One file (`LoomDesign/Weave.swift`) owns every per-tile timing in the app:
+
+- `Weave.stagger(normalizedPosition:, index:)` — maps a tile's position along the wave direction to a delay, with deterministic ±20ms jitter keyed on `index` so the jitter is stable across re-renders within a wall.
+- `Weave.settleAnimation` / `enterAnimation` / `exitAnimation` — the three springs / ease-outs that cover every tile event. Enters are crisper than settles; exits are non-springy ease-outs so leaving tiles don't bounce goodbye.
+- `Weave.insertTransition(delay:)` — composed `AnyTransition` that respects the wave.
+- `Weave.driftPhase(time:, index:, period:)` — low-frequency deterministic 0…1 oscillation used by the ambient landing tapestry and the noise-texture breathe.
+
+Any screen that animates tiles routes through these primitives — retuning the whole app's feel is a single-file edit.
+
+## Permissions — natural TCC flow
+
+Loom never surfaces macOS's TCC prompt cold. The flow:
+
+- Folder picker: the NSOpenPanel *is* the permission grant — no extra dialog, security-scoped bookmark persisted for next launch.
+- Photos library: on tap, we read `PHPhotoLibrary.authorizationStatus`:
+  - `.notDetermined` → show the in-app `PermissionSheet(.photosExplainer)` — three privacy bullets in the app's voice. Only if the user says Allow do we call `PHPhotoLibrary.requestAuthorization`. If they say Not Now, the system dialog is never triggered and they can return later.
+  - `.denied` → `PermissionSheet(.photosDenied)` deep-links to System Settings via `x-apple.systempreferences:com.apple.preference.security?Privacy_Photos` rather than dead-ending on an Allow button that can't work.
+  - `.restricted` → offers a folder-mode fallback for MDM / parental-controls machines.
+
+The `PermissionPrompt` enum lives in `LoomCore` so the core stays AppKit-free; the sheet UI lives in `LoomUI`; the state transitions happen on `LibraryCoordinator`. Info.plist usage-description strings follow Apple HIG: benefit first, guarantee second — every TCC dialog arrives with context.

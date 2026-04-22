@@ -39,6 +39,15 @@ Everything runs locally. Nothing uploads.
 | Minimal    | 3–5 photos, high contrast.                     |
 | Vintage    | Polaroid frames, mild skew.                    |
 
+## Feel
+
+- **Weave motion** — tiles arrive in a left-to-right wave when you shuffle, with deterministic ±20ms jitter so 40-tile walls aren't metronomic. Exits are ease-out; entries are spring; positions settle on the same wave. One vocabulary across every screen.
+- **Pointer aura** — a soft brass glow follows the cursor; tiles within 240pt gain brightness, tiles further away lose a whisper of saturation, so your gaze literally focuses the wall.
+- **Ambient tapestry** — the landing hero is 12 drifting rectangles of the brand palette, rotating within their own zones at 16–28s periods, no two in lockstep.
+- **Live indexing** — while your library is being indexed, a mini-wall grows in real time as each photo's dominant color becomes a tile, arriving in the same wave.
+- **Paper grain** — static pre-rendered noise overlay at 3% via `.softLight`, with a slow 8s opacity breathe; no per-frame redraw cost.
+- **Haptics** — trackpad ticks only on the three moments that carry intent: shuffle, snap, confirm.
+
 ## Stack
 
 - **UI** · SwiftUI + AppKit bridge where precision matters
