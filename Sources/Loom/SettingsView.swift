@@ -111,6 +111,29 @@ private struct GeneralSettings: View {
                 }
             }
 
+            SettingsSection(title: "Auto trim") {
+                VStack(alignment: .leading, spacing: LoomSpacing.sm) {
+                    Toggle(isOn: Binding(
+                        get: { app.autoTrimEnabled },
+                        set: { newValue in
+                            app.setAutoTrimEnabled(newValue)
+                            NotificationCenter.default.post(
+                                name: .loomShuffle, object: nil
+                            )
+                        }
+                    )) {
+                        Text("Crop black / white borders")
+                            .font(LoomType.body)
+                            .foregroundStyle(Palette.ink)
+                    }
+                    Text("Automatically zoom past near-black or near-white letterbox edges so the photo fills its tile.")
+                        .font(LoomType.caption)
+                        .foregroundStyle(Palette.inkFaint)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
             SettingsSection(title: "Gestures") {
                 VStack(alignment: .leading, spacing: LoomSpacing.sm) {
                     Toggle(isOn: Binding(
@@ -195,7 +218,7 @@ private struct LibrarySettings: View {
                         libraryNameText
                             .font(LoomType.heading)
                             .foregroundStyle(Palette.ink)
-                        Text("\(app.photos.count) photos")
+                        Text(LocalizedStringResource("\(app.photos.count) photos"))
                             .font(LoomType.monoSm)
                             .foregroundStyle(Palette.inkFaint)
                     }

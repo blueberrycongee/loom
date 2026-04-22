@@ -127,7 +127,7 @@ public struct WallScene: View {
 
     private func defaultFavoriteName(for wall: Wall) -> String {
         let df = DateFormatter()
-        df.dateFormat = "MMM d · HH:mm"
+        df.setLocalizedDateFormatFromTemplate("MMMdHHmm")
         return "\(wall.style.displayName) — \(df.string(from: Date()))"
     }
 

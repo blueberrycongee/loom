@@ -146,8 +146,8 @@ final class LibraryCoordinator {
 
     private func pickLibrary() {
         let panel = NSOpenPanel()
-        panel.title = "Choose a photo folder"
-        panel.prompt = "Weave"
+        panel.title = NSLocalizedString("Choose a photo folder", comment: "Open panel title")
+        panel.prompt = NSLocalizedString("Weave", comment: "Open panel button")
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
@@ -196,9 +196,11 @@ final class LibraryCoordinator {
                     }
                 }
             } catch {
+                let format = NSLocalizedString("Couldn't open Photos — %@", comment: "")
+                let message = String(format: format, error.localizedDescription)
                 await MainActor.run {
                     self.app.setPhase(.indexing(
-                        IndexingSnapshot(stage: .failed("Couldn't open Photos — \(error.localizedDescription)"))
+                        IndexingSnapshot(stage: .failed(message))
                     ))
                 }
             }

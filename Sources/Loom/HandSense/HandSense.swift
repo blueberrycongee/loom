@@ -103,7 +103,8 @@ final class HandSense: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @
             let device,
             let input = try? AVCaptureDeviceInput(device: device)
         else {
-            continuation?.yield(.failed("No camera available"))
+            let message = String(localized: "No camera available")
+            continuation?.yield(.failed(message))
             return
         }
         if session.canAddInput(input) { session.addInput(input) }

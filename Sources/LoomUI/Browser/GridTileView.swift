@@ -12,6 +12,8 @@ import LoomIndex
 /// scroll.
 struct GridTileView: View {
 
+    @Environment(AppModel.self) private var app
+
     let photo: Photo
     let frame: CGRect          // size only; origin ignored
     let hovered: Bool
@@ -27,9 +29,7 @@ struct GridTileView: View {
             dominantSwatch
 
             if let image {
-                Image(nsImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+                croppedImage(Image(nsImage: image))
                     .transition(.opacity)
             }
         }
@@ -58,6 +58,28 @@ struct GridTileView: View {
         // display-only approximation; the clusterer operates on Lab directly.
         let rgb = labToSRGB(photo.dominantColor)
         return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+    }
+
+    @ViewBuilder
+    private func croppedImage(_ img: Image) -> some View {
+        let insets = app.autoTrimEnabled ? photo.cropInsets : .zero
+        if insets.isZero {
+            img.resizable()
+                .aspectRatio(contentMode: .fill)
+        } else {
+            let scaleX = 1.0 / max(0.5, 1.0 - insets.left - insets.right)
+            let scaleY = 1.0 / max(0.5, 1.0 - insets.top - insets.bottom)
+            let scale = max(scaleX, scaleY)
+            let dx = (insets.left - insets.right) * 0.5
+            let dy = (insets.top - insets.bottom) * 0.5
+            img.resizable()
+                .aspectRatio(contentMode: .fill)
+                .scaleEffect(scale)
+                .offset(
+                    x: -dx * frame.width,
+                    y: -dy * frame.height
+                )
+        }
     }
 
     private func loadImage() async {

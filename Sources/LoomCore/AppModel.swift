@@ -74,6 +74,10 @@ public final class AppModel {
     /// disable in Settings to see every photo in the library.
     public var filterQuality: Bool = QualityFilterPreference.enabled
 
+    /// Trim near-black or near-white borders from photos on the wall
+    /// and in the grid browser. Detected at index time; default on.
+    public var autoTrimEnabled: Bool = AutoTrimPreference.enabled
+
     public init() {}
 
     public func setStyle(_ s: Style) { style = s }
@@ -133,10 +137,29 @@ public final class AppModel {
         filterQuality = enabled
         QualityFilterPreference.enabled = enabled
     }
+
+    public func setAutoTrimEnabled(_ enabled: Bool) {
+        autoTrimEnabled = enabled
+        AutoTrimPreference.enabled = enabled
+    }
 }
 
 public enum QualityFilterPreference {
     private static let key = "loom.filterQuality"
+
+    public static var enabled: Bool {
+        get {
+            // Default to true on first launch (key absent → true).
+            if UserDefaults.standard.object(forKey: key) == nil { return true }
+            return UserDefaults.standard.bool(forKey: key)
+        }
+        set { UserDefaults.standard.set(newValue, forKey: key) }
+    }
+}
+
+/// Persistence for the auto-trim border switch.
+public enum AutoTrimPreference {
+    private static let key = "loom.autoTrimEnabled"
 
     public static var enabled: Bool {
         get {

@@ -72,7 +72,7 @@ private struct IndexStat: View {
     var body: some View {
         HStack(spacing: LoomSpacing.xs) {
             Circle().fill(Palette.brass).frame(width: 6, height: 6)
-            Text("\(count) photos")
+            Text(LocalizedStringResource("\(count) photos"))
                 .font(LoomType.monoSm)
                 .foregroundStyle(Palette.inkMuted)
         }

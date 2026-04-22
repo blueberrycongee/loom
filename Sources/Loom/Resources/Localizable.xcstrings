@@ -191,6 +191,24 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%lld 张照片就绪。" } }
       }
     },
+    "Couldn't open Photos — %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't open Photos — %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法打开 Photos — %@" } }
+      }
+    },
+    "Photos access denied — grant in System Settings → Privacy." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photos access denied — grant in System Settings → Privacy." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Photos 访问被拒绝——请在系统设置的隐私中授予权限。" } }
+      }
+    },
+    "No camera available" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No camera available" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "没有可用的摄像头" } }
+      }
+    },
     "Indexing failed: %@" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Indexing failed: %@" } },

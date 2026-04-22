@@ -89,7 +89,7 @@ public struct LibraryChip: View {
                 .foregroundStyle(Palette.inkFaint)
                 .fixedSize()
 
-            Text("\(app.photos.count) photos")
+            Text(LocalizedStringResource("\(app.photos.count) photos"))
                 .font(LoomType.monoSm)
                 .foregroundStyle(Palette.inkMuted)
                 .lineLimit(1)
