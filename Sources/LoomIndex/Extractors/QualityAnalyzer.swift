@@ -69,23 +69,31 @@ public enum QualityAnalyzer {
         return min(1.0, max(0.0, (variance - 30) / 300))
     }
 
-    /// Histogram analysis — photos where >70% of pixels are in the
-    /// bottom or top 10% of luminance are heavily under/over-exposed.
+    /// Exposure analysis. Two checks:
+    /// 1. Mean luminance — if the photo is overwhelmingly dark or bright
+    ///    on average, it's a bad photo regardless of local contrast.
+    /// 2. Histogram extremes — what fraction of pixels are crushed to
+    ///    near-black or blown to near-white.
     private static func exposureScore(_ pixels: [UInt8]) -> Double {
         guard !pixels.isEmpty else { return 0.5 }
+        var totalLum: UInt64 = 0
         var lowCount = 0
         var highCount = 0
         for p in pixels {
-            if p < 26  { lowCount  += 1 }  // bottom 10%
-            if p > 230 { highCount += 1 }  // top 10%
+            totalLum += UInt64(p)
+            if p < 26  { lowCount  += 1 }
+            if p > 230 { highCount += 1 }
         }
         let n = Double(pixels.count)
-        let lowFrac  = Double(lowCount)  / n
-        let highFrac = Double(highCount) / n
-        let extremeFrac = max(lowFrac, highFrac)
-        if extremeFrac > 0.85 { return 0.0 }
-        if extremeFrac > 0.70 { return 0.3 }
-        if extremeFrac > 0.50 { return 0.6 }
+        let meanLum = Double(totalLum) / n
+
+        // Nearly black or nearly white overall → reject immediately.
+        if meanLum < 30 || meanLum > 240 { return 0.0 }
+
+        let extremeFrac = max(Double(lowCount), Double(highCount)) / n
+        if extremeFrac > 0.70 { return 0.0 }
+        if extremeFrac > 0.50 { return 0.3 }
+        if extremeFrac > 0.35 { return 0.6 }
         return 1.0
     }
 
