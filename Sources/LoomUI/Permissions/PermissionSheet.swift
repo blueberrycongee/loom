@@ -44,12 +44,8 @@ public struct PermissionSheet: View {
         .padding(LoomSpacing.xl)
         .frame(width: 460)
         .background(Palette.surface)
-        .overlay(
-            RoundedRectangle(cornerRadius: LoomRadius.sheet, style: .continuous)
-                .strokeBorder(Palette.hairline, lineWidth: 1)
-        )
         .clipShape(RoundedRectangle(cornerRadius: LoomRadius.sheet, style: .continuous))
-        .surfaceShadow()
+        .shadow(color: LoomShadow.tone.opacity(0.12), radius: 32, x: 0, y: 16)
     }
 
     // MARK: — Header
@@ -211,29 +207,19 @@ public struct PermissionSheet: View {
 private struct PrivacyBullets: View {
     let items: [(icon: String, text: LocalizedStringKey)]
     var body: some View {
-        VStack(alignment: .leading, spacing: LoomSpacing.sm) {
+        VStack(alignment: .leading, spacing: LoomSpacing.md) {
             ForEach(items.indices, id: \.self) { i in
-                HStack(spacing: LoomSpacing.sm) {
-                    Image(systemName: items[i].icon)
-                        .font(.system(size: 12, weight: .semibold))
+                HStack(alignment: .firstTextBaseline, spacing: LoomSpacing.sm) {
+                    Text("·")
+                        .font(LoomType.body)
                         .foregroundStyle(Palette.brass)
-                        .frame(width: 18)
                     Text(items[i].text)
                         .font(LoomType.caption)
                         .foregroundStyle(Palette.inkMuted)
                 }
             }
         }
-        .padding(LoomSpacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: LoomRadius.card, style: .continuous)
-                .fill(Palette.surfaceElevated)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: LoomRadius.card, style: .continuous)
-                .strokeBorder(Palette.hairline, lineWidth: 1)
-        )
+        .padding(.vertical, LoomSpacing.sm)
     }
 }
 

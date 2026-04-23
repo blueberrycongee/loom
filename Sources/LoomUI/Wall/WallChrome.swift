@@ -43,23 +43,11 @@ public struct WallChrome: View {
         .padding(.vertical, LoomSpacing.xs + 2)
         .background(
             Capsule(style: .continuous)
-                .fill(.ultraThinMaterial)
-        )
-        .background(
-            Capsule(style: .continuous)
-                .fill(Palette.canvas.opacity(0.55))
-        )
-        .overlay(
-            Capsule(style: .continuous)
-                .strokeBorder(Palette.hairline.opacity(0.6), lineWidth: 0.5)
+                .fill(Palette.canvas.opacity(0.72))
         )
         .shadow(
-            color: LoomShadow.tone.opacity(0.10),
-            radius: 20, x: 0, y: 8
-        )
-        .shadow(
-            color: LoomShadow.tone.opacity(0.04),
-            radius: 2, x: 0, y: 1
+            color: LoomShadow.tone.opacity(0.08),
+            radius: 24, x: 0, y: 10
         )
     }
 

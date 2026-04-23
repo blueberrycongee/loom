@@ -24,12 +24,8 @@ public struct SettingsChip: View {
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Palette.inkMuted)
                 .frame(width: 30, height: 30)
-                .background(
-                    Circle()
-                        .fill(Palette.surface.opacity(0.88))
-                        .background(.ultraThinMaterial, in: Circle())
-                )
-                .overlay(Circle().strokeBorder(Palette.hairline, lineWidth: 1))
+                .background(Circle().fill(Palette.surface))
+                .shadow(color: LoomShadow.tone.opacity(0.06), radius: 8, x: 0, y: 3)
                 .offset(y: hovered ? -1 : 0)
         }
         .buttonStyle(.plain)

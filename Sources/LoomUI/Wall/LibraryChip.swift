@@ -102,12 +102,8 @@ public struct LibraryChip: View {
         }
         .padding(.horizontal, LoomSpacing.md)
         .padding(.vertical, LoomSpacing.xs + 2)
-        .background(
-            Capsule()
-                .fill(Palette.surface.opacity(0.88))
-                .background(.ultraThinMaterial, in: Capsule())
-        )
-        .overlay(Capsule().strokeBorder(Palette.hairline, lineWidth: 1))
+        .background(Capsule().fill(Palette.surface))
+        .shadow(color: LoomShadow.tone.opacity(0.06), radius: 8, x: 0, y: 3)
         .frame(maxWidth: 340, alignment: .leading)
         .offset(y: hovered ? -1 : 0)
     }

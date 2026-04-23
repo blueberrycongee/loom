@@ -44,6 +44,7 @@ public struct IndexingView: View {
                 }
                 .transition(.opacity)
             }
+            .padding(.top, 120)
 
             Spacer()
 
@@ -51,6 +52,7 @@ public struct IndexingView: View {
                 .font(LoomType.micro)
                 .microTracking()
                 .foregroundStyle(Palette.inkFaint)
+                .padding(.top, 60)
                 .padding(.bottom, LoomSpacing.lg)
         }
         .animation(LoomMotion.breathe, value: snapshot)

@@ -71,14 +71,14 @@ private struct IndexStat: View {
     let count: Int
     var body: some View {
         HStack(spacing: LoomSpacing.xs) {
-            Circle().fill(Palette.brass).frame(width: 6, height: 6)
+            Circle().fill(Palette.brass).frame(width: 5, height: 5)
             Text(LocalizedStringResource("\(count) photos"))
                 .font(LoomType.monoSm)
                 .foregroundStyle(Palette.inkMuted)
         }
         .padding(.horizontal, LoomSpacing.sm)
         .padding(.vertical, LoomSpacing.xs)
-        .background(Capsule().fill(Palette.surface.opacity(0.6)))
-        .overlay(Capsule().strokeBorder(Palette.hairline, lineWidth: 1))
+        .background(Capsule().fill(Palette.surface.opacity(0.7)))
+        .shadow(color: LoomShadow.tone.opacity(0.05), radius: 6, x: 0, y: 2)
     }
 }

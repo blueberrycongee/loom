@@ -31,9 +31,6 @@ let package = Package(
             // `swift build` fail because SwiftPM can't produce an .app
             // bundle to host a plist resource.
             exclude: ["Resources/Info.plist"],
-            resources: [
-                .process("Resources")
-            ],
             linkerSettings: [
                 .unsafeFlags([
                     "-Xlinker", "-sectcreate",
@@ -76,9 +73,6 @@ let package = Package(
                 "LoomIndex",
                 "LoomLayout",
                 "LoomCompose"
-            ],
-            resources: [
-                .process("Resources")
             ]
         ),
         .testTarget(
