@@ -25,7 +25,7 @@ public enum WallRenderer {
         scale: CGFloat = 2.0,
         applyCropInsets: Bool = true
     ) -> NSImage? {
-        let images = preloadImages(for: wall, from: photos)
+        let images = preloadImages(for: wall, from: photos, scale: scale)
         let view = ExportWallView(wall: wall, photos: photos, images: images, applyCropInsets: applyCropInsets)
             .frame(width: wall.canvasSize.width, height: wall.canvasSize.height)
             .background(Palette.canvas)
@@ -37,14 +37,18 @@ public enum WallRenderer {
 
     /// Eagerly generate and load every thumbnail the wall needs so the
     /// off-screen renderer sees actual photos, not dominant-colour swatches.
-    private static func preloadImages(for wall: Wall, from photos: [Photo]) -> [PhotoID: NSImage] {
+    private static func preloadImages(
+        for wall: Wall,
+        from photos: [Photo],
+        scale: CGFloat? = nil
+    ) -> [PhotoID: NSImage] {
         let cache = ThumbnailCache()
         let photoByID = Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0) })
         var images: [PhotoID: NSImage] = [:]
         for tile in wall.tiles {
             guard let photo = photoByID[tile.photoID] else { continue }
             guard let thumbURL = cache.ensure(for: photo.id, source: photo.url, size: .tile),
-                  let nsImage = NSImage(contentsOf: thumbURL)
+                  let nsImage = loadThumbnail(from: thumbURL, scale: scale)
             else { continue }
             images[tile.photoID] = nsImage
         }

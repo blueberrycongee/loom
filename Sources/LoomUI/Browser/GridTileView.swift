@@ -90,11 +90,11 @@ struct GridTileView: View {
                 // Cache miss — try to bake it on demand.
                 let cache = ThumbnailCache()
                 if let baked = cache.ensure(for: photo.id, source: photo.url, size: .grid) {
-                    return NSImage(contentsOf: baked)
+                    return loadThumbnail(from: baked)
                 }
                 return nil
             }
-            return NSImage(contentsOf: url)
+            return loadThumbnail(from: url)
         }.value
 
         await MainActor.run {

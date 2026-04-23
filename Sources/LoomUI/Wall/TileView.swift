@@ -257,7 +257,7 @@ struct TileView: View {
             let url = ThumbnailCache().ensure(
                 for: photo.id, source: photo.url, size: .tile
             )
-            return url.flatMap { NSImage(contentsOf: $0) }
+            return url.flatMap { loadThumbnail(from: $0) }
         }.value
         await MainActor.run {
             withLoomAnimation(LoomMotion.ease) { self.image = loaded }
