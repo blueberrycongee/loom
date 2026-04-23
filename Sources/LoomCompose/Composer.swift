@@ -83,7 +83,7 @@ public struct Composer {
         case .mood:
             freeShortlist = sampleFromFeaturePrintClusters(photos: freePool, count: freeTarget, rng: &rng)
         case .scene, .people, .time:
-            freeShortlist = sampleUniform(photos: freePool, count: freeTarget, rng: &rng)
+            freeShortlist = sampleUniform(photos: freePool, count: freeTarget, rng: &rng, similarityThreshold: 0.08)
         }
 
         // Merge: locked first so the engine biases them to earlier tiles
@@ -205,19 +205,35 @@ public struct Composer {
         let area = canvasSize.width * canvasSize.height
         // Density knob widens or tightens the baseline tile area.
         // Clamped so an extreme setting can't divide by ~0.
-        let factor = max(0.3, densityFactor)
+        let factor = max(0.05, densityFactor)
         let effectiveBaseline = baselineTileArea * CGFloat(factor)
         let raw = Int((area / effectiveBaseline).rounded())
-        return max(6, min(libraryCount, min(64, raw)))
+        return max(6, min(libraryCount, min(250, raw)))
     }
 
     // MARK: — Sampling strategies
 
     private func sampleUniform(
-        photos: [Photo], count: Int, rng: inout SeededRNG
+        photos: [Photo], count: Int, rng: inout SeededRNG,
+        similarityThreshold: Double = 0.08
     ) -> [Photo] {
-        let idx = rng.sampleIndices(count, from: photos.count)
-        return idx.map { photos[$0] }
+        guard count > 0 else { return [] }
+        var pool = photos
+        var selected: [Photo] = []
+        selected.reserveCapacity(count)
+
+        while selected.count < count && !pool.isEmpty {
+            let idx = Int(rng.next() % UInt64(pool.count))
+            let candidate = pool[idx]
+
+            let tooClose = selected.contains { photoDistance(candidate, $0) < similarityThreshold }
+            if !tooClose {
+                selected.append(candidate)
+            }
+            pool.remove(at: idx)
+        }
+
+        return selected
     }
 
     /// Color-cluster + weighted pick + luminance-stratified in-cluster sample.
@@ -283,21 +299,57 @@ public struct Composer {
     /// Sort by L*, divide into `count` equal bins, pick one photo per bin.
     /// Guarantees the wall has light-to-dark spread, feeding the contrast
     /// scorer with useful variance.
+    ///
+    /// Additionally skips photos that are visually too close to an already-
+    /// selected photo (across bins) so burst shots and near-duplicates don't
+    /// appear side-by-side on the same wall.
     private func luminanceStratifiedSample(
-        _ members: [Photo], count: Int, rng: inout SeededRNG
+        _ members: [Photo], count: Int, rng: inout SeededRNG,
+        similarityThreshold: Double = 0.08
     ) -> [Photo] {
         guard !members.isEmpty else { return [] }
         let sorted = members.sorted { $0.dominantColor.l < $1.dominantColor.l }
         if sorted.count <= count { return sorted }
-        var out: [Photo] = []
-        out.reserveCapacity(count)
+        var selected: [Photo] = []
+        selected.reserveCapacity(count)
         for i in 0..<count {
             let lower = Int(Double(i)     * Double(sorted.count) / Double(count))
             let upper = Int(Double(i + 1) * Double(sorted.count) / Double(count))
-            let bin = sorted[lower..<max(upper, lower + 1)]
-            let pick = Int(rng.next() % UInt64(bin.count))
-            out.append(bin[bin.startIndex + pick])
+            let bin = Array(sorted[lower..<max(upper, lower + 1)])
+            let pick = pickDiverse(
+                from: bin,
+                alreadySelected: selected,
+                rng: &rng,
+                threshold: similarityThreshold
+            )
+            selected.append(pick)
         }
-        return out
+        return selected
+    }
+
+    /// Pick the first candidate (in a deterministically-shuffled order) that
+    /// is not too similar to any already-selected photo.  Falls back to the
+    /// first shuffled candidate when every option is too close.
+    private func pickDiverse(
+        from candidates: [Photo],
+        alreadySelected: [Photo],
+        rng: inout SeededRNG,
+        threshold: Double
+    ) -> Photo {
+        var order = candidates
+        order.shuffle(using: &rng)
+
+        for candidate in order {
+            let isDiverse = alreadySelected.allSatisfy {
+                photoDistance(candidate, $0) >= threshold
+            }
+            if isDiverse || alreadySelected.isEmpty {
+                return candidate
+            }
+        }
+
+        // Every candidate is too similar to the existing selection —
+        // fallback so the wall never empties.
+        return order.first ?? candidates[0]
     }
 }

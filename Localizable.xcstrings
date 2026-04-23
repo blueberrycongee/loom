@@ -575,16 +575,10 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "墙面密度" } }
       }
     },
-    "Roomy" : {
+    "Sparse" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Roomy" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "宽松" } }
-      }
-    },
-    "Balanced" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Balanced" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "均衡" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sparse" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "稀疏" } }
       }
     },
     "Dense" : {
@@ -593,10 +587,10 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "紧凑" } }
       }
     },
-    "Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed." : {
+    "Drag to adjust how many photos appear on the wall. Hero styles (Editorial, Exhibit) stay fixed." : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "宽松:更少更大的照片 · 紧凑:一次容纳更多。主角风格(Editorial、Exhibit)不受影响。" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drag to adjust how many photos appear on the wall. Hero styles (Editorial, Exhibit) stay fixed." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拖动以调整墙面照片数量。主角风格(Editorial、Exhibit)不受影响。" } }
       }
     },
     "Open your palm to spread · make a fist to gather · shake to shuffle. Camera access required. Video is processed in memory and never recorded." : {

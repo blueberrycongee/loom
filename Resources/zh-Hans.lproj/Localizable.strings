@@ -18,8 +18,6 @@
 	<string>外观</string>
 	<key>Baking previews %lld of %lld…</key>
 	<string>正在烘焙预览 %1$lld / %2$lld…</string>
-	<key>Balanced</key>
-	<string>均衡</string>
 	<key>Camera access is off</key>
 	<string>摄像头权限已关闭</string>
 	<key>Change folder…</key>
@@ -162,10 +160,10 @@
 	<string>准备编织</string>
 	<key>Reveal in Finder</key>
 	<string>在 Finder 中显示</string>
-	<key>Roomy</key>
-	<string>宽松</string>
-	<key>Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed.</key>
-	<string>宽松:更少更大的照片 · 紧凑:一次容纳更多。主角风格(Editorial、Exhibit)不受影响。</string>
+	<key>Sparse</key>
+	<string>稀疏</string>
+	<key>Drag to adjust how many photos appear on the wall. Hero styles (Editorial, Exhibit) stay fixed.</key>
+	<string>拖动以调整墙面照片数量。主角风格(Editorial、Exhibit)不受影响。</string>
 	<key>Save Wall as Favorite</key>
 	<string>收藏当前墙面</string>
 	<key>Scene</key>

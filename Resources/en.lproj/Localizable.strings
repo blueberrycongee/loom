@@ -16,8 +16,6 @@
 	<string>Appearance</string>
 	<key>Baking previews %lld of %lld…</key>
 	<string>Baking previews %1$lld of %2$lld…</string>
-	<key>Balanced</key>
-	<string>Balanced</string>
 	<key>Camera access is off</key>
 	<string>Camera access is off</string>
 	<key>Change folder…</key>
@@ -160,10 +158,10 @@
 	<string>Ready to weave</string>
 	<key>Reveal in Finder</key>
 	<string>Reveal in Finder</string>
-	<key>Roomy</key>
-	<string>Roomy</string>
-	<key>Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed.</key>
-	<string>Roomy shows fewer, larger photos · Dense packs more per wall. Hero styles (Editorial, Exhibit) stay fixed.</string>
+	<key>Sparse</key>
+	<string>Sparse</string>
+	<key>Drag to adjust how many photos appear on the wall. Hero styles (Editorial, Exhibit) stay fixed.</key>
+	<string>Drag to adjust how many photos appear on the wall. Hero styles (Editorial, Exhibit) stay fixed.</string>
 	<key>Save Wall as Favorite</key>
 	<string>Save Wall as Favorite</string>
 	<key>Scene</key>

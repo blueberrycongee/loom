@@ -133,6 +133,10 @@ public final class AppModel {
         WallDensity.persisted = d
     }
 
+    public func setDensityValue(_ v: Double) {
+        setDensity(WallDensity(v))
+    }
+
     public func setFilterQuality(_ enabled: Bool) {
         filterQuality = enabled
         QualityFilterPreference.enabled = enabled

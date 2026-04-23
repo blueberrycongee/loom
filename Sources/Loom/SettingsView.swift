@@ -119,24 +119,29 @@ private struct GeneralSettings: View {
 
             SettingsSection(title: "Wall density") {
                 VStack(alignment: .leading, spacing: LoomSpacing.md) {
-                    Picker("", selection: Binding(
-                        get: { app.density },
+                    Slider(value: Binding(
+                        get: { app.density.value },
                         set: { newValue in
-                            app.setDensity(newValue)
+                            app.setDensityValue(newValue)
                             NotificationCenter.default.post(
                                 name: .loomShuffle, object: nil
                             )
                         }
-                    )) {
-                        ForEach(WallDensity.allCases, id: \.self) { d in
-                            Text(d.displayName).tag(d)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
+                    ), in: 0...1)
                     .frame(maxWidth: 280)
 
-                    Text("Roomy shows fewer, larger photos. Dense packs more per wall. Hero styles stay fixed.")
+                    HStack {
+                        Text("Sparse")
+                            .font(LoomType.caption)
+                            .foregroundStyle(Palette.inkFaint)
+                        Spacer()
+                        Text("Dense")
+                            .font(LoomType.caption)
+                            .foregroundStyle(Palette.inkFaint)
+                    }
+                    .frame(maxWidth: 280)
+
+                    Text("Drag to adjust how many photos appear on the wall. Hero styles (Editorial, Exhibit) stay fixed.")
                         .font(LoomType.caption)
                         .foregroundStyle(Palette.inkFaint)
                         .lineLimit(nil)
