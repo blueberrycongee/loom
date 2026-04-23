@@ -6,7 +6,7 @@ import LoomIndex
 
 /// One photo on the wall.
 ///
-/// Loads its thumbnail from `ThumbnailCache.Size.tile` — a 1024px JPEG,
+/// Loads its thumbnail from `ThumbnailCache.Size.tile` — a 2048px JPEG,
 /// baked on-demand because tile thumbnails are heavier than grid ones and
 /// most wall photos never get shown before the next Shuffle.
 ///

@@ -17,7 +17,7 @@ public final class ThumbnailCache {
 
     public enum Size: Int, CaseIterable, Sendable {
         case grid = 320      // for the index browser grid
-        case tile = 1024     // for the wall at display resolution
+        case tile = 2048     // for the wall at display resolution
     }
 
     private let root: URL
