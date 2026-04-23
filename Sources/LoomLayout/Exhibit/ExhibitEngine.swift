@@ -49,24 +49,27 @@ public struct ExhibitEngine: LayoutEngine, Sendable {
         // Pair zones with photos by aspect, greedily. Zones go biggest-first
         // (the anchor) so the visually heaviest tile gets picked first.
         let sortedZones = template.zones.sorted { $0.height > $1.height }
-        let available = Array(photos.prefix(sortedZones.count))
-        let sortedPhotos = available.sorted { p1, p2 in
-            // Anchor zones are typically landscape-biased; let the aspect
-            // sort naturally match them.
-            p1.aspect > p2.aspect
-        }
+        let sortedPhotos = photos.sorted { p1, p2 in p1.aspect > p2.aspect }
+
+        // Density-driven zone count. At low density we drop zones so the
+        // remaining tiles stay large; at high density we scale zones down
+        // proportionally to fit more photos while keeping the template feel.
+        let zoneCount = min(sortedZones.count, max(1, photos.count))
+        let usedZones = Array(sortedZones.prefix(zoneCount))
+        let densityScale = zoneCount < sortedZones.count
+            ? 1.0
+            : sqrt(Double(sortedZones.count) / Double(photos.count))
 
         var tiles: [Tile] = []
-        let count = min(sortedZones.count, sortedPhotos.count)
-        for i in 0..<count {
-            let zone = sortedZones[i]
+        for i in 0..<zoneCount {
+            let zone = usedZones[i]
             let photo = sortedPhotos[bestMatchIndex(
                 for: zone,
                 in: sortedPhotos,
                 excluding: Set(tiles.map { $0.photoID })
             )]
 
-            let tileH = canvasSize.height * zone.height
+            let tileH = canvasSize.height * zone.height * CGFloat(densityScale)
             let tileW = tileH * CGFloat(photo.aspect)
 
             let jitterX = rng.double(in: -0.015..<0.015) * canvasSize.width

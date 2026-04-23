@@ -25,7 +25,7 @@ public struct MinimalEngine: LayoutEngine, Sendable {
         canvasSize: CGSize,
         rng: inout SeededRNG
     ) -> Wall {
-        let count = min(5, max(3, photos.count))
+        let count = max(1, photos.count)
         guard count > 0, canvasSize.width > 0, canvasSize.height > 0 else {
             return Wall(style: .minimal, axis: .color, seed: rng.state,
                         tiles: [], canvasSize: canvasSize)

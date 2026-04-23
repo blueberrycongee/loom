@@ -80,7 +80,9 @@ public struct EditorialEngine: LayoutEngine, Sendable {
         // perpendicular to the hero split.
         let satMargin: CGFloat = 18
         let inner = satellitesRect.insetBy(dx: satMargin, dy: satMargin)
-        let count = min(satellites.count, wide ? 4 : 3)
+        // Density-driven satellite count; cap at a layout-safe maximum.
+        let maxSatellites = wide ? 10 : 8
+        let count = min(satellites.count, max(1, min(maxSatellites, photos.count - 1)))
 
         if wide {
             // Vertical stack, uniform height.
