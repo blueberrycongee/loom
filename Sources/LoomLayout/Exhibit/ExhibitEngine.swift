@@ -51,25 +51,63 @@ public struct ExhibitEngine: LayoutEngine, Sendable {
         let sortedZones = template.zones.sorted { $0.height > $1.height }
         let sortedPhotos = photos.sorted { p1, p2 in p1.aspect > p2.aspect }
 
-        // Density-driven zone count. At low density we drop zones so the
-        // remaining tiles stay large; at high density we scale zones down
-        // proportionally to fit more photos while keeping the template feel.
-        let zoneCount = min(sortedZones.count, max(1, photos.count))
-        let usedZones = Array(sortedZones.prefix(zoneCount))
-        let densityScale = zoneCount < sortedZones.count
-            ? 1.0
-            : sqrt(Double(sortedZones.count) / Double(photos.count))
+        // Density-driven zone expansion.
+        // At low density we use a subset of zones (fewer, larger tiles).
+        // At high density we grow outward in layers: each layer uses fewer
+        // zones (to avoid crowding), shrinks progressively, and drifts with
+        // random angular offset so tiles spread rather than stack.
+        let expandedZones: [ExhibitTemplates.Zone]
+        if photos.count <= sortedZones.count {
+            expandedZones = Array(sortedZones.prefix(photos.count))
+        } else {
+            var acc: [ExhibitTemplates.Zone] = []
+            var layer = 0
+            while acc.count < photos.count {
+                let scale = max(0.28, pow(0.74, Double(layer)))
+                // Fewer zones per layer as we go outward:
+                // layer 0 → all, 1 → 6, 2 → 4, 3 → 3 …
+                let take = max(2, sortedZones.count - layer * 2)
+                let layerZones = Array(sortedZones.prefix(take))
+                let baseAngle = rng.double(in: 0..<(2 * .pi))
+                for (idx, zone) in layerZones.enumerated() {
+                    if acc.count >= photos.count { break }
+                    let angle = baseAngle + Double(idx) * (.pi / 3) + rng.double(in: -0.15..<0.15)
+                    let dist = Double(layer) * 0.06 + rng.double(in: -0.015..<0.015)
+                    let cx = max(0.08, min(0.92, zone.centerX + cos(angle) * dist))
+                    let cy = max(0.08, min(0.92, zone.centerY + sin(angle) * dist))
+                    acc.append(ExhibitTemplates.Zone(
+                        centerX: cx,
+                        centerY: cy,
+                        height: zone.height * scale,
+                        preferredAspect: zone.preferredAspect
+                    ))
+                }
+                layer += 1
+            }
+            expandedZones = acc
+        }
+
+        // Build tiles paired with their zone height so we can z-sort
+        // biggest-first. This keeps hero tiles in front and prevents small
+        // accent tiles from visually obscuring the anchor.
+        var tileDrafts: [(photo: Photo, zone: ExhibitTemplates.Zone)] = []
+        var usedIDs = Set<PhotoID>()
+        for zone in expandedZones {
+            let idx = bestMatchIndex(for: zone, in: sortedPhotos, excluding: usedIDs)
+            let photo = sortedPhotos[idx]
+            usedIDs.insert(photo.id)
+            tileDrafts.append((photo, zone))
+        }
+
+        // Sort by zone height descending so large tiles paint on top.
+        tileDrafts.sort { $0.zone.height > $1.zone.height }
 
         var tiles: [Tile] = []
-        for i in 0..<zoneCount {
-            let zone = usedZones[i]
-            let photo = sortedPhotos[bestMatchIndex(
-                for: zone,
-                in: sortedPhotos,
-                excluding: Set(tiles.map { $0.photoID })
-            )]
+        for (i, draft) in tileDrafts.enumerated() {
+            let zone = draft.zone
+            let photo = draft.photo
 
-            let tileH = canvasSize.height * zone.height * CGFloat(densityScale)
+            let tileH = canvasSize.height * zone.height
             let tileW = tileH * CGFloat(photo.aspect)
 
             let jitterX = rng.double(in: -0.015..<0.015) * canvasSize.width
@@ -77,7 +115,6 @@ public struct ExhibitEngine: LayoutEngine, Sendable {
             let centerX = canvasSize.width  * zone.centerX + jitterX
             let centerY = canvasSize.height * zone.centerY + jitterY
 
-            // Mild rotation — paper tiles can't lie perfectly flat.
             let rotation = max(-0.035, min(0.035, rng.gaussian() * 0.012))
 
             tiles.append(Tile(
